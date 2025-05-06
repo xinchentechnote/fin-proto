@@ -1,3 +1,5 @@
+//base on 深圳证券交易所Binary交易数据接口规范(Ver1.29).pdf
+
 MetaData DataType {
     Int64 Price : `价格，N13(4)`,
     Int64 Qty : `数量，N15(2)`
