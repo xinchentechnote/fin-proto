@@ -242,13 +242,18 @@ MetaData BusinessField {
 }
 
 root packet SzseBinary {
-    int32 MsgType,
-    int32 BodyLenght,
+    MsgType,
+    BodyLenght,
     match MsgType {
         1 : Logon,
         2 : Logout,
         3 : Heartbeat,
         4 : BusinessReject,
+        5 : ReportSynchronization,
+        6 : PlatformStateInfo,
+        7 : ReportFinished,
+        9 : PlatformPartition,
+        10: TradingSessionStatus,
         [
             100101,100201,100301,100401,100501,
             100601,100701,101201,101301,101401,
@@ -315,6 +320,31 @@ packet NewOrder {
     match ApplID {
         "010" : Extend100101,
         "020" : Extend100201,
+        "030" : Extend100301,
+        //"040" : Extend100401,
+        ["051", "052"] : Extend100501,
+        ["060", "061"] : Extend100601,
+        "070" : Extend100701,
+        // 120 101201 
+        // 130 101301 
+        // 140 101401 
+        ["150", "151", "152"] : Extend101501,
+        "160" : Extend101601,
+        "170" : Extend101701,
+        ["180", "181"] : Extend101801,
+        //["190", "191"] : Extend101901,
+        //"230" : Extend102301,
+        ["270", "271"] : Extend102701,
+        ["280", "281"] : Extend102801,
+        ["290", "291"] : Extend102901,
+        //310 311 103101
+        "630" : Extend106301,
+        //330 331 103301
+        ["350","351"] : Extend103501,
+        "370" : Extend103701,
+        "410" : Extend104101,
+        "417" : Extend104128,
+        "470" : Extend104701,
     } ExtendFields: `各业务扩展字段`
 }
 
@@ -331,6 +361,112 @@ packet Extend100201 {
     MinQty: `最低成交数量`
     MaxPriceLevels: `最多成交价位数，0 表示不限制成交价位数`
     TimeInForce: `订单有效时间类型`
+}
+
+packet Extend101401 {
+    StopPx: `止损价`
+    MinQty: `最低成交数量`
+    MaxPriceLevels: `最多成交价位数，0 表示不限制成交价位数`
+    TimeInForce: `订单有效时间类型`
+    PositionEffect: `平仓标识（‘O’：开仓，‘C’：平仓）`
+    CoveredOrUncovered: `备兑标签（0=Covered，表示备兑；1=UnCovered，表示非备兑）`
+    ContractAccountCode: `合约账户标识码`
+    SecondaryOrderID: `第二交易所订单编号，组合策略单边平仓时填组合策略对应的组合流水号（构建组合申报时返回的执行报告中的 OrderID），其余填全空格`
+}
+
+packet Extend100501 {
+    ConfirmID: `约定号（点击成交申报填写）`
+    CashMargin: `信用标识（1=Cash，普通交易；2=Open，融资融券开仓；3=Close，融资融券平仓）`
+}
+
+
+packet Extend100601 {
+    CashMargin: `信用标识（1=Cash，普通交易；2=Open，融资融券开仓；3=Close，融资融券平仓）`
+}
+
+packet Extend100701 {
+    ExpirationDays: `期限，单位为天数`
+    ExpirationType: `期限类型（1=固定期限）`
+    ShareProperty: `股份性质（00=无限售流通股；07=首发后可出借限售股。若使用首发后可出借限售股进行出借，则填07，否则填00）`
+}
+
+packet Extend101501 {
+    ShareProperty: `股份性质（00=无限售流通股；01=首发后限售股。定向可转债转股申报使用限售部分转股时填‘01’，其他都填‘00’）`
+}
+
+packet Extend101601 {
+    ContractAccountCode: `合约账户标识码`
+}
+
+packet Extend101701 {
+    CashOrderQty: `申购金额（LOF 为现金申购、份额赎回。申购使用 CashOrderQty，金额为1元的整数倍，OrderQty 填 0；赎回时使用 OrderQty）`
+}
+
+packet Extend101801 {
+    Tenderer: `收购人编码`
+}
+
+packet Extend102701 {
+    DisposalPBU: `划入待处置券的交易单元`
+    DisposalAccountID: `划入待处置券的证券账户`
+}
+
+packet Extend102801 {
+    LenderPBU: `出借券交易单元`
+    LenderAccountID: `出借券证券账户`
+}
+
+packet Extend102901 {
+    DeductionPBU: `用于扣划证券的交易单元`
+    DeductionAccountID: `用于扣划证券的证券账户`
+}
+
+packet Extend106301 {
+    StopPx: `止损价，预留，固定填 0`
+    MinQty: `最低成交数量，预留，固定填 0`
+    MaxPriceLevels: `最多成交价位数，预留，固定填 0`
+    TimeInForce: `订单有效时间类型（0=增强限价盘，Day；9=竞价限价盘，At Crossing）`
+    LotType: `订单数量类型（1=零股订单，Odd Lot；2=整手订单，Round Lot）`
+}
+
+packet Extend103501 {
+    ContractAccountCode: `合约账户标识码`
+}
+
+packet Extend103701 {
+    CashMargin: `信用标识（1=Cash，普通交易；2=Open，融资融券开仓；3=Close，融资融券平仓）`
+}
+
+packet Extend104101 {
+    StopPx: `止损价`
+    MinQty: `最低成交数量`
+    MaxPriceLevels: `最多成交价位数，0 表示不限制`
+    TimeInForce: `订单有效时间类型`
+    CashMargin: `信用标识（1=Cash，普通交易；2=Open，融资融券开仓；3=Close，融资融券平仓）`
+}
+
+packet Extend104128 {
+    MemberID: `本方交易商代码`
+    InvestorType: `本方交易主体类型`
+    InvestorID: `本方交易主体代码`
+    InvestorName: `本方客户名称`
+    TraderCode: `本方交易员代码`
+    SecondaryOrderID: `第二交易所订单编号（竞买业务类别为2或3时，填写竞买场次编号）`
+    BidTransType: `竞买业务类别（1=竞买预约申报；2=竞买发起申报；3=竞买应价申报）`
+    BidExecInstType: `竞买成交方式（1=单一主体中标；2=多主体单一价格中标；3=多主体多重价格中标）`
+    LowLimitPrice: `价格下限`
+    HighLimitPrice: `价格上限`
+    MinQty: `最低成交数量`
+    TradeDate: `交易日期`
+    SettlType: `结算方式，预留`
+    SettlPeriod: `结算周期，预留`
+    PreTradeAnonymity: `是否匿名（0=显名；1=匿名）`
+    CashMargin: `信用标识，预留（1=Cash，普通交易；2=Open，融资融券开仓；3=Close，融资融券平仓）`
+    Memo: `备注`
+}
+
+packet Extend104701 {
+    SecondaryOrderID: `中央国债登记结算有限责任公司生成的唯一的业务标识号，由投资者在委托申报时填写`
 }
 
 packet ExecutionConfirm { 
@@ -362,8 +498,178 @@ packet ExecutionConfirm {
     AccountID: `证券账户`, 
     BranchID: `营业部代码`, 
     OrderRestrictions: `订单限定`, 
-    ExtendFields: `各业务扩展字段`
+    match ApplID {
+        "010" : Extend200102,
+        "020" : Extend200202,
+        "030" : Extend200302,
+        //"040" : Extend200402,
+        ["051", "052"] : Extend200502,
+        ["060", "061"] : Extend200602,
+        "070" : Extend200702,
+        // 120 Extend2012012
+        // 130 Extend2013012
+        // 140 Extend2014012
+        ["150", "151", "152"] : Extend201502,
+        "160" : Extend201602,
+        "170" : Extend201702,
+        ["180", "181"] : Extend201802,
+        //["190", "191"] : Extend201902,
+        //"220" : Extend202202,
+        //"230" : Extend202302,
+        ["270", "271"] : Extend202702,
+        ["280", "281"] : Extend202802,
+        ["290", "291"] : Extend202902,
+        //310 311 203102
+        "630" : Extend206302,
+        //330 331 Extend203302
+        ["350","351"] : Extend203502,
+        "370" : Extend203702,
+        "410" : Extend204102,
+        "417" : Extend204129,
+        "470" : Extend204702,
+    } ExtendFields: `各业务扩展字段`
 }
+
+packet Extend200102 {
+  StopPx: `止损价`
+  MinQty: `最低成交数量`
+  MaxPriceLevels: `最多成交价位数（0 表示不限制）`
+  TimeInForce: `订单有效时间类型`
+  CashMargin: `信用标识`
+}
+
+packet Extend200202 {
+  StopPx: `止损价`
+  MinQty: `最低成交数量`
+  MaxPriceLevels: `最多成交价位数（0 表示不限制）`
+  TimeInForce: `订单有效时间类型`
+}
+
+packet Extend200402 {
+  StopPx: `止损价`
+  MinQty: `最低成交数量`
+  MaxPriceLevels: `最多成交价位数（0 表示不限制）`
+  TimeInForce: `订单有效时间类型`
+  PositionEffect: `平仓标识（‘O’：开仓，‘C’：平仓）`
+  CoveredOrUncovered: `备兑标签（0=Covered，1=UnCovered）`
+  ContractAccountCode: `合约账户标识码`
+  SecondaryOrderID: `第二交易所订单编号`
+}
+
+packet Extend200502 {
+  ConfirmID: `约定号`
+  CashMargin: `信用标识`
+}
+
+packet Extend200602 {
+  CashMargin: `信用标识`
+}
+
+packet Extend200702 {
+  ExpirationDays: `期限，单位为天数`
+  ExpirationType: `期限类型`
+  ShareProperty: `股份性质`
+}
+
+packet Extend201202 {
+  InsufficientSecurityID: `申赎不足成份股证券代码`
+  NoSecurity: `成份股记录数`
+  → UnderlyingSecurityID: `成份股证券代码`
+  → UnderlyingSecurityIDSource: `证券代码源`
+  → DeliveryQty: `股份交付数量`
+  → SubstCash: `现金替代金额`
+}
+
+packet Extend201502 {
+  ShareProperty: `股份性质`
+}
+
+packet Extend201602 {
+  ContractAccountCode: `合约账户标识码`
+}
+
+packet Extend201702 {
+  CashOrderQty: `申购金额`
+}
+
+packet Extend201802 {
+  Tenderer: `收购人编码`
+}
+
+packet Extend202702 {
+  DisposalPBU: `划入待处置券的交易单元`
+  DisposalAccountID: `划入待处置券的证券账户`
+}
+
+packet Extend202802 {
+  LenderPBU: `出借券交易单元`
+  LenderAccountID: `出借券证券账户`
+}
+
+packet Extend202902 {
+  DeductionPBU: `用于扣划证券的交易单元`
+  DeductionAccountID: `用于扣划证券的证券账户`
+}
+
+packet Extend203102 {
+  InsufficientSecurityID: `合并不足子基金代码`
+  NoSecurity: `子基金记录数`
+  → UnderlyingSecurityID: `子基金证券代码`
+  → UnderlyingSecurityIDSource: `证券代码源`
+  → DeliveryQty: `子基金交付数量`
+}
+
+packet Extend206302 {
+  RejectText: `拒绝原因说明（填写联交所拒绝原因代码）`
+  StopPx: `止损价，预留，固定填 0`
+  MinQty: `最低成交数量，预留，固定填 0`
+  MaxPriceLevels: `最多成交价位数`
+  TimeInForce: `订单有效时间类型`
+  LotType: `订单数量类型`
+  IMCRejectTextLen: `联交所拒绝原因说明长度`
+  IMCRejectText: `联交所拒绝原因说明`
+}
+
+packet Extend203502 {
+  ContractAccountCode: `合约账户标识码`
+}
+
+packet Extend203702 {
+  CashMargin: `信用标识`
+}
+
+packet Extend204102 {
+  StopPx: `止损价`
+  MinQty: `最低成交数量`
+  MaxPriceLevels: `最多成交价位数（0 表示不限制）`
+  TimeInForce: `订单有效时间类型`
+  CashMargin: `信用标识`
+}
+
+packet Extend204129 {
+  MemberID: `本方交易商代码`
+  InvestorType: `本方交易主体类型`
+  InvestorID: `本方交易主体代码`
+  InvestorName: `本方客户名称`
+  TraderCode: `本方交易员代码`
+  SecondaryOrderID: `第二交易所订单编号`
+  BidTransType: `竞买业务类别`
+  BidExecInstType: `竞买成交方式`
+  LowLimitPrice: `价格下限`
+  HighLimitPrice: `价格上限`
+  MinQty: `最低成交数量`
+  TradeDate: `交易日期`
+  SettlType: `结算方式，预留`
+  SettlPeriod: `结算周期，预留`
+  PreTradeAnonymity: `是否匿名`
+  CashMargin: `信用标识，预留`
+  Memo: `备注`
+}
+
+packet Extend204702 {
+  SecondaryOrderID: `中央国债登记结算有限责任公司生成的唯一的业务标识号`
+}
+
 
 packet ExecutionReport { 
     PartitionNo: `平台分区号`, 
@@ -390,7 +696,86 @@ packet ExecutionReport {
     Side: `买卖方向`, 
     AccountID: `证券账户`, 
     BranchID: `营业部代码`, 
-    ExtendFields: `各业务扩展字段`
+    match ApplID {
+        "010" : Extend200115,
+        "020" : Extend200215,
+        "030" : Extend200315,
+        //"040" : Extend200415,
+        ["051", "052", "056", "057"] : Extend200515,
+        ["060", "061"] : Extend200615,
+        "070" : Extend200715,
+        "630" : Extend206315,
+        "370" : Extend203715,
+        ["410", "412", "413", "415", "416"] : Extend204115,
+        "417" : Extend204130,
+        "470" : Extend204715,
+    } ExtendFields: `各业务扩展字段`
+}
+
+packet Extend200115 {
+  CashMargin: `信用标识`
+}
+
+packet Extend200215 {
+  MaturityDate: `到期日`
+}
+
+packet Extend200415 {
+  PositionEffect: `平仓标识（‘O’：开仓 ‘C’：平仓）`
+  CoveredOrUncovered: `备兑标签（0=Covered，表示备兑；1=UnCovered，表示非备兑）`
+  ContractAccountCode: `合约账户标识码`
+  SecondaryOrderID: `第二交易所订单编号`
+}
+
+packet Extend200515 {
+  ConfirmID: `约定号`
+  CashMargin: `信用标识`
+}
+
+packet Extend200615 {
+  CashMargin: `信用标识`
+}
+
+packet Extend200715 {
+  ExpirationDays: `期限，单位为天数`
+  ExpirationType: `期限类型`
+  MaturityDate: `到期日`
+  ShareProperty: `股份性质`
+}
+
+packet Extend203715 {
+  CashMargin: `信用标识`
+}
+
+packet Extend204115 {
+  CashMargin: `信用标识`
+  SettlType: `结算方式`
+  SettlPeriod: `结算周期`
+  CounterpartyMemberID: `对手方交易商代码`
+  CounterpartyInvestorType: `对手方交易主体类型`
+  CounterpartyInvestorID: `对手方交易主体代码`
+  CounterpartyInvestorName: `对手方客户名称`
+  CounterpartyTraderCode: `对手方交易员代码`
+}
+
+packet Extend204130 {
+  MemberID: `本方交易商代码`
+  InvestorType: `本方交易主体类型`
+  InvestorID: `本方交易主体代码`
+  InvestorName: `本方客户名称`
+  TraderCode: `本方交易员代码`
+  CounterpartyMemberID: `对手方交易商代码`
+  CounterpartyInvestorType: `对手方交易主体类型`
+  CounterpartyInvestorID: `对手方交易主体代码`
+  CounterpartyInvestorName: `对手方客户名称`
+  CounterpartyTraderCode: `对手方交易员代码`
+  SecondaryOrderID: `第二交易所订单编号`
+  BidTransType: `竞买业务类别`
+  BidExecInstType: `竞买成交方式`
+  SettlType: `结算方式`
+  SettlPeriod: `结算周期`
+  CashMargin: `信用标识`
+  Memo: `备注`
 }
 
 
@@ -442,4 +827,46 @@ packet BusinessReject {
     BusinessRejectRefID: `被拒绝消息对应的业务层 ID`
     BusinessRejectReason: `拒绝原因`
     BusinessRejectText: `拒绝原因说明`
+}
+
+
+packet ReportSynchronization {
+  NoPartitions: `平台分区数量`
+  partitions: repeat PartitionReport
+}
+
+packet PartitionReport {
+  PartitionNo: `OMS 期望接收的平台分区号（分区号须存在且不重复）`
+  ReportIndex: `对应分区下 OMS 期望接收的下一条回报的记录号（从1开始）`
+}
+
+packet PlatformStateInfo {
+  PlatformID: `平台号（1=现货集中竞价交易平台 2=综合金融服务平台 3=非交易处理平台 4=衍生品集中竞价交易平台 5=国际市场互联平台 6=固定收益交易平台）`
+  PlatformState: `平台状态（0=PreOpen，未开放 1=OpenUpComing，即将开放 2=Open，开放 3=Halt，暂停开放 4=Close，关闭）`
+}
+
+packet ReportFinished {
+  PartitionNo: `平台分区号`
+  ReportIndex: `回报记录号（在本分区各类回报消息中的连续编号）`
+  PlatformID: `平台号（1=现货集中竞价交易平台 2=综合金融服务平台 3=非交易处理平台 4=衍生品集中竞价交易平台 5=国际市场互联平台 6=固定收益交易平台）`
+}
+
+packet PlatformInfo {
+  PlatformID: `平台号（1=现货集中竞价交易平台 2=综合金融服务平台 3=非交易处理平台 4=衍生品集中竞价交易平台 5=国际市场互联平台 6=固定收益交易平台）`
+  NoPartitions: `平台分区数量`
+  partitions: repeat PlatformPartition
+}
+
+packet PlatformPartition {
+  PartitionNo: `平台分区号（不一定连续）`
+}
+
+packet TradingSessionStatus {
+  MarketID: `市场代码（预留）`
+  MarketSegmentID: `市场板块代码（第一位表示平台号：1=现货集中竞价交易平台，2=综合金融服务平台，3=非交易处理平台，4=衍生品集中竞价交易平台，5=国际市场互联平台，6=固定收益交易平台）`
+  TradingSessionID: `交易会话 ID（预留）`
+  TradingSessionSubID: `交易会话子 ID（为数值型字符串）`
+  TradSesStatus: `交易会话状态（预留）`
+  TradSesStartTime: `交易会话起始时间`
+  TradSesEndTime: `交易会话结束时间`
 }
