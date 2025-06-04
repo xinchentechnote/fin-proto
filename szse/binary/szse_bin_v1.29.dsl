@@ -3,10 +3,12 @@
 MetaData DataType {
     Int64 Price `价格，N13(4)`,
     Int64 Qty `数量，N15(2)`
+    Int64 DeliveryQty `数量，N15(2)`
     Int64 Amt `金额，N18(4)`
     Int64 SeqNum `消息序号`
     uInt16 Boolean `1=True/Yes,0=False/No`
     uInt32 Length `长度表示字节为单位的数据长度，正数`
+    Int64 LocalTimestamp `本地时间戳，YYYYMMDDHHMMSSsss（毫秒），YYYY = 0000-9999, MM = 01-12, DD = 01-31, HH = 00-23, MM = 00-59, SS = 00-60 (秒)，sss=000-999 (毫秒)。`
     Int64 LocalTimeStamp `本地时间戳，YYYYMMDDHHMMSSsss（毫秒），YYYY = 0000-9999, MM = 01-12, DD = 01-31, HH = 00-23, MM = 00-59, SS = 00-60 (秒)，sss=000-999 (毫秒)。`
     uInt32 NumInGroup `重复数，表示重复组的个数，正数`
     uInt32 LocalMktDate `本地市场日期，格式 YYYYMMDD，YYYY =     0000-9999, MM = 01-12, DD = 01-31`
@@ -34,7 +36,6 @@ MetaData SessionField {
 }
 
 MetaData BusinessField {
-    AccountID AccountID `证券账户`
     Int32 AlertRatio `预警线，单位为百分比，定义为 N6(2)`
     char[3] ApplID `应用标识`
     Amt AccruedInterestAmt `借贷费用金额`
@@ -57,7 +58,7 @@ MetaData BusinessField {
     char[30] ContactInfo `联系方式，可能包含中文字符，表示最多 30 个字节`
     char[12] Contactor `联系人，可能包含中文字符，表示最多 12 个字节`
     char[6] ContractAccountCode `合约账户标识码`
-    AccoutID CounterpartyAccountID `对手方证券账户`
+    AccountID CounterpartyAccountID `对手方证券账户`
     BranchID CounterpartyBranchID `对手方营业部代码`
     char[8] CounterpartyConfirmID `对手方约定号`
     char[16] CounterpartyExecID `交易所赋予的执行编号，单个交易日内不重复`
@@ -74,13 +75,13 @@ MetaData BusinessField {
     uInt8 CoveredOrUncovered `备兑标签，衍生品交易填写，0=Covered，表示备兑仓；1=UnCovered，表示普通仓`
     Qty CumQty `累计执行数量`
     uInt16 CxlRejReason `撤单拒绝原因代码，正数`
-    AccoutID DeductionAccountID `用于扣划证券的证券账户`
+    AccountID DeductionAccountID `用于扣划证券的证券账户`
     PBUID DeductionPBU `用于扣划证券的交易单元`
     Qty DeliverQty `证券交付数量`
     char DeliverySide `方向，1=质押，2=解押`
     char DesignationInstruction `注册指令，3 表示转托管`
     uInt8 DesignationTransType `注册指令类型，1=New，表示新注册请求；3=Cancel，表示注册撤单`
-    AccoutID DisposalAccountID `待处置券存放账户`
+    AccountID DisposalAccountID `待处置券存放账户`
     uInt8 DisposalFlag `处置标识，0=不同意，1=同意`
     PBUID DisposalPBU `待处置券存放交易单元`
     char[16] ExecID `交易所赋予的执行编号，单个交易日内不重复`
@@ -243,7 +244,7 @@ MetaData BusinessField {
 
 root packet SzseBinary {
     MsgType,
-    BodyLenght,
+    BodyLength,
     match MsgType {
         1 : Logon,
         2 : Logout,
@@ -263,7 +264,7 @@ root packet SzseBinary {
             103301,103501,103701,104101,104128,
             104701
         ] : NewOrder,
-        [   
+        [
             200102,200202,200302,200402,200502,
             200602,200702,201202,201302,201402,
             201502,201602,201702,201802,201902,
@@ -279,7 +280,7 @@ root packet SzseBinary {
         ] : ExecutionReport,
         190007 : OrderCancelRequest,
         290008 : CancelReject,
-    } Body,
+    },
     int32 Checksum,
 }
 
@@ -292,30 +293,30 @@ packet Logon {
 }
 
 packet Logout {
-    SessionStatus `退出时的会话状态，取值：0 = 会话活跃, 1 = 会话口令已更改, 2 = 将过期的会话口令, 3 = 新会话口令不符合规范, 4 = 会话退登完成, 5 = 不合法的用户名或口令, 6 = 账户锁定, 7 = 当前时间不允许登录, 8 = 口令过期, 9 = 收到的 MsgSeqNum(34)太小, 10 = 收到的 NextExpectedMsgSeqNum(789)太大, 101 = 其他, 102 = 无效消息`, 
+    SessionStatus `退出时的会话状态，取值：0 = 会话活跃, 1 = 会话口令已更改, 2 = 将过期的会话口令, 3 = 新会话口令不符合规范, 4 = 会话退登完成, 5 = 不合法的用户名或口令, 6 = 账户锁定, 7 = 当前时间不允许登录, 8 = 口令过期, 9 = 收到的 MsgSeqNum(34)太小, 10 = 收到的 NextExpectedMsgSeqNum(789)太大, 101 = 其他, 102 = 无效消息`,
     Text `文本，注销原因的进一步补充说明`
 }
 
-packet Heartbeat { 
+packet Heartbeat {
 }
 
-packet NewOrder { 
-    ApplID `应用标识`, 
-    SubmittingPBUID `申报交易单元`, 
-    SecurityID `证券代码`, 
-    SecurityIDSource `证券代码源`, 
-    OwnerType `订单所有者类型`, 
-    ClearingFirm `结算机构代码`, 
-    TransactTime `委托时间`, 
-    UserInfo `用户私有信息`, 
-    ClOrdID `客户订单编号`, 
-    AccountID `证券账户`, 
-    BranchID `营业部代码`, 
-    OrderRestrictions `订单限定`, 
-    Side `买卖方向`, 
-    OrdType `订单类别`, 
-    OrderQty `订单数量`, 
-    Price `价格`, 
+packet NewOrder {
+    ApplID `应用标识`,
+    SubmittingPBUID `申报交易单元`,
+    SecurityID `证券代码`,
+    SecurityIDSource `证券代码源`,
+    OwnerType `订单所有者类型`,
+    ClearingFirm `结算机构代码`,
+    TransactTime `委托时间`,
+    UserInfo `用户私有信息`,
+    ClOrdID `客户订单编号`,
+    AccountID `证券账户`,
+    BranchID `营业部代码`,
+    OrderRestrictions `订单限定`,
+    Side `买卖方向`,
+    OrdType `订单类别`,
+    OrderQty `订单数量`,
+    Price `价格`,
     //010,020,030,040,051,052,060,061,070,120,130,140,150,151,152,160,170,180,181,190,191,230,270,271,280,281,290,291,310,311,630,330,331,350,351,370,410,417,470
     match ApplID {
         "010" : Extend100101,
@@ -325,9 +326,9 @@ packet NewOrder {
         ["051", "052"] : Extend100501,
         ["060", "061"] : Extend100601,
         "070" : Extend100701,
-        // 120 101201 
-        // 130 101301 
-        // 140 101401 
+        // 120 101201
+        // 130 101301
+        // 140 101401
         ["150", "151", "152"] : Extend101501,
         "160" : Extend101601,
         "170" : Extend101701,
@@ -345,7 +346,7 @@ packet NewOrder {
         "410" : Extend104101,
         "417" : Extend104128,
         "470" : Extend104701,
-    } ExtendFields  `各业务扩展字段`
+    }  `各业务扩展字段`
 }
 
 packet Extend100101 {
@@ -357,6 +358,12 @@ packet Extend100101 {
 }
 
 packet Extend100201 {
+    StopPx `止损价`
+    MinQty `最低成交数量`
+    MaxPriceLevels `最多成交价位数，0 表示不限制成交价位数`
+    TimeInForce `订单有效时间类型`
+}
+packet Extend100301 {
     StopPx `止损价`
     MinQty `最低成交数量`
     MaxPriceLevels `最多成交价位数，0 表示不限制成交价位数`
@@ -469,35 +476,35 @@ packet Extend104701 {
     SecondaryOrderID `中央国债登记结算有限责任公司生成的唯一的业务标识号，由投资者在委托申报时填写`
 }
 
-packet ExecutionConfirm { 
-    PartitionNo `平台分区号`, 
-    ReportIndex `回报记录号`, 
-    ApplID `应用标识`, 
-    ReportingPBUID `回报交易单元`, 
-    SubmittingPBUID `申报交易单元`, 
-    SecurityID `证券代码`, 
-    SecurityIDSource `证券代码源`, 
-    OwnerType `订单所有者类型`, 
-    ClearingFirm `结算机构代码`, 
-    TransactTime `回报时间`, 
-    UserInfo `用户私有信息`, 
-    OrderID `交易所订单编号`, 
-    ClOrdID `客户订单编号`, 
-    QuoteMsgID `报价消息编号`, 
-    OrigClOrdID `原始订单客户订单编号`, 
-    ExecID `执行编号`, 
-    ExecType `执行类型`, 
-    OrdStatus `订单状态`, 
-    OrdRejReason `撤单/拒绝原因代码`, 
-    LeavesQty `订单剩余数量`, 
-    CumQty `累计执行数量`, 
-    Side `买卖方向`, 
-    OrdType `订单类别`, 
-    OrderQty `订单数量`, 
-    Price `价格`, 
-    AccountID `证券账户`, 
-    BranchID `营业部代码`, 
-    OrderRestrictions `订单限定`, 
+packet ExecutionConfirm {
+    PartitionNo `平台分区号`,
+    ReportIndex `回报记录号`,
+    ApplID `应用标识`,
+    ReportingPBUID `回报交易单元`,
+    SubmittingPBUID `申报交易单元`,
+    SecurityID `证券代码`,
+    SecurityIDSource `证券代码源`,
+    OwnerType `订单所有者类型`,
+    ClearingFirm `结算机构代码`,
+    TransactTime `回报时间`,
+    UserInfo `用户私有信息`,
+    OrderID `交易所订单编号`,
+    ClOrdID `客户订单编号`,
+    QuoteMsgID `报价消息编号`,
+    OrigClOrdID `原始订单客户订单编号`,
+    ExecID `执行编号`,
+    ExecType `执行类型`,
+    OrdStatus `订单状态`,
+    OrdRejReason `撤单/拒绝原因代码`,
+    LeavesQty `订单剩余数量`,
+    CumQty `累计执行数量`,
+    Side `买卖方向`,
+    OrdType `订单类别`,
+    OrderQty `订单数量`,
+    Price `价格`,
+    AccountID `证券账户`,
+    BranchID `营业部代码`,
+    OrderRestrictions `订单限定`,
     match ApplID {
         "010" : Extend200102,
         "020" : Extend200202,
@@ -527,7 +534,7 @@ packet ExecutionConfirm {
         "410" : Extend204102,
         "417" : Extend204129,
         "470" : Extend204702,
-    } ExtendFields `各业务扩展字段`
+    } `各业务扩展字段`
 }
 
 packet Extend200102 {
@@ -539,6 +546,12 @@ packet Extend200102 {
 }
 
 packet Extend200202 {
+  StopPx `止损价`
+  MinQty `最低成交数量`
+  MaxPriceLevels `最多成交价位数（0 表示不限制）`
+  TimeInForce `订单有效时间类型`
+}
+packet Extend200302 {
   StopPx `止损价`
   MinQty `最低成交数量`
   MaxPriceLevels `最多成交价位数（0 表示不限制）`
@@ -671,31 +684,31 @@ packet Extend204702 {
 }
 
 
-packet ExecutionReport { 
-    PartitionNo `平台分区号`, 
-    ReportIndex `回报记录号`, 
-    ApplID `应用标识`, 
-    ReportingPBUID `回报交易单元`, 
-    SubmittingPBUID `申报交易单元`, 
-    SecurityID `证券代码`, 
-    SecurityIDSource `证券代码源`, 
-    OwnerType `订单所有者类型`, 
-    ClearingFirm `结算机构代码`, 
-    TransactTime `回报时间`, 
-    UserInfo `用户私有信息`, 
-    OrderID `交易所订单编号`, 
-    ClOrdID `客户订单编号`, 
-    QuoteMsgID `报价消息编号`, 
-    ExecID `执行编号`, 
-    ExecType `执行类型`, 
-    OrdStatus `订单状态`, 
-    LastPx `成交价`, 
-    LastQty `成交数量`, 
-    LeavesQty `订单剩余数量`, 
-    CumQty `累计执行数量`, 
-    Side `买卖方向`, 
-    AccountID `证券账户`, 
-    BranchID `营业部代码`, 
+packet ExecutionReport {
+    PartitionNo `平台分区号`,
+    ReportIndex `回报记录号`,
+    ApplID `应用标识`,
+    ReportingPBUID `回报交易单元`,
+    SubmittingPBUID `申报交易单元`,
+    SecurityID `证券代码`,
+    SecurityIDSource `证券代码源`,
+    OwnerType `订单所有者类型`,
+    ClearingFirm `结算机构代码`,
+    TransactTime `回报时间`,
+    UserInfo `用户私有信息`,
+    OrderID `交易所订单编号`,
+    ClOrdID `客户订单编号`,
+    QuoteMsgID `报价消息编号`,
+    ExecID `执行编号`,
+    ExecType `执行类型`,
+    OrdStatus `订单状态`,
+    LastPx `成交价`,
+    LastQty `成交数量`,
+    LeavesQty `订单剩余数量`,
+    CumQty `累计执行数量`,
+    Side `买卖方向`,
+    AccountID `证券账户`,
+    BranchID `营业部代码`,
     match ApplID {
         "010" : Extend200115,
         "020" : Extend200215,
@@ -709,7 +722,7 @@ packet ExecutionReport {
         ["410", "412", "413", "415", "416"] : Extend204115,
         "417" : Extend204130,
         "470" : Extend204715,
-    } ExtendFields `各业务扩展字段`
+    } `各业务扩展字段`
 }
 
 packet Extend200115 {
@@ -717,6 +730,9 @@ packet Extend200115 {
 }
 
 packet Extend200215 {
+  MaturityDate `到期日`
+}
+packet Extend200315 {
   MaturityDate `到期日`
 }
 
@@ -736,7 +752,17 @@ packet Extend200615 {
   CashMargin `信用标识`
 }
 
+packet Extend206315 {
+  CashMargin `信用标识`
+}
+
 packet Extend200715 {
+  ExpirationDays `期限，单位为天数`
+  ExpirationType `期限类型`
+  MaturityDate `到期日`
+  ShareProperty `股份性质`
+}
+packet Extend204715 {
   ExpirationDays `期限，单位为天数`
   ExpirationType `期限类型`
   MaturityDate `到期日`
@@ -779,40 +805,40 @@ packet Extend204130 {
 }
 
 
-packet OrderCancelRequest { 
-    ApplID `应用标识`, 
-    SubmittingPBUID `申报交易单元`, 
-    SecurityID `证券代码`, 
-    SecurityIDSource `证券代码源`, 
-    OwnerType `订单所有者类型`, 
-    ClearingFirm `结算机构代码`, 
-    TransactTime `委托时间`, 
-    UserInfo `用户私有信息`, 
-    ClOrdID `客户订单编号`, 
-    OrigClOrdID `原始订单客户订单编号`, 
-    Side `原始订单买卖方向`, 
-    OrderID `原始订单交易所订单编号`, 
+packet OrderCancelRequest {
+    ApplID `应用标识`,
+    SubmittingPBUID `申报交易单元`,
+    SecurityID `证券代码`,
+    SecurityIDSource `证券代码源`,
+    OwnerType `订单所有者类型`,
+    ClearingFirm `结算机构代码`,
+    TransactTime `委托时间`,
+    UserInfo `用户私有信息`,
+    ClOrdID `客户订单编号`,
+    OrigClOrdID `原始订单客户订单编号`,
+    Side `原始订单买卖方向`,
+    OrderID `原始订单交易所订单编号`,
     OrderQty `原始订单数量`
 }
 
-packet CancelReject { 
-    PartitionNo `平台分区号`, 
-    ReportIndex `回报记录号`, 
-    ApplID `应用标识`, 
-    ReportingPBUID `回报交易单元`, 
-    SubmittingPBUID `申报交易单元`, 
-    SecurityID `证券代码`, 
-    SecurityIDSource `证券代码源`, 
-    OwnerType `订单所有者类型`, 
-    ClearingFirm `结算机构代码`, 
-    TransactTime `回报时间`, 
-    UserInfo `用户私有信息`, 
-    ClOrdID `客户订单编号`, 
-    OrigClOrdID `原始订单客户订单编号`, 
-    Side `原始订单买卖方向`, 
-    OrdStatus `原始订单当前状态`, 
-    CxlRejReason `拒绝原因代码`, 
-    RejectText `拒绝原因说明`, 
+packet CancelReject {
+    PartitionNo `平台分区号`,
+    ReportIndex `回报记录号`,
+    ApplID `应用标识`,
+    ReportingPBUID `回报交易单元`,
+    SubmittingPBUID `申报交易单元`,
+    SecurityID `证券代码`,
+    SecurityIDSource `证券代码源`,
+    OwnerType `订单所有者类型`,
+    ClearingFirm `结算机构代码`,
+    TransactTime `回报时间`,
+    UserInfo `用户私有信息`,
+    ClOrdID `客户订单编号`,
+    OrigClOrdID `原始订单客户订单编号`,
+    Side `原始订单买卖方向`,
+    OrdStatus `原始订单当前状态`,
+    CxlRejReason `拒绝原因代码`,
+    RejectText `拒绝原因说明`,
     OrderID `原始订单交易所订单编号`
 }
 
@@ -832,7 +858,7 @@ packet BusinessReject {
 
 packet ReportSynchronization {
   NoPartitions `平台分区数量`
-  partitions repeat PartitionReport
+  repeat PartitionReport
 }
 
 packet PartitionReport {
@@ -854,7 +880,7 @@ packet ReportFinished {
 packet PlatformInfo {
   PlatformID `平台号（1=现货集中竞价交易平台 2=综合金融服务平台 3=非交易处理平台 4=衍生品集中竞价交易平台 5=国际市场互联平台 6=固定收益交易平台）`
   NoPartitions `平台分区数量`
-  partitions repeat PlatformPartition
+  repeat PlatformPartition
 }
 
 packet PlatformPartition {

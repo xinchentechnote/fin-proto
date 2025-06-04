@@ -1,4 +1,10 @@
 //base on reference/IS122_TDGW_Move_Binary_CV0.57_MTP_Test_20230926.pdf
+MetaData DataType {
+    uint32 date `日期`,
+    int64 price `价格`,
+    int64 quantity `数量`,
+    uint64 ntime `时间`,
+}
 
 root packet SseBinary{
     uint32 MsgType `消息类型`,
@@ -174,7 +180,7 @@ packet ExecRptInfo {
 }
 
 packet ExecRptSync {
-    repeat {
+    repeat SubExecRptSync {
         char[8] Pbu `登录或订阅 PBU`,
         uint32 SetID `平台内分区号`,
         uint64 BeginReportIndex `分区预期回报序号，暂不支持2^32及更大取值`
@@ -182,7 +188,7 @@ packet ExecRptSync {
 }
 
 packet ExecRptSyncRsp {
-    repeat {
+    repeat SubExecRptSyncRsp {
         char[8] Pbu `登录或订阅 PBU`,
         uint32 SetID `平台内分区号`,
         uint64 BeginReportIndex `分区回报序号起点`,
