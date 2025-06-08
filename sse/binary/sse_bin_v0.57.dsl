@@ -1,4 +1,11 @@
 //base on reference/IS122_TDGW_Move_Binary_CV0.57_MTP_Test_20230926.pdf
+
+options {
+    StringPreFixLenType = u16;
+	RepeatPreFixSizeType = u16;
+    LittileEndian = false;
+}
+
 MetaData DataType {
     uint32 date `日期`,
     int64 price `价格`,
@@ -47,36 +54,36 @@ packet Logout {
 
 
 packet NewOrderSingle {
-    uint32 BizID `业务编号`,  
-    char[8] BizPbu `业务 PBU 编号，前 5 位有效`,  
-    char[10] ClOrdID `会员内部订单编号`,  
-    char[12] SecurityID `证券代码，前 6 位有效`,  
-    char[13] Account `证券账户，前 10 位有效`,  
-    uint8 OwnerType `订单所有者类型，暂不启用`,  
-    char Side `买卖方向 1=买 2=卖`,  
-    price Price `申报价格`,  
-    quantity OrderQty `申报数量`,  
-    char OrdType `订单类型 1=市转撤 2=限价 3=市转限 4=本方最优 5=对手方最优`,  
-    char TimeInForce `订单有效时间类型 0=当日有效`,  
-    ntime TransactTime `申报时间`,  
-    char[2] CreditTag `信用标签，用于现货竞价交易业务的信用交易，取值：XY=担保品买卖 RZ=融资交易 RQ=融券交易 PC=平仓交易 其他业务填写默认值，无意义`,  
-    char[8] ClearingFirm `结算会员代码，前 5 位有效`,  
-    char[8] BranchID `营业部代码，前 5 位有效`,  
-    char[32] UserInfo `用户私有信息，前 12 位有效`  
+    uint32 BizID `业务编号`,
+    char[8] BizPbu `业务 PBU 编号，前 5 位有效`,
+    char[10] ClOrdID `会员内部订单编号`,
+    char[12] SecurityID `证券代码，前 6 位有效`,
+    char[13] Account `证券账户，前 10 位有效`,
+    uint8 OwnerType `订单所有者类型，暂不启用`,
+    char Side `买卖方向 1=买 2=卖`,
+    price Price `申报价格`,
+    quantity OrderQty `申报数量`,
+    char OrdType `订单类型 1=市转撤 2=限价 3=市转限 4=本方最优 5=对手方最优`,
+    char TimeInForce `订单有效时间类型 0=当日有效`,
+    ntime TransactTime `申报时间`,
+    char[2] CreditTag `信用标签，用于现货竞价交易业务的信用交易，取值：XY=担保品买卖 RZ=融资交易 RQ=融券交易 PC=平仓交易 其他业务填写默认值，无意义`,
+    char[8] ClearingFirm `结算会员代码，前 5 位有效`,
+    char[8] BranchID `营业部代码，前 5 位有效`,
+    char[32] UserInfo `用户私有信息，前 12 位有效`
 }
 
 packet OrderCancel {
-    uint32 BizID `业务编号`,  
-    char[8] BizPbu `业务 PBU 编号`,  
-    char[10] ClOrdID `会员内部订单编号`,  
-    char[12] SecurityID `证券代码`,  
-    char[13] Account `证券账户，暂不启用`,  
-    uint8 OwnerType `订单所有者类型，暂不启用`,  
-    char Side `买卖方向，暂不启用`,  
-    char[10] OrigClOrdID `原始会员内部订单编号，指待撤原订单的 ClOrdID`,  
-    ntime TransactTime `申报时间`,  
-    char[8] BranchID `营业部代码，暂不启用`,  
-    char[32] UserInfo `用户私有信息，前 12 位有效`  
+    uint32 BizID `业务编号`,
+    char[8] BizPbu `业务 PBU 编号`,
+    char[10] ClOrdID `会员内部订单编号`,
+    char[12] SecurityID `证券代码`,
+    char[13] Account `证券账户，暂不启用`,
+    uint8 OwnerType `订单所有者类型，暂不启用`,
+    char Side `买卖方向，暂不启用`,
+    char[10] OrigClOrdID `原始会员内部订单编号，指待撤原订单的 ClOrdID`,
+    ntime TransactTime `申报时间`,
+    char[8] BranchID `营业部代码，暂不启用`,
+    char[32] UserInfo `用户私有信息，前 12 位有效`
 }
 
 packet Confirm {
