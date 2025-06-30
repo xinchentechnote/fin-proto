@@ -6,7 +6,7 @@ root packet RcBinary {
     match MsgType as Body {
         100101 : NewOrder,
         200102 : OrderConfirm,
-        200115 : ExcutionReport,
+        200115 : ExecutionReport,
         190007 : OrderCancel,
         290008 : CancelReject
     }
@@ -32,7 +32,7 @@ packet OrderConfirm {
 }
 // 成交回报
 
-packet ExcutionReport {
+packet ExecutionReport {
     string ClOrdID `会员订单编号`,
     string OrdCnfmID `交易所订单编号`,
     uint64 LastPx `成交价格`,
