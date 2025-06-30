@@ -2,8 +2,8 @@
 
 root packet RcBinary {
     uint32 MsgType `消息类型`,
-    uint32 MsgBodyLen `消息体长度`,
-    match MsgType {
+    uint32 MsgBodyLen = lengthof(Body) `消息体长度`,
+    match MsgType as Body {
         100101 : NewOrder,
         200102 : OrderConfirm,
         200115 : ExcutionReport,

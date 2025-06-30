@@ -1,0 +1,80 @@
+options {
+    StringPreFixLenType = u16;
+	RepeatPreFixSizeType = u16;
+	LittleEndian = true;
+	JavaPackage = "com.finproto.sample.messages";
+}
+
+root packet RootPacket {
+
+    u16 MsgType `msgType`,
+    u32 PayloadLen = lengthof(Payload) `length of the payload`,
+    match MsgType as Payload {
+        1: BasicPacket,
+        2: StringPacket,
+        3: NestedPacket,
+        4: EmptyPacket,
+    }
+    i32 Checksum,
+}
+
+packet BasicPacket {
+    i8 fieldI8,
+    i16 fieldI16,
+    i32 fieldI32,
+    i64 fieldI64,
+    char fieldChar,
+    u8 fieldU8,
+    u16 fieldU16,
+    u32 fieldU32,
+    u64 fieldU64,
+
+    f32 fieldF32,
+    f64 fieldF64,
+
+    repeat i8 fieldI8List,
+    repeat i16 fieldI16List,
+    repeat i32 fieldI32List,
+    repeat i64 fieldI64List,
+    repeat char fieldCharList,
+    repeat u8 fieldU8List,
+    repeat u16 fieldU16List,
+    repeat u32 fieldU32List,
+    repeat u64 fieldU64List,
+
+    repeat f32 fieldF32List,
+    repeat f64 fieldF64List,
+}
+
+
+packet StringPacket {
+    string fieldDynamicString,
+    char[] fieldDynamicString1,
+    char[1] fieldFixedString1,
+    char[10] fieldFixedString10,
+
+    repeat string fieldDynamicStringList,
+    repeat char[] fieldDynamicString1List,
+    repeat char[1] fieldFixedString1List,
+    repeat char[10] fieldFixedString10List,
+}
+
+packet NestedPacket {
+    SubPacket SubPacket;
+    repeat SubPacket SubPacketList;
+
+    InerPacket {
+        u32 fieldU32,
+        repeat i16 fieldI16List,
+    }
+
+}
+
+packet SubPacket {
+    u32 fieldU32,
+    repeat i16 fieldI16List,
+}
+
+packet EmptyPacket {
+
+}
