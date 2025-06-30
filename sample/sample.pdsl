@@ -14,7 +14,7 @@ root packet RootPacket {
         2: StringPacket,
         3: NestedPacket,
         4: EmptyPacket,
-    }
+    },
     i32 Checksum,
 }
 
@@ -60,13 +60,13 @@ packet StringPacket {
 }
 
 packet NestedPacket {
-    SubPacket SubPacket;
-    repeat SubPacket SubPacketList;
+    SubPacket SubPacket,
+    repeat SubPacket SubPacketList,
 
     InerPacket {
         u32 fieldU32,
         repeat i16 fieldI16List,
-    }
+    },
 
 }
 
