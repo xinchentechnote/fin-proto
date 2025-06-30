@@ -1,16 +1,16 @@
 //base on reference/IS122_TDGW_Move_Binary_CV0.57_MTP_Test_20230926.pdf
-
 options {
-    StringPreFixLenType = u16;
-    RepeatPreFixSizeType = u16;
-    LittileEndian = false;
+	StringPreFixLenType = u16;
+	RepeatPreFixSizeType = u16;
+	LittleEndian = false;
+	JavaPackage = "com.finproto.sse.bin.messages";
 }
 
 MetaData DataType {
-    uint32 date `日期`,
-    int64 price `价格`,
-    int64 quantity `数量`,
-    uint64 ntime `时间`,
+	uint32 date `日期`,
+	int64 price `价格`,
+	int64 quantity `数量`,
+	uint64 ntime `时间`,
 }
 
 root packet SseBinary {
@@ -32,7 +32,7 @@ root packet SseBinary {
         206 : ExecRptSync,
         207 : ExecRptSyncRsp,
         210 : ExecRptEndOfStream,
-    }
+    },
     uint32 Checksum `校验和`,
 }
 
@@ -45,12 +45,12 @@ packet Logon {
     uint16 HeartBtInt `心跳间隔，单位为秒`,
     char[8] PrtclVersion `接入协议版本号，格式为 aa.bb，如 0.30，1.00`,
     date TradeDate `交易日`,
-    uint32 QSize `预留`
+    uint32 QSize `预留`,
 }
 
 packet Logout {
     uint32 SessionStatus `注销状态码`,
-    char[64] Text `文本描述`
+    char[64] Text `文本描述`,
 }
 
 packet NewOrderSingle {
@@ -69,7 +69,7 @@ packet NewOrderSingle {
     char[2] CreditTag `信用标签，用于现货竞价交易业务的信用交易，取值：XY=担保品买卖 RZ=融资交易 RQ=融券交易 PC=平仓交易 其他业务填写默认值，无意义`,
     char[8] ClearingFirm `结算会员代码，前 5 位有效`,
     char[8] BranchID `营业部代码，前 5 位有效`,
-    char[32] UserInfo `用户私有信息，前 12 位有效`
+    char[32] UserInfo `用户私有信息，前 12 位有效`,
 }
 
 packet OrderCancel {
@@ -83,7 +83,7 @@ packet OrderCancel {
     char[10] OrigClOrdID `原始会员内部订单编号，指待撤原订单的 ClOrdID`,
     ntime TransactTime `申报时间`,
     char[8] BranchID `营业部代码，暂不启用`,
-    char[32] UserInfo `用户私有信息，前 12 位有效`
+    char[32] UserInfo `用户私有信息，前 12 位有效`,
 }
 
 packet Confirm {
@@ -114,7 +114,7 @@ packet Confirm {
     char[16] OrigOrdCnfmID `暂不启用`,
     date TradeDate `交易日期`,
     ntime TransactTime `回报时间`,
-    char[32] UserInfo `用户私有信息，前 12 位有效`
+    char[32] UserInfo `用户私有信息，前 12 位有效`,
 }
 
 packet CancelReject {
@@ -130,7 +130,7 @@ packet CancelReject {
     uint32 CxlRejReason `撤单拒绝码`,
     date TradeDate `交易日期`,
     ntime TransactTime `回报时间`,
-    char[32] UserInfo `用户私有信息，前 12 位有效`
+    char[32] UserInfo `用户私有信息，前 12 位有效`,
 }
 
 packet Report {
@@ -161,7 +161,7 @@ packet Report {
     char[16] OrigOrdCnfmID `暂不启用`,
     date TradeDate `交易日期`,
     ntime TransactTime `回报时间`,
-    char[32] UserInfo `用户私有信息，前 12 位有效`
+    char[32] UserInfo `用户私有信息，前 12 位有效`,
 }
 
 packet OrderReject {
@@ -172,41 +172,41 @@ packet OrderReject {
     uint32 OrdRejReason `订单拒绝码`,
     date TradeDate `交易日期`,
     ntime TransactTime `回报时间`,
-    char[32] UserInfo `用户私有信息，前 12 位有效`
+    char[32] UserInfo `用户私有信息，前 12 位有效`,
 }
 
 packet PlatformState {
     uint16 PlatformID `平台标识 0=竞价平台`,
-    uint16 PlatformState `平台状态 0=NotOpen未开放 1=PreOpen预开放 2=Open开放 3=Break暂停 4=Close关闭`
+    uint16 PlatformState `平台状态 0=NotOpen未开放 1=PreOpen预开放 2=Open开放 3=Break暂停 4=Close关闭`,
 }
 
 packet ExecRptInfo {
     uint16 PlatformID `平台标识 0=竞价平台`,
     repeat char[8] Pbu `登录或订阅 PBU`,//size uint16
-    repeat uint32 SetID `平台内分区号`//size uint16
+    repeat uint32 SetID `平台内分区号`,//size uint16
 }
 
 packet ExecRptSync {
     repeat SubExecRptSync {
-        char[8] Pbu `登录或订阅 PBU`,
-        uint32 SetID `平台内分区号`,
-        uint64 BeginReportIndex `分区预期回报序号，暂不支持2^32及更大取值`
-    }//size uint16
+    		char[8] Pbu `登录或订阅 PBU`,
+    		uint32 SetID `平台内分区号`,
+    		uint64 BeginReportIndex `分区预期回报序号，暂不支持2^32及更大取值`,
+    	},//size uint16
 }
 
 packet ExecRptSyncRsp {
     repeat SubExecRptSyncRsp {
-        char[8] Pbu `登录或订阅 PBU`,
-        uint32 SetID `平台内分区号`,
-        uint64 BeginReportIndex `分区回报序号起点`,
-        uint64 EndReportIndex `分区最大回报序号`,
-        uint32 RejReason `拒绝码`,
-        char[64] Text `描述`
-    }
+    		char[8] Pbu `登录或订阅 PBU`,
+    		uint32 SetID `平台内分区号`,
+    		uint64 BeginReportIndex `分区回报序号起点`,
+    		uint64 EndReportIndex `分区最大回报序号`,
+    		uint32 RejReason `拒绝码`,
+    		char[64] Text `描述`,
+    	},
 }
 
 packet ExecRptEndOfStream {
     char[8] Pbu `登录或订阅 PBU`,
     uint32 SetID `分区`,
-    uint64 EndReportIndex `执行报告流最大序号，本消息编入该分区执行报告编号序列`
+    uint64 EndReportIndex `执行报告流最大序号，本消息编入该分区执行报告编号序列`,
 }
