@@ -300,7 +300,7 @@ packet Logon {
 }
 
 packet Logout {
-    SessionStatus `退出时的会话状态，取值：0 = 会话活跃, 1 = 会话口令已更改, 2 = 将过期的会话口令, 3 = 新会话口令不符合规范, 4 = 会话退登完成, 5 = 不合法的用户名或口令, 6 = 账户锁定, 7 = 当前时间不允许登录, 8 = 口令过期, 9 = 收到的 MsgSeqNum(34)太小, 10 = 收到的 NextExpectedMsgSeqNum(789)太大, 101 = 其他, 102 = 无效消息`,,
+    SessionStatus `退出时的会话状态，取值：0 = 会话活跃, 1 = 会话口令已更改, 2 = 将过期的会话口令, 3 = 新会话口令不符合规范, 4 = 会话退登完成, 5 = 不合法的用户名或口令, 6 = 账户锁定, 7 = 当前时间不允许登录, 8 = 口令过期, 9 = 收到的 MsgSeqNum(34)太小, 10 = 收到的 NextExpectedMsgSeqNum(789)太大, 101 = 其他, 102 = 无效消息`,
     Text `文本，注销原因的进一步补充说明`,
 }
 
@@ -847,7 +847,7 @@ packet CancelReject {
     OrdStatus `原始订单当前状态`,
     CxlRejReason `拒绝原因代码`,
     RejectText `拒绝原因说明`,
-    OrderID `原始订单交易所订单编号`
+    OrderID `原始订单交易所订单编号`,
 }
 
 packet BusinessReject {
