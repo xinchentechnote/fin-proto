@@ -249,14 +249,13 @@ end
 
 local function dissect_nested_packet(buf, pinfo, tree, offset)
     local subtree = tree:add(root_packet_proto, buf(offset, 1), "NestedPacket")
-    -- unsupported type: SubPacket
-    
+    dissect_sub_packet(buf, pinfo, subtree, offset)
+    pinfo.cols.info:set("SubPacket")
     local nested_packet_sub_packet_list_size = buf(offset, 2):le_uint()
     subtree:add("SubPacketList Size: ".. nested_packet_sub_packet_list_size, buf(offset, 2))
     offset = offset + 2
     for i=1,nested_packet_sub_packet_list_size do
-        -- unsupported type: SubPacket
-        
+        dissect_sub_packet(buf, pinfo, subtree, offset)
         pinfo.cols.info:append(" SubPacketList["..i.."]")
     end
     dissect_iner_packet(buf, pinfo, subtree, offset)

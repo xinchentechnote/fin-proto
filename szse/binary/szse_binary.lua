@@ -1654,8 +1654,7 @@ local function dissect_report_synchronization(buf, pinfo, tree, offset)
     subtree:add("PartitionReport Size: ".. report_synchronization_partition_report_size, buf(offset, 4))
     offset = offset + 4
     for i=1,report_synchronization_partition_report_size do
-        -- unsupported type: PartitionReport
-        
+        dissect_partition_report(buf, pinfo, subtree, offset)
         pinfo.cols.info:append(" PartitionReport["..i.."]")
     end
     return offset
@@ -1702,8 +1701,7 @@ local function dissect_platform_info(buf, pinfo, tree, offset)
     subtree:add("PlatformPartition Size: ".. platform_info_platform_partition_size, buf(offset, 4))
     offset = offset + 4
     for i=1,platform_info_platform_partition_size do
-        -- unsupported type: PlatformPartition
-        
+        dissect_platform_partition(buf, pinfo, subtree, offset)
         pinfo.cols.info:append(" PlatformPartition["..i.."]")
     end
     return offset
