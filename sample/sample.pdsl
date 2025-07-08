@@ -3,6 +3,7 @@ options {
 	RepeatPreFixSizeType = u16;
 	LittleEndian = true;
 	JavaPackage = "com.finproto.sample.messages";
+	GoPackage = "sample_bin";
 }
 
 root packet RootPacket {
