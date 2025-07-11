@@ -5,6 +5,8 @@ options {
     RepeatPreFixSizeType = u32;
     LittleEndian = false;
     JavaPackage = "com.finproto.risk.bin.messages";
+    GoPackage = "risk_bin"
+    GoMoudle = "github.com/xinchentechnote/fin-proto-go/risk-bin/messages"
 }
 
 root packet RcBinary {
@@ -24,17 +26,17 @@ root packet RcBinary {
 packet NewOrder {
     string ClOrdID `会员订单编号`,
     string SecurityID `证券代码`,
-    char Side `买卖方向 1=买 2=卖`,
+    char[1] Side `买卖方向 1=买 2=卖`,
     uint64 Price `申报价格`,
     uint64 OrderQty `申报数量`,
-    char OrdType `订单类型 1=市价 2=限价`,
+    char[1] OrdType `订单类型 1=市价 2=限价`,
     string Account `证券账户`,
 }
 // 委托确认
 
 packet OrderConfirm {
     string ClOrdID `会员订单编号`,
-    char ExecType `执行类型 0=接受 8=拒绝`,
+    char[1] ExecType `执行类型 0=接受 8=拒绝`,
     uint32 OrdRejReason `拒绝原因码（仅拒绝时有效）`,
     string OrdCnfmID `交易所订单编号（仅接受时有效）`,
 }
@@ -45,7 +47,7 @@ packet ExecutionReport {
     string OrdCnfmID `交易所订单编号`,
     uint64 LastPx `成交价格`,
     uint64 LastQty `成交数量`,
-    char OrdStatus `订单状态 1=部分成交 2=全部成交`,
+    char[1] OrdStatus `订单状态 1=部分成交 2=全部成交`,
 }
 // 撤单请求
 
