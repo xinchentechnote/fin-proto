@@ -11,7 +11,7 @@ local fields = {
     -- Field from Logon
     logon_sender_comp_id = ProtoField.string("logon.sender_comp_id", "SenderCompID"),
     logon_target_comp_id = ProtoField.string("logon.target_comp_id", "TargetCompID"),
-    logon_heart_bt_int = ProtoField.int("logon.heart_bt_int", "HeartBtInt", base.DEC),
+    logon_heart_btint = ProtoField.int("logon.heart_btint", "HeartBtint", base.DEC),
     logon_password = ProtoField.string("logon.password", "Password"),
     logon_default_appl_ver_id = ProtoField.string("logon.default_appl_ver_id", "DefaultApplVerID"),
     -- Field from Logout
@@ -31,8 +31,8 @@ local fields = {
     new_order_account_id = ProtoField.string("new_order.account_id", "AccountID"),
     new_order_branch_id = ProtoField.string("new_order.branch_id", "BranchID"),
     new_order_order_restrictions = ProtoField.string("new_order.order_restrictions", "OrderRestrictions"),
-    new_order_side = ProtoField.char("new_order.side", "Side", base.OCT),
-    new_order_ord_type = ProtoField.char("new_order.ord_type", "OrdType", base.OCT),
+    new_order_side = ProtoField.string("new_order.side", "Side"),
+    new_order_ord_type = ProtoField.string("new_order.ord_type", "OrdType"),
     new_order_order_qty = ProtoField.int64("new_order.order_qty", "OrderQty", base.DEC),
     new_order_price = ProtoField.int64("new_order.price", "Price", base.DEC),
     -- Unsupported type: match
@@ -40,32 +40,32 @@ local fields = {
     extend_100101_stop_px = ProtoField.int64("extend_100101.stop_px", "StopPx", base.DEC),
     extend_100101_min_qty = ProtoField.int64("extend_100101.min_qty", "MinQty", base.DEC),
     extend_100101_max_price_levels = ProtoField.uint32("extend_100101.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_100101_time_in_force = ProtoField.char("extend_100101.time_in_force", "TimeInForce", base.OCT),
-    extend_100101_cash_margin = ProtoField.char("extend_100101.cash_margin", "CashMargin", base.OCT),
+    extend_100101_time_in_force = ProtoField.string("extend_100101.time_in_force", "TimeInForce"),
+    extend_100101_cash_margin = ProtoField.string("extend_100101.cash_margin", "CashMargin"),
     -- Field from Extend100201
     extend_100201_stop_px = ProtoField.int64("extend_100201.stop_px", "StopPx", base.DEC),
     extend_100201_min_qty = ProtoField.int64("extend_100201.min_qty", "MinQty", base.DEC),
     extend_100201_max_price_levels = ProtoField.uint32("extend_100201.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_100201_time_in_force = ProtoField.char("extend_100201.time_in_force", "TimeInForce", base.OCT),
+    extend_100201_time_in_force = ProtoField.string("extend_100201.time_in_force", "TimeInForce"),
     -- Field from Extend100301
     extend_100301_stop_px = ProtoField.int64("extend_100301.stop_px", "StopPx", base.DEC),
     extend_100301_min_qty = ProtoField.int64("extend_100301.min_qty", "MinQty", base.DEC),
     extend_100301_max_price_levels = ProtoField.uint32("extend_100301.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_100301_time_in_force = ProtoField.char("extend_100301.time_in_force", "TimeInForce", base.OCT),
+    extend_100301_time_in_force = ProtoField.string("extend_100301.time_in_force", "TimeInForce"),
     -- Field from Extend101401
     extend_101401_stop_px = ProtoField.int64("extend_101401.stop_px", "StopPx", base.DEC),
     extend_101401_min_qty = ProtoField.int64("extend_101401.min_qty", "MinQty", base.DEC),
     extend_101401_max_price_levels = ProtoField.uint32("extend_101401.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_101401_time_in_force = ProtoField.char("extend_101401.time_in_force", "TimeInForce", base.OCT),
-    extend_101401_position_effect = ProtoField.char("extend_101401.position_effect", "PositionEffect", base.OCT),
+    extend_101401_time_in_force = ProtoField.string("extend_101401.time_in_force", "TimeInForce"),
+    extend_101401_position_effect = ProtoField.string("extend_101401.position_effect", "PositionEffect"),
     extend_101401_covered_or_uncovered = ProtoField.uint32("extend_101401.covered_or_uncovered", "CoveredOrUncovered", base.DEC),
     extend_101401_contract_account_code = ProtoField.string("extend_101401.contract_account_code", "ContractAccountCode"),
     extend_101401_secondary_order_id = ProtoField.string("extend_101401.secondary_order_id", "SecondaryOrderID"),
     -- Field from Extend100501
     extend_100501_confirm_id = ProtoField.string("extend_100501.confirm_id", "ConfirmID"),
-    extend_100501_cash_margin = ProtoField.char("extend_100501.cash_margin", "CashMargin", base.OCT),
+    extend_100501_cash_margin = ProtoField.string("extend_100501.cash_margin", "CashMargin"),
     -- Field from Extend100601
-    extend_100601_cash_margin = ProtoField.char("extend_100601.cash_margin", "CashMargin", base.OCT),
+    extend_100601_cash_margin = ProtoField.string("extend_100601.cash_margin", "CashMargin"),
     -- Field from Extend100701
     extend_100701_expiration_days = ProtoField.uint32("extend_100701.expiration_days", "ExpirationDays", base.DEC),
     extend_100701_expiration_type = ProtoField.uint32("extend_100701.expiration_type", "ExpirationType", base.DEC),
@@ -91,18 +91,18 @@ local fields = {
     extend_106301_stop_px = ProtoField.int64("extend_106301.stop_px", "StopPx", base.DEC),
     extend_106301_min_qty = ProtoField.int64("extend_106301.min_qty", "MinQty", base.DEC),
     extend_106301_max_price_levels = ProtoField.uint32("extend_106301.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_106301_time_in_force = ProtoField.char("extend_106301.time_in_force", "TimeInForce", base.OCT),
-    extend_106301_lot_type = ProtoField.char("extend_106301.lot_type", "LotType", base.OCT),
+    extend_106301_time_in_force = ProtoField.string("extend_106301.time_in_force", "TimeInForce"),
+    extend_106301_lot_type = ProtoField.string("extend_106301.lot_type", "LotType"),
     -- Field from Extend103501
     extend_103501_contract_account_code = ProtoField.string("extend_103501.contract_account_code", "ContractAccountCode"),
     -- Field from Extend103701
-    extend_103701_cash_margin = ProtoField.char("extend_103701.cash_margin", "CashMargin", base.OCT),
+    extend_103701_cash_margin = ProtoField.string("extend_103701.cash_margin", "CashMargin"),
     -- Field from Extend104101
     extend_104101_stop_px = ProtoField.int64("extend_104101.stop_px", "StopPx", base.DEC),
     extend_104101_min_qty = ProtoField.int64("extend_104101.min_qty", "MinQty", base.DEC),
     extend_104101_max_price_levels = ProtoField.uint32("extend_104101.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_104101_time_in_force = ProtoField.char("extend_104101.time_in_force", "TimeInForce", base.OCT),
-    extend_104101_cash_margin = ProtoField.char("extend_104101.cash_margin", "CashMargin", base.OCT),
+    extend_104101_time_in_force = ProtoField.string("extend_104101.time_in_force", "TimeInForce"),
+    extend_104101_cash_margin = ProtoField.string("extend_104101.cash_margin", "CashMargin"),
     -- Field from Extend104128
     extend_104128_member_id = ProtoField.string("extend_104128.member_id", "MemberID"),
     extend_104128_investor_type = ProtoField.string("extend_104128.investor_type", "InvestorType"),
@@ -119,7 +119,7 @@ local fields = {
     extend_104128_settl_type = ProtoField.uint32("extend_104128.settl_type", "SettlType", base.DEC),
     extend_104128_settl_period = ProtoField.uint32("extend_104128.settl_period", "SettlPeriod", base.DEC),
     extend_104128_pre_trade_anonymity = ProtoField.uint32("extend_104128.pre_trade_anonymity", "PreTradeAnonymity", base.DEC),
-    extend_104128_cash_margin = ProtoField.char("extend_104128.cash_margin", "CashMargin", base.OCT),
+    extend_104128_cash_margin = ProtoField.string("extend_104128.cash_margin", "CashMargin"),
     extend_104128_memo = ProtoField.string("extend_104128.memo", "Memo"),
     -- Field from Extend104701
     extend_104701_secondary_order_id = ProtoField.string("extend_104701.secondary_order_id", "SecondaryOrderID"),
@@ -140,13 +140,13 @@ local fields = {
     execution_confirm_quote_msg_id = ProtoField.string("execution_confirm.quote_msg_id", "QuoteMsgID"),
     execution_confirm_orig_cl_ord_id = ProtoField.string("execution_confirm.orig_cl_ord_id", "OrigClOrdID"),
     execution_confirm_exec_id = ProtoField.string("execution_confirm.exec_id", "ExecID"),
-    execution_confirm_exec_type = ProtoField.char("execution_confirm.exec_type", "ExecType", base.OCT),
-    execution_confirm_ord_status = ProtoField.char("execution_confirm.ord_status", "OrdStatus", base.OCT),
+    execution_confirm_exec_type = ProtoField.string("execution_confirm.exec_type", "ExecType"),
+    execution_confirm_ord_status = ProtoField.string("execution_confirm.ord_status", "OrdStatus"),
     execution_confirm_ord_rej_reason = ProtoField.uint32("execution_confirm.ord_rej_reason", "OrdRejReason", base.DEC),
     execution_confirm_leaves_qty = ProtoField.int64("execution_confirm.leaves_qty", "LeavesQty", base.DEC),
     execution_confirm_cum_qty = ProtoField.int64("execution_confirm.cum_qty", "CumQty", base.DEC),
-    execution_confirm_side = ProtoField.char("execution_confirm.side", "Side", base.OCT),
-    execution_confirm_ord_type = ProtoField.char("execution_confirm.ord_type", "OrdType", base.OCT),
+    execution_confirm_side = ProtoField.string("execution_confirm.side", "Side"),
+    execution_confirm_ord_type = ProtoField.string("execution_confirm.ord_type", "OrdType"),
     execution_confirm_order_qty = ProtoField.int64("execution_confirm.order_qty", "OrderQty", base.DEC),
     execution_confirm_price = ProtoField.int64("execution_confirm.price", "Price", base.DEC),
     execution_confirm_account_id = ProtoField.string("execution_confirm.account_id", "AccountID"),
@@ -157,32 +157,32 @@ local fields = {
     extend_200102_stop_px = ProtoField.int64("extend_200102.stop_px", "StopPx", base.DEC),
     extend_200102_min_qty = ProtoField.int64("extend_200102.min_qty", "MinQty", base.DEC),
     extend_200102_max_price_levels = ProtoField.uint32("extend_200102.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_200102_time_in_force = ProtoField.char("extend_200102.time_in_force", "TimeInForce", base.OCT),
-    extend_200102_cash_margin = ProtoField.char("extend_200102.cash_margin", "CashMargin", base.OCT),
+    extend_200102_time_in_force = ProtoField.string("extend_200102.time_in_force", "TimeInForce"),
+    extend_200102_cash_margin = ProtoField.string("extend_200102.cash_margin", "CashMargin"),
     -- Field from Extend200202
     extend_200202_stop_px = ProtoField.int64("extend_200202.stop_px", "StopPx", base.DEC),
     extend_200202_min_qty = ProtoField.int64("extend_200202.min_qty", "MinQty", base.DEC),
     extend_200202_max_price_levels = ProtoField.uint32("extend_200202.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_200202_time_in_force = ProtoField.char("extend_200202.time_in_force", "TimeInForce", base.OCT),
+    extend_200202_time_in_force = ProtoField.string("extend_200202.time_in_force", "TimeInForce"),
     -- Field from Extend200302
     extend_200302_stop_px = ProtoField.int64("extend_200302.stop_px", "StopPx", base.DEC),
     extend_200302_min_qty = ProtoField.int64("extend_200302.min_qty", "MinQty", base.DEC),
     extend_200302_max_price_levels = ProtoField.uint32("extend_200302.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_200302_time_in_force = ProtoField.char("extend_200302.time_in_force", "TimeInForce", base.OCT),
+    extend_200302_time_in_force = ProtoField.string("extend_200302.time_in_force", "TimeInForce"),
     -- Field from Extend200402
     extend_200402_stop_px = ProtoField.int64("extend_200402.stop_px", "StopPx", base.DEC),
     extend_200402_min_qty = ProtoField.int64("extend_200402.min_qty", "MinQty", base.DEC),
     extend_200402_max_price_levels = ProtoField.uint32("extend_200402.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_200402_time_in_force = ProtoField.char("extend_200402.time_in_force", "TimeInForce", base.OCT),
-    extend_200402_position_effect = ProtoField.char("extend_200402.position_effect", "PositionEffect", base.OCT),
+    extend_200402_time_in_force = ProtoField.string("extend_200402.time_in_force", "TimeInForce"),
+    extend_200402_position_effect = ProtoField.string("extend_200402.position_effect", "PositionEffect"),
     extend_200402_covered_or_uncovered = ProtoField.uint32("extend_200402.covered_or_uncovered", "CoveredOrUncovered", base.DEC),
     extend_200402_contract_account_code = ProtoField.string("extend_200402.contract_account_code", "ContractAccountCode"),
     extend_200402_secondary_order_id = ProtoField.string("extend_200402.secondary_order_id", "SecondaryOrderID"),
     -- Field from Extend200502
     extend_200502_confirm_id = ProtoField.string("extend_200502.confirm_id", "ConfirmID"),
-    extend_200502_cash_margin = ProtoField.char("extend_200502.cash_margin", "CashMargin", base.OCT),
+    extend_200502_cash_margin = ProtoField.string("extend_200502.cash_margin", "CashMargin"),
     -- Field from Extend200602
-    extend_200602_cash_margin = ProtoField.char("extend_200602.cash_margin", "CashMargin", base.OCT),
+    extend_200602_cash_margin = ProtoField.string("extend_200602.cash_margin", "CashMargin"),
     -- Field from Extend200702
     extend_200702_expiration_days = ProtoField.uint32("extend_200702.expiration_days", "ExpirationDays", base.DEC),
     extend_200702_expiration_type = ProtoField.uint32("extend_200702.expiration_type", "ExpirationType", base.DEC),
@@ -222,20 +222,20 @@ local fields = {
     extend_206302_stop_px = ProtoField.int64("extend_206302.stop_px", "StopPx", base.DEC),
     extend_206302_min_qty = ProtoField.int64("extend_206302.min_qty", "MinQty", base.DEC),
     extend_206302_max_price_levels = ProtoField.uint32("extend_206302.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_206302_time_in_force = ProtoField.char("extend_206302.time_in_force", "TimeInForce", base.OCT),
-    extend_206302_lot_type = ProtoField.char("extend_206302.lot_type", "LotType", base.OCT),
+    extend_206302_time_in_force = ProtoField.string("extend_206302.time_in_force", "TimeInForce"),
+    extend_206302_lot_type = ProtoField.string("extend_206302.lot_type", "LotType"),
     extend_206302_imc_reject_text_len = ProtoField.uint32("extend_206302.imc_reject_text_len", "IMCRejectTextLen", base.DEC),
     extend_206302_imc_reject_text = ProtoField.string("extend_206302.imc_reject_text", "IMCRejectText"),
     -- Field from Extend203502
     extend_203502_contract_account_code = ProtoField.string("extend_203502.contract_account_code", "ContractAccountCode"),
     -- Field from Extend203702
-    extend_203702_cash_margin = ProtoField.char("extend_203702.cash_margin", "CashMargin", base.OCT),
+    extend_203702_cash_margin = ProtoField.string("extend_203702.cash_margin", "CashMargin"),
     -- Field from Extend204102
     extend_204102_stop_px = ProtoField.int64("extend_204102.stop_px", "StopPx", base.DEC),
     extend_204102_min_qty = ProtoField.int64("extend_204102.min_qty", "MinQty", base.DEC),
     extend_204102_max_price_levels = ProtoField.uint32("extend_204102.max_price_levels", "MaxPriceLevels", base.DEC),
-    extend_204102_time_in_force = ProtoField.char("extend_204102.time_in_force", "TimeInForce", base.OCT),
-    extend_204102_cash_margin = ProtoField.char("extend_204102.cash_margin", "CashMargin", base.OCT),
+    extend_204102_time_in_force = ProtoField.string("extend_204102.time_in_force", "TimeInForce"),
+    extend_204102_cash_margin = ProtoField.string("extend_204102.cash_margin", "CashMargin"),
     -- Field from Extend204129
     extend_204129_member_id = ProtoField.string("extend_204129.member_id", "MemberID"),
     extend_204129_investor_type = ProtoField.string("extend_204129.investor_type", "InvestorType"),
@@ -252,7 +252,7 @@ local fields = {
     extend_204129_settl_type = ProtoField.uint32("extend_204129.settl_type", "SettlType", base.DEC),
     extend_204129_settl_period = ProtoField.uint32("extend_204129.settl_period", "SettlPeriod", base.DEC),
     extend_204129_pre_trade_anonymity = ProtoField.uint32("extend_204129.pre_trade_anonymity", "PreTradeAnonymity", base.DEC),
-    extend_204129_cash_margin = ProtoField.char("extend_204129.cash_margin", "CashMargin", base.OCT),
+    extend_204129_cash_margin = ProtoField.string("extend_204129.cash_margin", "CashMargin"),
     extend_204129_memo = ProtoField.string("extend_204129.memo", "Memo"),
     -- Field from Extend204702
     extend_204702_secondary_order_id = ProtoField.string("extend_204702.secondary_order_id", "SecondaryOrderID"),
@@ -272,34 +272,34 @@ local fields = {
     execution_report_cl_ord_id = ProtoField.string("execution_report.cl_ord_id", "ClOrdID"),
     execution_report_quote_msg_id = ProtoField.string("execution_report.quote_msg_id", "QuoteMsgID"),
     execution_report_exec_id = ProtoField.string("execution_report.exec_id", "ExecID"),
-    execution_report_exec_type = ProtoField.char("execution_report.exec_type", "ExecType", base.OCT),
-    execution_report_ord_status = ProtoField.char("execution_report.ord_status", "OrdStatus", base.OCT),
+    execution_report_exec_type = ProtoField.string("execution_report.exec_type", "ExecType"),
+    execution_report_ord_status = ProtoField.string("execution_report.ord_status", "OrdStatus"),
     execution_report_last_px = ProtoField.int64("execution_report.last_px", "LastPx", base.DEC),
     execution_report_last_qty = ProtoField.int64("execution_report.last_qty", "LastQty", base.DEC),
     execution_report_leaves_qty = ProtoField.int64("execution_report.leaves_qty", "LeavesQty", base.DEC),
     execution_report_cum_qty = ProtoField.int64("execution_report.cum_qty", "CumQty", base.DEC),
-    execution_report_side = ProtoField.char("execution_report.side", "Side", base.OCT),
+    execution_report_side = ProtoField.string("execution_report.side", "Side"),
     execution_report_account_id = ProtoField.string("execution_report.account_id", "AccountID"),
     execution_report_branch_id = ProtoField.string("execution_report.branch_id", "BranchID"),
     -- Unsupported type: match
     -- Field from Extend200115
-    extend_200115_cash_margin = ProtoField.char("extend_200115.cash_margin", "CashMargin", base.OCT),
+    extend_200115_cash_margin = ProtoField.string("extend_200115.cash_margin", "CashMargin"),
     -- Field from Extend200215
     extend_200215_maturity_date = ProtoField.uint32("extend_200215.maturity_date", "MaturityDate", base.DEC),
     -- Field from Extend200315
     extend_200315_maturity_date = ProtoField.uint32("extend_200315.maturity_date", "MaturityDate", base.DEC),
     -- Field from Extend200415
-    extend_200415_position_effect = ProtoField.char("extend_200415.position_effect", "PositionEffect", base.OCT),
+    extend_200415_position_effect = ProtoField.string("extend_200415.position_effect", "PositionEffect"),
     extend_200415_covered_or_uncovered = ProtoField.uint32("extend_200415.covered_or_uncovered", "CoveredOrUncovered", base.DEC),
     extend_200415_contract_account_code = ProtoField.string("extend_200415.contract_account_code", "ContractAccountCode"),
     extend_200415_secondary_order_id = ProtoField.string("extend_200415.secondary_order_id", "SecondaryOrderID"),
     -- Field from Extend200515
     extend_200515_confirm_id = ProtoField.string("extend_200515.confirm_id", "ConfirmID"),
-    extend_200515_cash_margin = ProtoField.char("extend_200515.cash_margin", "CashMargin", base.OCT),
+    extend_200515_cash_margin = ProtoField.string("extend_200515.cash_margin", "CashMargin"),
     -- Field from Extend200615
-    extend_200615_cash_margin = ProtoField.char("extend_200615.cash_margin", "CashMargin", base.OCT),
+    extend_200615_cash_margin = ProtoField.string("extend_200615.cash_margin", "CashMargin"),
     -- Field from Extend206315
-    extend_206315_cash_margin = ProtoField.char("extend_206315.cash_margin", "CashMargin", base.OCT),
+    extend_206315_cash_margin = ProtoField.string("extend_206315.cash_margin", "CashMargin"),
     -- Field from Extend200715
     extend_200715_expiration_days = ProtoField.uint32("extend_200715.expiration_days", "ExpirationDays", base.DEC),
     extend_200715_expiration_type = ProtoField.uint32("extend_200715.expiration_type", "ExpirationType", base.DEC),
@@ -311,9 +311,9 @@ local fields = {
     extend_204715_maturity_date = ProtoField.uint32("extend_204715.maturity_date", "MaturityDate", base.DEC),
     extend_204715_share_property = ProtoField.string("extend_204715.share_property", "ShareProperty"),
     -- Field from Extend203715
-    extend_203715_cash_margin = ProtoField.char("extend_203715.cash_margin", "CashMargin", base.OCT),
+    extend_203715_cash_margin = ProtoField.string("extend_203715.cash_margin", "CashMargin"),
     -- Field from Extend204115
-    extend_204115_cash_margin = ProtoField.char("extend_204115.cash_margin", "CashMargin", base.OCT),
+    extend_204115_cash_margin = ProtoField.string("extend_204115.cash_margin", "CashMargin"),
     extend_204115_settl_type = ProtoField.uint32("extend_204115.settl_type", "SettlType", base.DEC),
     extend_204115_settl_period = ProtoField.uint32("extend_204115.settl_period", "SettlPeriod", base.DEC),
     extend_204115_counterparty_member_id = ProtoField.string("extend_204115.counterparty_member_id", "CounterpartyMemberID"),
@@ -337,7 +337,7 @@ local fields = {
     extend_204130_bid_exec_inst_type = ProtoField.uint32("extend_204130.bid_exec_inst_type", "BidExecInstType", base.DEC),
     extend_204130_settl_type = ProtoField.uint32("extend_204130.settl_type", "SettlType", base.DEC),
     extend_204130_settl_period = ProtoField.uint32("extend_204130.settl_period", "SettlPeriod", base.DEC),
-    extend_204130_cash_margin = ProtoField.char("extend_204130.cash_margin", "CashMargin", base.OCT),
+    extend_204130_cash_margin = ProtoField.string("extend_204130.cash_margin", "CashMargin"),
     extend_204130_memo = ProtoField.string("extend_204130.memo", "Memo"),
     -- Field from OrderCancelRequest
     order_cancel_request_appl_id = ProtoField.string("order_cancel_request.appl_id", "ApplID"),
@@ -350,7 +350,7 @@ local fields = {
     order_cancel_request_user_info = ProtoField.string("order_cancel_request.user_info", "UserInfo"),
     order_cancel_request_cl_ord_id = ProtoField.string("order_cancel_request.cl_ord_id", "ClOrdID"),
     order_cancel_request_orig_cl_ord_id = ProtoField.string("order_cancel_request.orig_cl_ord_id", "OrigClOrdID"),
-    order_cancel_request_side = ProtoField.char("order_cancel_request.side", "Side", base.OCT),
+    order_cancel_request_side = ProtoField.string("order_cancel_request.side", "Side"),
     order_cancel_request_order_id = ProtoField.string("order_cancel_request.order_id", "OrderID"),
     order_cancel_request_order_qty = ProtoField.int64("order_cancel_request.order_qty", "OrderQty", base.DEC),
     -- Field from CancelReject
@@ -367,8 +367,8 @@ local fields = {
     cancel_reject_user_info = ProtoField.string("cancel_reject.user_info", "UserInfo"),
     cancel_reject_cl_ord_id = ProtoField.string("cancel_reject.cl_ord_id", "ClOrdID"),
     cancel_reject_orig_cl_ord_id = ProtoField.string("cancel_reject.orig_cl_ord_id", "OrigClOrdID"),
-    cancel_reject_side = ProtoField.char("cancel_reject.side", "Side", base.OCT),
-    cancel_reject_ord_status = ProtoField.char("cancel_reject.ord_status", "OrdStatus", base.OCT),
+    cancel_reject_side = ProtoField.string("cancel_reject.side", "Side"),
+    cancel_reject_ord_status = ProtoField.string("cancel_reject.ord_status", "OrdStatus"),
     cancel_reject_cxl_rej_reason = ProtoField.uint32("cancel_reject.cxl_rej_reason", "CxlRejReason", base.DEC),
     cancel_reject_reject_text = ProtoField.string("cancel_reject.reject_text", "RejectText"),
     cancel_reject_order_id = ProtoField.string("cancel_reject.order_id", "OrderID"),
@@ -423,7 +423,7 @@ local function dissect_logon(buf, pinfo, tree, offset)
     offset = offset + 20
     subtree:add(fields.logon_target_comp_id, buf(offset, 20))
     offset = offset + 20
-    subtree:add(fields.logon_heart_bt_int, buf(offset, 4))
+    subtree:add(fields.logon_heart_btint, buf(offset, 4))
     offset = offset + 4
     subtree:add(fields.logon_password, buf(offset, 16))
     offset = offset + 16

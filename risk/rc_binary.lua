@@ -11,14 +11,14 @@ local fields = {
     -- Field from NewOrder
     new_order_cl_ord_id = ProtoField.string("new_order.cl_ord_id", "ClOrdID"),
     new_order_security_id = ProtoField.string("new_order.security_id", "SecurityID"),
-    new_order_side = ProtoField.char("new_order.side", "Side", base.OCT),
+    new_order_side = ProtoField.string("new_order.side", "Side"),
     new_order_price = ProtoField.uint64("new_order.price", "Price", base.DEC),
     new_order_order_qty = ProtoField.uint64("new_order.order_qty", "OrderQty", base.DEC),
-    new_order_ord_type = ProtoField.char("new_order.ord_type", "OrdType", base.OCT),
+    new_order_ord_type = ProtoField.string("new_order.ord_type", "OrdType"),
     new_order_account = ProtoField.string("new_order.account", "Account"),
     -- Field from OrderConfirm
     order_confirm_cl_ord_id = ProtoField.string("order_confirm.cl_ord_id", "ClOrdID"),
-    order_confirm_exec_type = ProtoField.char("order_confirm.exec_type", "ExecType", base.OCT),
+    order_confirm_exec_type = ProtoField.string("order_confirm.exec_type", "ExecType"),
     order_confirm_ord_rej_reason = ProtoField.uint32("order_confirm.ord_rej_reason", "OrdRejReason", base.DEC),
     order_confirm_ord_cnfm_id = ProtoField.string("order_confirm.ord_cnfm_id", "OrdCnfmID"),
     -- Field from ExecutionReport
@@ -26,7 +26,7 @@ local fields = {
     execution_report_ord_cnfm_id = ProtoField.string("execution_report.ord_cnfm_id", "OrdCnfmID"),
     execution_report_last_px = ProtoField.uint64("execution_report.last_px", "LastPx", base.DEC),
     execution_report_last_qty = ProtoField.uint64("execution_report.last_qty", "LastQty", base.DEC),
-    execution_report_ord_status = ProtoField.char("execution_report.ord_status", "OrdStatus", base.OCT),
+    execution_report_ord_status = ProtoField.string("execution_report.ord_status", "OrdStatus"),
     -- Field from OrderCancel
     order_cancel_cl_ord_id = ProtoField.string("order_cancel.cl_ord_id", "ClOrdID"),
     order_cancel_orig_cl_ord_id = ProtoField.string("order_cancel.orig_cl_ord_id", "OrigClOrdID"),

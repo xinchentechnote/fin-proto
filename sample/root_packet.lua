@@ -13,7 +13,7 @@ local fields = {
     basic_packet_field_i_16 = ProtoField.int("basic_packet.field_i_16", "fieldI16", base.DEC),
     basic_packet_field_i_32 = ProtoField.int("basic_packet.field_i_32", "fieldI32", base.DEC),
     basic_packet_field_i_64 = ProtoField.int64("basic_packet.field_i_64", "fieldI64", base.DEC),
-    basic_packet_field_char = ProtoField.char("basic_packet.field_char", "fieldChar", base.OCT),
+    basic_packet_field_char = ProtoField.string("basic_packet.field_char", "fieldChar"),
     basic_packet_field_u_8 = ProtoField.uint32("basic_packet.field_u_8", "fieldU8", base.DEC),
     basic_packet_field_u_16 = ProtoField.uint32("basic_packet.field_u_16", "fieldU16", base.DEC),
     basic_packet_field_u_32 = ProtoField.uint32("basic_packet.field_u_32", "fieldU32", base.DEC),
@@ -24,7 +24,7 @@ local fields = {
     basic_packet_field_i_16_list = ProtoField.int("basic_packet.field_i_16_list", "fieldI16List", base.DEC),
     basic_packet_field_i_32_list = ProtoField.int("basic_packet.field_i_32_list", "fieldI32List", base.DEC),
     basic_packet_field_i_64_list = ProtoField.int64("basic_packet.field_i_64_list", "fieldI64List", base.DEC),
-    basic_packet_field_char_list = ProtoField.char("basic_packet.field_char_list", "fieldCharList", base.OCT),
+    basic_packet_field_char_list = ProtoField.string("basic_packet.field_char_list", "fieldCharList"),
     basic_packet_field_u_8_list = ProtoField.uint32("basic_packet.field_u_8_list", "fieldU8List", base.DEC),
     basic_packet_field_u_16_list = ProtoField.uint32("basic_packet.field_u_16_list", "fieldU16List", base.DEC),
     basic_packet_field_u_32_list = ProtoField.uint32("basic_packet.field_u_32_list", "fieldU32List", base.DEC),
@@ -68,7 +68,7 @@ local function dissect_basic_packet(buf, pinfo, tree, offset)
     offset = offset + 4
     subtree:le_add(fields.basic_packet_field_i_64, buf(offset, 8))
     offset = offset + 8
-    subtree:le_add(fields.basic_packet_field_char, buf(offset, 1))
+    subtree:add(fields.basic_packet_field_char, buf(offset, 1))
     offset = offset + 1
     subtree:le_add(fields.basic_packet_field_u_8, buf(offset, 1))
     offset = offset + 1
@@ -118,7 +118,7 @@ local function dissect_basic_packet(buf, pinfo, tree, offset)
     subtree:add("fieldCharList Size: ".. basic_packet_field_char_list_size, buf(offset, 2))
     offset = offset + 2
     for i=1,basic_packet_field_char_list_size do
-        subtree:le_add(fields.basic_packet_field_char_list, buf(offset, 1))
+        subtree:add(fields.basic_packet_field_char_list, buf(offset, 1))
         offset = offset + 1
         pinfo.cols.info:append(" fieldCharList["..i.."]")
     end
