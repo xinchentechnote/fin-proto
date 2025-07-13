@@ -4,7 +4,7 @@ options {
 	LittleEndian = true;
 	JavaPackage = "com.finproto.sample.messages";
 	GoPackage = "sample_bin";
-    GoMoudle ="github.com/xinchentechnote/fin-proto-go/sample-bin/messages"
+    GoModule ="github.com/xinchentechnote/fin-proto-go/sample-bin/messages"
 }
 
 root packet RootPacket {
