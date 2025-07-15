@@ -5,7 +5,7 @@ options {
 	LittleEndian = false;
 	JavaPackage = "com.finproto.sse.bin.messages";
     GoPackage = "sse_bin"
-    GoMoudle = "github.com/xinchentechnote/fin-proto-go/sse-bin/messages"
+    GoModule = "github.com/xinchentechnote/fin-proto-go/sse-bin/messages"
 }
 
 MetaData DataType {
