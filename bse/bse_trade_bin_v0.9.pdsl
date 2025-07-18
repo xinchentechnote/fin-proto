@@ -203,7 +203,40 @@ packet NewOrder {
     OrdType,
     OrderQty,
     Price,
-    // ExtendFields 视 ApplID 决定
+    match ApplID as ApplExtend {
+        "010": Extend010,
+        "040": Extend040,
+        "041": Extend041,
+        "042": Extend042,
+        "043": Extend043,
+        "044": Extend044,
+        "045": Extend045,
+        "050": Extend050,
+    }
+}
+
+packet Extend010 {
+    StopPx,
+    MinQty,
+    MaxPriceLevels,
+    TimeInForce,
+    CashMargin,
+    SettlType,
+    SettlPeriod,
+}
+
+packet Extend040 {
+    StopPx,
+    MinQty,
+    MaxPriceLevels,
+    TimeInForce,
+    CashMargin,
+}
+
+packet Extend050 {
+    ExpirationDays,
+    ExpirationType,
+    ShareProperty,
 }
 
 //4.3.2. 撤单请求（Order Cancel Request）
@@ -276,7 +309,38 @@ packet ExecutionConfirm {
     AccountID,
     BranchID,
     OrderRestrictions,
-    // ExtendFields 各业务 ApplID 可选字段
+    match ApplID as ApplExtend {
+        "010": Extend010,
+        "040": Extend040,
+        "041": Extend041,
+        "042": Extend042,
+        "043": Extend043,
+        "044": Extend044,
+        "045": Extend045,
+        "050": Extend050,
+    },
+}
+
+packet Extend010 {
+    StopPx,
+    MinQty,
+    MaxPriceLevels,
+    TimeInForce,
+    CashMargin,
+}
+
+packet Extend040 {
+    StopPx,
+    MinQty,
+    MaxPriceLevels,
+    TimeInForce,
+    CashMargin,
+}
+
+packet Extend050 {
+    ExpirationDays,
+    ExpirationType,
+    ShareProperty, 
 }
 
 //4.3.5. 订单成交执行报告（Execution Report）
@@ -304,7 +368,28 @@ packet ExecutionReport {
     Side,
     AccountID,
     BranchID,
-    // ExtendFields 各业务 ApplID 可选字段
+    match ApplID as ApplExtend {
+        "010": Extend010,
+        "040": Extend040,
+        "050": Extend050,
+    },
+}
+
+packet Extend010 {
+    CashMargin,
+    SettlType,
+    SettlPeriod,
+}
+
+packet Extend040 {
+    CashMargin,
+}
+
+packet Extend050 {
+    ExpirationDays,
+    ExpirationType,
+    MaturityDate,
+    ShareProperty,
 }
 
 //4.4.1. 报价（Quote）
@@ -325,8 +410,25 @@ packet Quote {
     OfferPx,
     BidSize,
     OfferSize,
-    // ExtendFields 各业务 ApplID 可选字段
+    match ApplID as ApplExtend {
+        "070": Extend070,
+        "071": Extend071,
+    }
 }
+
+packet Extend070 {
+    BranchID,
+    QuoteID,
+    QuoteRespID,
+    PrivateQuote,
+    ValidUntilTime,
+    PriceType,
+    CashMargin,
+    CounterPartyPBUID,
+    Memo,
+}
+
+packet Extend071 {}
 
 //4.4.2. 报价状态回报（QuoteStatusReport）
 packet QuoteStatusReport {
@@ -350,7 +452,28 @@ packet QuoteStatusReport {
     OfferPx,
     BidSize,
     OfferSize,
-    // ExtendFields 各业务 ApplID 可选字段
+    match ApplID as ApplExtend {
+        "070": Extend070,
+    },
+}
+
+packet Extend070 {
+    BranchID,
+    OrderID,
+    ExecID,
+    QuoteRespID,
+    PrivateQuote,
+    Side,
+    PriceType,
+    ValidUntilTime,
+    CashMargin,
+    CounterPartyPBUID,
+    Memo,
+    repeat NoQuote {
+        QuoteID,
+        QuotePrice,
+        QuoteQty,
+    },
 }
 
 //4.4.3. 报价回复（Quote Response）
@@ -378,7 +501,13 @@ packet QuoteResponse {
         QuotePrice,
         QuoteQty,
     },
-    // ExtendFields 各业务 ApplID 可选字段
+    match ApplID as ApplExtend {
+        "070": Extend070,
+    },
+}
+
+packet Extend070 {
+    CashMargin,
 }
 
 //4.4.4. 转发报价（Allege Quote）
@@ -410,8 +539,45 @@ packet AllegeQuote {
     ValidUntilTime,
     PriceType,
     Memo,
-    // ExtendFields 各业务 ApplID 可选字段
+    match ApplID as ApplExtend {
+        "070": Extend070,
+    },
 }
+
+packet Extend070 {
+    CashMargin,
+    CounterPartyPBUID,
+}
+
+//4.4.5. 转发报价回复（Allege Quote Response）
+packet AllegeQuoteResponse {
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ReportingPBUID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    OrderID,
+    ExecID,
+    ClOrdID,
+    AccountID,
+    QuoteID,
+    QuoteRespID,
+    QuoteRespType,
+    PrivateQuote,
+    OrderQty,
+    Price,
+    ValidUntilTime,
+    QuoteType,
+    PriceType,
+    //ExtendFields 各业务 ApplID 可选字段
+}
+
 
 //4.5.1. 成交申报（Trade Capture Report）
 packet TradeCaptureReport {
@@ -440,7 +606,34 @@ packet TradeCaptureReport {
     CounterpartyPBUID,
     CounterpartyAccountID,
     CounterpartyBranchID,
-    //ExtendFields 各业务 ApplID 可选字段
+    match ApplID as ApplExtend {
+        "031": Extend031,
+        "051": Extend051,
+        "060": Extend060,
+        "061": Extend061,
+        "062": Extend062,
+    },
+}
+
+packet Extend031 {
+    MemberID,
+    TraderCode,
+    CounterpartyMemberID,
+    CounterpartyTraderCode,
+    SettlType,
+    SettlPeriod,
+    CashMargin,
+    Memo,
+}
+
+packet Extend051 {
+    ExpirationDays,
+    ExpirationType,
+    ShareProperty,
+}
+
+packet Extend062 {
+    CashMargin,
 }
 
 //4.5.2. 成交申报响应（Trade Capture Report Ack）
@@ -478,7 +671,34 @@ packet TradeCaptureReportAck {
     CounterpartyPBUID,
     CounterpartyAccountID,
     CounterpartyBranchID,
-    // ExtendFields 各业务 ApplID 可选字段
+    match ApplID as ApplExtend {
+        "031": Extend031,
+        "051": Extend051,
+        "060": Extend060,
+        "061": Extend061,
+        "062": Extend062,
+    },
+}
+
+packet Extend031 {
+    MemberID,
+    TraderCode,
+    CounterpartyMemberID,
+    CounterpartyTraderCode,
+    SettlType,
+    SettlPeriod,
+    CashMargin,
+    Memo,
+}
+
+packet Extend051 {
+    ExpirationDays,
+    ExpirationType,
+    ShareProperty,
+}
+
+packet Extend062 {
+    CashMargin,
 }
 
 //4.5.3. 成交确认（Trade Capture Report）
@@ -512,7 +732,35 @@ packet TradeCaptureReport {
     CounterpartyPBUID,
     CounterpartyAccountID,
     CounterpartyBranchID,
-    //ExtendFields 各业务 ApplID 可选字段
+      match ApplID as ApplExtend {
+        "031": Extend031,
+        "051": Extend051,
+        "060": Extend060,
+        "061": Extend061,
+        "062": Extend062,
+    },
+}
+
+packet Extend031 {
+    MemberID,
+    TraderCode,
+    CounterpartyMemberID,
+    CounterpartyTraderCode,
+    SettlType,
+    SettlPeriod,
+    CashMargin,
+    Memo,
+}
+
+packet Extend051 {
+    ExpirationDays,
+    ExpirationType,
+    MaturityDate,
+    ShareProperty,
+}
+
+packet Extend062 {
+    CashMargin,
 }
 
 //4.6.1. 业务拒绝消息（Business Reject）
