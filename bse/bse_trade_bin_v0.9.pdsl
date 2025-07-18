@@ -1,0 +1,590 @@
+options {
+    StringPreFixLenType = u16;
+    RepeatPreFixSizeType = u16;
+    LittleEndian = true;
+    JavaPackage = "com.finproto.bjse.trade.messages";
+    GoPackage = "bjse_trade_bin";
+    GoMoudle = "github.com/xinchentechnote/fin-proto-go/bjse-trade-bin/messages";
+}
+
+MetaData DataField {
+    int64 Price `价格，N13(5)`
+    int64 Qty `数量，N15(3)`
+    int64 Amt `金额，N18(3)`
+    int64 SeqNum `消息序号`
+    uint16 Boolean `1=True/Yes,0=False/No`
+    uint32 Length `长度，表示字节为单位的数据长度，正数`
+    int64 LocalTimeStamp `本地时间戳，YYYYMMDDHHMMSSsss（毫秒）`
+    uint32 NumInGroup `重复数，表示重复组的个数，正数`
+    uint32 LocalMktDate `本地市场日期，格式YYYYMMDD`
+    char[8] SecurityID `证券代码，6位数字，前2位空格`
+    char[6] PBUID `交易单元代码，6位数字`
+    char[10] AccountID `证券账户`
+    char[2] BranchID `营业部识别码`
+    char[6] MemberID `交易商代码`
+    char[5] TraderCode `交易员代码`
+    char[10] ClOrdID `客户订单编号，10位数字字符串，需要前缀补0`
+    char[16] OrderID `交易所订单编号，交易所赋予的订单编号，跨交易日不重复`
+}
+
+MetaData SessionField {
+    uint32 BodyLength `消息体长度`
+    uint32 MsgType `消息类型`
+    char[20] SenderCompID `发送方代码`
+    char[20] TargetCompID `接收方代码`
+    char[16] Password `密码`
+    char[200] Text `文本信息，可能包含中文字符，表示最多200个字节`
+    int32 HeartBtInt `心跳监测的时间间隔为系统设定值，以秒为单位`
+    char[32] DefaultApplVerID `通信版本号，填写为n.xy，如通信版本号为1.01时，则字段应设置为1.01`
+    int32 SessionStatus `会话状态`
+    uint32 Checksum `校验和`
+}
+
+MetaData Bussines{
+    char[10] AccountID `证券账户`
+    char[3] ApplID `应用标识`
+    char[2] BranchID `营业部识别码`
+    uint16 BusinessRejectReason `拒绝原因`
+    char[10] BusinessRejectRefID `被拒绝消息对应的业务层ID`
+    char[50] BusinessRejectText `拒绝原因说明，可能包含中文字符，最多50个字节`
+    char CashMargin `融资融券信用标识，1=Cash普通交易，2=Open融资融券开仓，3=Close融券融券平仓`
+    Amt CashOrderQty `订单现金金额`
+    char[2] ClearingFirm `结算机构代码`
+    char[10] ClOrdID `客户订单编号`
+    uint32 ConfirmID `约定号，N8(0)`
+    char[10] CounterpartyAccountID `对手方证券账户`
+    char[2] CounterpartyBranchID `对手方营业部识别码`
+    char[16] CounterpartyExecID `交易所赋予的执行编号，单个交易日内不重复`
+    char[6] CounterpartyMemberID `对手方交易商代码`
+    char[6] CounterpartyPBUID `对手方交易单元`
+    char[5] CounterpartyTraderCode `对手方交易员代码`
+    Qty CumQty `累计执行数量`
+    uint16 CxlRejReason `撤单拒绝原因代码，正数`
+    char[16] ExecID `交易所赋予的执行编号，单个交易日内不重复`
+    char ExecType `执行报告类型，0=New，4=Cancelled，8=Reject，F=Trade`
+    uint16 ExpirationDays `期限，单位为天数`
+    uint8 ExpirationExecInst `到期续做方式，1=自动，2=手动`
+    uint8 ExpirationType `期限类型，1=固定期限`
+    timestamp ExpireTime `询价请求失效时间`
+    Price HighLimitPrice `价格上限`
+    char[8] InsufficientSecurityID `申购赎回不足成份股证券代码`
+    char[2] InvestmentType `资金用途类型，01=生产经营，02=补充流动资金，…，99=其他`
+    Price LastParPx `成交价格二`
+    Price LastPx `成交价格`
+    Qty LastQty `成交数量`
+    Qty LeavesQty `订单剩余数量`
+    char LotType `订单数量类型，1=Odd Lot，2=Round Lot`
+    Price LowLimitPrice `价格下限`
+    LocalMktDate MaturityDate `到期日`
+    Qty MaxFloor `可显示数量`
+    uint16 MaxPriceLevels `最多成交价位数，正数，0表示不限制`
+    char[120] Memo `备注，可包含中文字符，最长120字节`
+    Qty MinQty `最低成交数量`
+    Numingroup NoBaskets `质押篮子个数`
+    Numingroup NoCounterparty `对手方个数`
+    Numingroup NoCounterpartyPbu `对手方交易单元个数`
+    Numingroup NoLegs `多腿订单包含的单腿数`
+    Numingroup NoMarginItems `保证金条目个数`
+    Numingroup NoPartitions `分区个数`
+    Numingroup NoPartyIds `参与方个数`
+    Numingroup NoQuote `报价消息个数`
+    Numingroup NoSecurity `证券只数`
+    AccountID OfferAccountID `卖方证券账户`
+    BranchID OfferBranchID `卖方营业部识别码`
+    PBUID OfferPBUID `卖方交易单元`
+    OrderID OrderID `交易所订单编号，交易所赋予的订单编号，跨交易日不重复`
+    Qty OrderQty `订单数量`
+    char[4] OrderRestrictions `订单限定，1=程序化交易，E=算法交易，最多可同时填写四种限定类型，如没有限定类型则填空`
+    uint16 OrdRejReason `订单拒绝原因代码，正数`
+    char OrdStatus `订单状态，0=New 表示新订单，1=Partially filled 表示部分成交，2=Filled 表示全部成交，4=Cancelled 表示已撤销，8=Reject 表示已拒绝`
+
+    char OrdType `订单类型，1 表示市价，2 表示限价，U 本方最优`
+    char[10] OrigClOrdID `原订单 ClOrdID，10 位数字字符，需前缀补 0`
+    PBUID OrigSubmittingPBUID `初始交易申报交易单元`
+    LocalMktDate OrigTradeDate `初始成交申报申报日期`
+    char[16] OrigTradeID `初始成交申报的 TradeID`
+    ClOrdID OrigTradeReportID `初始交易客户成交申报编号`
+    uint16 OwnerType `所有者类型，正数，1=个人投资者发起，101=交易所发起，102=会员发起，103=机构投资者发起，104=自营交易发起，105=流动性服务提供商发起，106=结算机构发起`
+    int32 PartitionNo `平台分区号`
+    uint16 PlatformID `平台号，2=固定收益平台`
+    uint16 PlatformState `平台状态，0=PreOpen 未开放，2=Open 开放，3=Halt 暂停开放，4=Close 关闭`
+    uint16 PledgeeType `质权人类型`
+    uint8 PreTradeAnonymity `是否匿名，0=显名，1=匿名`
+    Price Price `价格`
+    uint8 PriceType `价格类型，1=百分比，2=每交易单位，3=固定数量`
+    uint8 PrivateQuote `私有报价，0=私有报价（PrivateQuote），1=公开报价（PublicQuote）`
+    char[10] QuoteID `报价消息编号`
+    ClOrdID QuoteMsgID `客户报价消息编号`
+    Price QuotePrice `报价价格`
+    uint16 QuotePriceType `报价价格类型，预留，1=百分比（Percent of par），2=每股（Per Share）`
+    Qty QuoteQty `报价数量`
+    uint32 RefMsgType `被拒绝的消息类型`
+    SeqNum RefSeqNum `引用的消息序号`
+    char[16] RejectText `拒绝原因说明，可能包含中文字符，最多 16 个字节`
+    SeqNum ReportIndex `回报记录号，从 1 开始编号`
+    PBUID ReportingPBUID `回报交易单元`
+    char[16] RptExecID `成交申报执行编号`
+    OrderID SecondaryOrderID `第二交易所订单编号`
+    char[8] SecurityID `证券代码`
+    char[4] SecurityIDSource `证券代码源，3 位数字字符，首位空格，106=北京证券交易所`
+    char[8] SecurityType `证券类别，MLEG=组合`
+    char[8] SecuritySubType `证券子类别`
+    Amt SettlCurrAmt `结算金额`
+    int32 SettlementRatio `平仓线，单位为百分比，定义为 N6(2)`
+
+    char SettlPeriod `结算周期，0=T+0，1=T+1，2=T+2，3=T+3`
+    char SettlType `结算方式，2=多边净额`
+    char[2] ShareProperty `股份性质，00=无限售流通股，01=首发后限售股，05=首发前限售股，08=首发后可出借限售股`
+    char Side `买卖方向，1=买，2=卖，G=借入，F=出借，D=申购，E=赎回`
+    Price StopPx `止损价格`
+    MemberID SubmittingMemberID `申报交易商代码`
+    PBUID SubmittingPbuId `申报交易单元`
+    TraderCode SubmittingTraderCode `申报方交易员代码`
+    Amt SubstCash `执行报告现金替代金额或成交申报现金结算金额`
+    char[] SupplementaryAgreement `补充约定，变长字符串，由 SupplementaryAgreementLen 字段指示，可包含中文字符，最长 600 字节`
+    char TimeInForce `订单有效时期类型，0=当日有效，3=即时成交或取消（IOC）`
+    uint16 TimeToExpiration `期限，单位为天，正数`
+    LocalMktDate TradeDate `开始日期`
+    char TradeHandlingInstr `成交申报模式，0=Trade Confirm，1=Two-Party Report，2=One-Party Report For Matching，3=One-Party Report for Pass Through，5=Two Party Report for Claim`
+    OrderID TradeID `交易所成交申报编号，交易所赋予的成交申报编号，跨交易日不重复`
+    ClOrdID TradeReportID `客户成交申报编号`
+    ClOrdID TradeReportRefID `原客户成交申报编号`
+    uint16 TradeReportRejectReason `成交申报拒绝原因代码`
+    uint8 TradeReportTransType `成交申报事务类别，0=New，1=Cancel，2=Replace`
+    uint8 TradeReportType `成交申报消息类型，0=Submit，1=Alleged，2=Accept，3=Decline`
+    LocalTimestamp TransactTime `订单或执行的创建时间`
+    PBUID TransfereePbuId `转入交易单元代码`
+    uint8 TrdAckStatus `成交申报响应状态，0=Accepted，1=Rejected`
+    char[16] TrdMatchID `交易编号，跨交易日唯一`
+    uint8 TrdRptStatus `成交申报状态，0=Accepted，1=Rejected，2=Cancelled，100=Unmatched，101=Matched`
+    uint16 TrdSubType `成交申报业务子类别，0=非受限股份转让，1=受限股份转让，10=不变更续做对手方，11=变更续做对手方，其他业务固定填 0`
+    uint16 TrdType `成交申报类型`
+    Amt UnderlyingCashOrderQty `基础证券券面总额`
+    char[8] UnderlyingSecurityID `基础证券代码`
+    char[4] UnderlyingSecurityIDSource `基础证券代码源，106=北京证券交易所`
+    char[2] UnderlyingShareProperty `基础证券股份性质，00=无限售流通股，01=首发后限售股`
+    char[32] UserInfo `用户私有信息，仅可包含 ASCII 可显示字符`
+}
+
+
+
+packet Logon {
+    SenderCompID,
+    TargetCompID,
+    HeartBtInt,
+    Password,
+    DefaultApplVerID,
+}
+
+packet Logout {
+    SessionStatus,
+    Text,
+}
+
+packet Heartbeat {
+
+}
+
+//4.3.1. 新订单（New Order）
+packet NewOrder {
+    ApplID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    ClOrdID,
+    AccountID,
+    BranchID,
+    OrderRestrictions,
+    Side,
+    OrdType,
+    OrderQty,
+    Price,
+    // ExtendFields 视 ApplID 决定
+}
+
+//4.3.2. 撤单请求（Order Cancel Request）
+packet OrderCancelRequest {
+    ApplID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    ClOrdID,
+    OrigClOrdID,
+    AccountID,
+    BranchID,
+    OrderID,
+    OrderQty,
+}
+
+//4.3.3. 撤单失败响应（Cancel Reject）
+packet CancelReject {
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ReportingPBUID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    ClOrdID,
+    OrigClOrdID,
+    AccountID,
+    BranchID,
+    OrdStatus,
+    CxlRejReason,
+    RejectText,
+    OrderID,
+}
+
+//4.3.4. 订单响应及撤单成功执行报告（Execution Report）
+packet ExecutionConfirm {
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ReportingPBUID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    OrderID,
+    ClOrdID,
+    OrigClOrdID,
+    ExecID,
+    ExecType,
+    OrdStatus,
+    OrdRejReason,
+    LeavesQty,
+    CumQty,
+    Side,
+    OrdType,
+    OrderQty,
+    Price,
+    AccountID,
+    BranchID,
+    OrderRestrictions,
+    // ExtendFields 各业务 ApplID 可选字段
+}
+
+//4.3.5. 订单成交执行报告（Execution Report）
+packet ExecutionReport {
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ReportingPBUID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    OrderID,
+    ClOrdID,
+    ExecID,
+    ExecType,
+    OrdStatus,
+    LastPx,
+    LastQty,
+    LeavesQty,
+    CumQty,
+    Side,
+    AccountID,
+    BranchID,
+    // ExtendFields 各业务 ApplID 可选字段
+}
+
+//4.4.1. 报价（Quote）
+packet Quote {
+    ApplID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    QuoteMsgID,
+    AccountID,
+    QuoteReqID,
+    QuoteType,
+    BidPx,
+    OfferPx,
+    BidSize,
+    OfferSize,
+    // ExtendFields 各业务 ApplID 可选字段
+}
+
+//4.4.2. 报价状态回报（QuoteStatusReport）
+packet QuoteStatusReport {
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ReportingPBUID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    QuoteMsgID,
+    AccountID,
+    QuoteReqID,
+    QuoteRjectReason,
+    QuoteType,
+    BidPx,
+    OfferPx,
+    BidSize,
+    OfferSize,
+    // ExtendFields 各业务 ApplID 可选字段
+}
+
+//4.4.3. 报价回复（Quote Response）
+packet QuoteResponse {
+    ApplID,
+    ReportingPBUID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    ClOrdID,
+    AccountID,
+    BranchID,
+    QuoteRespID,
+    QuoteRespType,
+    Side,
+    ValidUntilTime,
+    QuoteType,
+    PriceType,
+    repeat NoQuote {
+        QuoteID,
+        QuotePrice,
+        QuoteQty,
+    },
+    // ExtendFields 各业务 ApplID 可选字段
+}
+
+//4.4.4. 转发报价（Allege Quote）
+packet AllegeQuote {
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ReportingPBUID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    OrderID,
+    ExecID,
+    ClOrdID,
+    AccountID,
+    QuoteReqID,
+    QuoteID,
+    QuoteRespID,
+    QuoteType,
+    BidPx,
+    OfferPx,
+    BidSize,
+    OfferSize,
+    PrivateQuote,
+    ValidUntilTime,
+    PriceType,
+    Memo,
+    // ExtendFields 各业务 ApplID 可选字段
+}
+
+//4.5.1. 成交申报（Trade Capture Report）
+packet TradeCaptureReport {
+    ApplID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    TradeReportID,
+    TradeReportType,
+    TradeReportTransType,
+    TradeHandlingInstr,
+    TradeReportRefID,
+    LastPx,
+    LastQty,
+    TrdType,
+    TrdSubType,
+    ConfirmID,
+    Side,
+    PBUID,
+    AccountID,
+    BranchID,
+    CounterpartyPBUID,
+    CounterpartyAccountID,
+    CounterpartyBranchID,
+    //ExtendFields 各业务 ApplID 可选字段
+}
+
+//4.5.2. 成交申报响应（Trade Capture Report Ack）
+packet TradeCaptureReportAck {
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ReportingPBUID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    TradeID,
+    TradeReportID,
+    TradeReportType,
+    TradeReportTransType,
+    TradeHandlingInstr,
+    TradeReportRefID,
+    TrdAckStatus,
+    TrdRptStatus,
+    TradeReportRejectReason,
+    LastPx,
+    LastQty,
+    TrdType,
+    TrdSubType,
+    ConfirmID,
+    ExecID,
+    Side,
+    PBUID,
+    AccountID,
+    BranchID,
+    CounterpartyPBUID,
+    CounterpartyAccountID,
+    CounterpartyBranchID,
+    // ExtendFields 各业务 ApplID 可选字段
+}
+
+//4.5.3. 成交确认（Trade Capture Report）
+packet TradeCaptureReport {
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ReportingPBUID,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    OwnerType,
+    ClearingFirm,
+    TransactTime,
+    UserInfo,
+    TradeID,
+    TradeReportID,
+    TradeReportType,
+    TradeReportTransType,
+    TradeHandlingInstr,
+    LastPx,
+    LastQty,
+    TrdType,
+    TrdSubType,
+    ConfirmID,
+    ExecID,
+    Side,
+    PBUID,
+    AccountID,
+    BranchID,
+    CounterpartyPBUID,
+    CounterpartyAccountID,
+    CounterpartyBranchID,
+    //ExtendFields 各业务 ApplID 可选字段
+}
+
+//4.6.1. 业务拒绝消息（Business Reject）
+packet BusinessReject {
+    ApplID,
+    TransactTime,
+    SubmittingPBUID,
+    SecurityID,
+    SecurityIDSource,
+    RefSeqNum,
+    RefMsgType,
+    BusinessRejectRefID,
+    BusinessRejectReason,
+    BusinessRejectText,
+}
+
+//4.6.2. 回报同步消息（Report Synchronization）
+packet ReportSynchronization {
+    repeat ReportPartitionSync {
+        PartitionNo,
+        ReportIndex,
+    },
+}
+
+//4.6.3. 交易会话状态消息（Trading Session Status）
+packet TradingSessionStatus {
+    MarketID,
+    MarketSegmentID,
+    TradingSessionID,
+    TradingSessionSubID,
+    TradSesStatus,
+    TradSesStartTime,
+}
+
+//4.6.4. 平台状态消息（Platform State Info）
+packet PlatformStateInfo {
+    PlatformID,
+    PlatformState,
+}
+
+//4.6.5. 回报结束消息（Report Finished）
+packet ReportFinished {
+    PartitionNo,
+    ReportIndex,
+    PlatformID,
+}
+
+//4.6.6. 平台信息消息（Platform Info）
+packet PlatformInfo{
+    PlatformID,
+    repeat NoPartitions {
+        PartitionNo,
+        PartitionName,
+    },
+    
+}
+
+root packet BjseBinary {
+    u32 MsgType `消息类型`,
+    u32 BodyLength `消息体长度`,
+    match MsgType as Body {
+        1 : Logon,
+        2 : Logout,
+        3 : Heartbeat,
+        101000 : NewOrder,
+        102000 : OrderCancelRequest,
+        201000 : CancelReject,
+        202010 : ExecutionConfirm,
+        203010 : ExecutionReport,
+        5 : ReportSynchronization,
+        6 : PlatformStateInfo,
+        7 : ReportFinished,
+    },
+    Checksum,
+}
