@@ -212,7 +212,7 @@ packet NewOrder {
         "044": Extend044,
         "045": Extend045,
         "050": Extend050,
-    }
+    },
 }
 
 packet Extend010 {
@@ -413,7 +413,7 @@ packet Quote {
     match ApplID as ApplExtend {
         "070": Extend070,
         "071": Extend071,
-    }
+    },
 }
 
 packet Extend070 {
