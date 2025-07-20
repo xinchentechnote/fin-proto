@@ -6,7 +6,7 @@ options {
     LittleEndian = false;
     JavaPackage = "com.finproto.risk.bin.messages";
     GoPackage = "risk_bin"
-    GoMoudle = "github.com/xinchentechnote/fin-proto-go/risk-bin/messages"
+    GoModule = "github.com/xinchentechnote/fin-proto-go/risk-bin/messages"
 }
 
 root packet RcBinary {
