@@ -93,7 +93,7 @@ MetaData Bussines{
     Price Price `委托价格`,
     Amt PosAmt `日中剩余额度`,
     char[10] QuoteID `报价消息编号`,
-    char[n] RawData `变长二进制数据`,
+    char[] RawData `变长二进制数据`,
     char[8] RawDataFormat `二进制数据格式`,
     Length RawDataLength `二进制数据长度`,
     uint32 RefMsgType `被拒绝的消息类型`,
@@ -180,7 +180,7 @@ packet ResendRequest {
 packet ChannelStatistics {
     OrigTime,
     ChannelNo,
-    repeatn NoMDStreamID{
+    repeat NoMDStreamID{
         MDStreamID,
         StockNum,
         TradingPhaseCode,
@@ -236,7 +236,7 @@ packet SnapshotMarketData {
         "010" : ExtendMd010,
         "020" : ExtendMd020,
         "030" : ExtendMd030,
-    }
+    },
 }
 
 packet ExtendMd010 {
@@ -247,7 +247,7 @@ packet ExtendMd010 {
         MDPriceLevel,
         repeat NoOrders {
             OrderQty,
-        }
+        },
     },
     repeat NoSubTradingPhaseCodes {
         SubTradingPhaseCodes,
@@ -266,14 +266,14 @@ packet ExtendMd020 {
         MDPriceLevel,
         repeat NoOrders {
             OrderQty,
-        }
-    }
+        },
+    },
 }
 packet ExtendMd030 {
     repeat NoMDEntries {
         MDEntryType,
         MDEntryPx,
-    }
+    },
 }
 
 //逐笔委托行情
@@ -294,7 +294,7 @@ packet TickByTickOrderMarketData {
         "022" : ExtendOrdMd022,
         "023" : ExtendOrdMd023,
         "024" : ExtendOrdMd024,
-    }
+    },
 }
 
 packet ExtendOrdMd011 {
@@ -340,7 +340,7 @@ packet TickByTickReportMarketData {
         "012" : ExtendReportMd012,
         "023" : ExtendReportMd023,
         "024" : ExtendReportMd024,
-    }
+    },
 }
 
 packet ExtendReportMd011 {
