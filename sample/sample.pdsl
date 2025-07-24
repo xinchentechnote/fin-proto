@@ -1,25 +1,30 @@
+// sample.pdsl is a sample protocol definition file for FinProto.
+// It defines various packet structures and their fields, including basic types,
+// strings, nested packets, and empty packets.
+// protocol definition base on antlr4 :https://github.com/xinchentechnote/fin-protoc/blob/main/grammar/PacketDsl.g4
 options {
     StringPreFixLenType = u16;
-	RepeatPreFixSizeType = u16;
-	LittleEndian = true;
-	JavaPackage = "com.finproto.sample.messages";
-	GoPackage = "sample_bin";
-    GoModule ="github.com/xinchentechnote/fin-proto-go/sample-bin/messages"
+    RepeatPreFixSizeType = u16;
+    LittleEndian = true;
+    JavaPackage = "com.finproto.sample.messages";
+    GoPackage = "sample_bin";
+    GoModule = "github.com/xinchentechnote/fin-proto-go/sample-bin/messages";
 }
 
+// root packet
 root packet RootPacket {
-
     u16 MsgType `msgType`,
     u32 PayloadLen = lengthof(Payload) `length of the payload`,
     match MsgType as Payload {
-        1: BasicPacket,
-        2: StringPacket,
-        3: NestedPacket,
-        4: EmptyPacket,
+        1 : BasicPacket,
+        2 : StringPacket,
+        3 : NestedPacket,
+        4 : EmptyPacket,
     },
     i32 Checksum,
 }
 
+// BasicPacket is a packet that contains various basic data types.
 packet BasicPacket {
     i8 fieldI8,
     i16 fieldI16,
@@ -30,10 +35,8 @@ packet BasicPacket {
     u16 fieldU16,
     u32 fieldU32,
     u64 fieldU64,
-
     f32 fieldF32,
     f64 fieldF64,
-
     repeat i8 fieldI8List,
     repeat i16 fieldI16List,
     repeat i32 fieldI32List,
@@ -43,40 +46,41 @@ packet BasicPacket {
     repeat u16 fieldU16List,
     repeat u32 fieldU32List,
     repeat u64 fieldU64List,
-
     repeat f32 fieldF32List,
     repeat f64 fieldF64List,
 }
 
-
+// StringPacket is a packet that contains various string fields.
+// It includes both dynamic and fixed-length strings, as well as lists of these strings.
 packet StringPacket {
     string fieldDynamicString,
     char[] fieldDynamicString1,
     char[1] fieldFixedString1,
     char[10] fieldFixedString10,
-
     repeat string fieldDynamicStringList,
     repeat char[] fieldDynamicString1List,
     repeat char[1] fieldFixedString1List,
     repeat char[10] fieldFixedString10List,
 }
 
+// NestedPacket is a packet that contains a sub-packet and an inner packet.
 packet NestedPacket {
     SubPacket SubPacket,
     repeat SubPacket SubPacketList,
-
+    // InnerPacket InnerPacket,
+    // The InnerPacket is defined within the NestedPacket, but it can also be defined separately
     InerPacket {
         u32 fieldU32,
         repeat i16 fieldI16List,
     },
-
 }
 
+// SubPacket is a sub-packet used within NestedPacket.
 packet SubPacket {
     u32 fieldU32,
     repeat i16 fieldI16List,
 }
 
+// EmptyPacket is a packet that contains no fields.
 packet EmptyPacket {
-
 }
