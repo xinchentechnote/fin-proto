@@ -4,7 +4,7 @@ options {
     LittleEndian = true;
     JavaPackage = "com.finproto.bjse.trade.messages";
     GoPackage = "bjse_trade_bin";
-    GoMoudle = "github.com/xinchentechnote/fin-proto-go/bjse-trade-bin/messages";
+    GoModule = "github.com/xinchentechnote/fin-proto-go/bjse-trade-bin/messages";
 }
 
 MetaData DataField {
@@ -41,16 +41,13 @@ MetaData SessionField {
 }
 
 MetaData Bussines{
-    char[10] AccountID `证券账户`,
     char[3] ApplID `应用标识`,
-    char[2] BranchID `营业部识别码`,
     uint16 BusinessRejectReason `拒绝原因`,
     char[10] BusinessRejectRefID `被拒绝消息对应的业务层ID`,
     char[50] BusinessRejectText `拒绝原因说明，可能包含中文字符，最多50个字节`,
     char CashMargin `融资融券信用标识，1=Cash普通交易，2=Open融资融券开仓，3=Close融券融券平仓`,
     Amt CashOrderQty `订单现金金额`,
     char[2] ClearingFirm `结算机构代码`,
-    char[10] ClOrdID `客户订单编号`,
     uint32 ConfirmID `约定号，N8(0)`,
     char[10] CounterpartyAccountID `对手方证券账户`,
     char[2] CounterpartyBranchID `对手方营业部识别码`,
@@ -92,7 +89,6 @@ MetaData Bussines{
     AccountID OfferAccountID `卖方证券账户`,
     BranchID OfferBranchID `卖方营业部识别码`,
     PBUID OfferPBUID `卖方交易单元`,
-    OrderID OrderID `交易所订单编号，交易所赋予的订单编号，跨交易日不重复`,
     Qty OrderQty `订单数量`,
     char[4] OrderRestrictions `订单限定，1=程序化交易，E=算法交易，最多可同时填写四种限定类型，如没有限定类型则填空`,
     uint16 OrdRejReason `订单拒绝原因代码，正数`,
@@ -111,7 +107,6 @@ MetaData Bussines{
     uint16 PlatformState `平台状态，0=PreOpen 未开放，2=Open 开放，3=Halt 暂停开放，4=Close 关闭`,
     uint16 PledgeeType `质权人类型`,
     uint8 PreTradeAnonymity `是否匿名，0=显名，1=匿名`,
-    Price Price `价格`,
     uint8 PriceType `价格类型，1=百分比，2=每交易单位，3=固定数量`,
     uint8 PrivateQuote `私有报价，0=私有报价（PrivateQuote），1=公开报价（PublicQuote）`,
     char[10] QuoteID `报价消息编号`,
@@ -126,7 +121,6 @@ MetaData Bussines{
     PBUID ReportingPBUID `回报交易单元`,
     char[16] RptExecID `成交申报执行编号`,
     OrderID SecondaryOrderID `第二交易所订单编号`,
-    char[8] SecurityID `证券代码`,
     char[4] SecurityIDSource `证券代码源，3 位数字字符，首位空格，106=北京证券交易所`,
     char[8] SecurityType `证券类别，MLEG=组合`,
     char[8] SecuritySubType `证券子类别`,
@@ -311,18 +305,18 @@ packet ExecutionConfirm {
     BranchID,
     OrderRestrictions,
     match ApplID as ApplExtend {
-        "010": Extend010,
-        "040": Extend040,
-        "041": Extend041,
-        "042": Extend042,
-        "043": Extend043,
-        "044": Extend044,
-        "045": Extend045,
-        "050": Extend050,
+        "010": ConfirmExtend010,
+        "040": ConfirmExtend040,
+        "041": ConfirmExtend041,
+        "042": ConfirmExtend042,
+        "043": ConfirmExtend043,
+        "044": ConfirmExtend044,
+        "045": ConfirmExtend045,
+        "050": ConfirmExtend050,
     },
 }
 
-packet Extend010 {
+packet ConfirmExtend010 {
     StopPx,
     MinQty,
     MaxPriceLevels,
@@ -330,7 +324,7 @@ packet Extend010 {
     CashMargin,
 }
 
-packet Extend040 {
+packet ConfirmExtend040 {
     StopPx,
     MinQty,
     MaxPriceLevels,
@@ -338,7 +332,7 @@ packet Extend040 {
     CashMargin,
 }
 
-packet Extend050 {
+packet ConfirmExtend050 {
     ExpirationDays,
     ExpirationType,
     ShareProperty, 
@@ -370,23 +364,23 @@ packet ExecutionReport {
     AccountID,
     BranchID,
     match ApplID as ApplExtend {
-        "010": Extend010,
-        "040": Extend040,
-        "050": Extend050,
+        "010": ReportExtend010,
+        "040": ReportExtend040,
+        "050": ReportExtend050,
     },
 }
 
-packet Extend010 {
+packet ReportExtend010 {
     CashMargin,
     SettlType,
     SettlPeriod,
 }
 
-packet Extend040 {
+packet ReportExtend040 {
     CashMargin,
 }
 
-packet Extend050 {
+packet ReportExtend050 {
     ExpirationDays,
     ExpirationType,
     MaturityDate,
@@ -412,12 +406,12 @@ packet Quote {
     BidSize,
     OfferSize,
     match ApplID as ApplExtend {
-        "070": Extend070,
-        "071": Extend071,
+        "070": QuoteExtend070,
+        "071": QuoteExtend071,
     },
 }
 
-packet Extend070 {
+packet QuoteExtend070 {
     BranchID,
     QuoteID,
     QuoteRespID,
@@ -429,7 +423,7 @@ packet Extend070 {
     Memo,
 }
 
-packet Extend071 {}
+packet QuoteExtend071 {}
 
 //4.4.2. 报价状态回报（QuoteStatusReport）
 packet QuoteStatusReport {
@@ -454,11 +448,11 @@ packet QuoteStatusReport {
     BidSize,
     OfferSize,
     match ApplID as ApplExtend {
-        "070": Extend070,
+        "070": QuoteStatusReportExtend070,
     },
 }
 
-packet Extend070 {
+packet QuoteStatusReportExtend070 {
     BranchID,
     OrderID,
     ExecID,
@@ -503,11 +497,11 @@ packet QuoteResponse {
         QuoteQty,
     },
     match ApplID as ApplExtend {
-        "070": Extend070,
+        "070": QuoteResponseExtend070,
     },
 }
 
-packet Extend070 {
+packet QuoteResponseExtend070 {
     CashMargin,
 }
 
@@ -541,11 +535,11 @@ packet AllegeQuote {
     PriceType,
     Memo,
     match ApplID as ApplExtend {
-        "070": Extend070,
+        "070": AllegeQuoteExtend070,
     },
 }
 
-packet Extend070 {
+packet AllegeQuoteExtend070 {
     CashMargin,
     CounterPartyPBUID,
 }
@@ -608,15 +602,15 @@ packet TradeCaptureReport {
     CounterpartyAccountID,
     CounterpartyBranchID,
     match ApplID as ApplExtend {
-        "031": Extend031,
-        "051": Extend051,
-        "060": Extend060,
-        "061": Extend061,
-        "062": Extend062,
+        "031": TradeCaptureReportExtend031,
+        "051": TradeCaptureReportExtend051,
+        "060": TradeCaptureReportExtend060,
+        "061": TradeCaptureReportExtend061,
+        "062": TradeCaptureReportExtend062,
     },
 }
 
-packet Extend031 {
+packet TradeCaptureReportExtend031 {
     MemberID,
     TraderCode,
     CounterpartyMemberID,
@@ -627,13 +621,13 @@ packet Extend031 {
     Memo,
 }
 
-packet Extend051 {
+packet TradeCaptureReportExtend051 {
     ExpirationDays,
     ExpirationType,
     ShareProperty,
 }
 
-packet Extend062 {
+packet TradeCaptureReportExtend062 {
     CashMargin,
 }
 
@@ -673,15 +667,15 @@ packet TradeCaptureReportAck {
     CounterpartyAccountID,
     CounterpartyBranchID,
     match ApplID as ApplExtend {
-        "031": Extend031,
-        "051": Extend051,
-        "060": Extend060,
-        "061": Extend061,
-        "062": Extend062,
+        "031": TradeCaptureReportAckExtend031,
+        "051": TradeCaptureReportAckExtend051,
+        "060": TradeCaptureReportAckExtend060,
+        "061": TradeCaptureReportAckExtend061,
+        "062": TradeCaptureReportAckExtend062,
     },
 }
 
-packet Extend031 {
+packet TradeCaptureReportAckExtend031 {
     MemberID,
     TraderCode,
     CounterpartyMemberID,
@@ -692,18 +686,18 @@ packet Extend031 {
     Memo,
 }
 
-packet Extend051 {
+packet TradeCaptureReportAckExtend051 {
     ExpirationDays,
     ExpirationType,
     ShareProperty,
 }
 
-packet Extend062 {
+packet TradeCaptureReportAckExtend062 {
     CashMargin,
 }
 
 //4.5.3. 成交确认（Trade Capture Report）
-packet TradeCaptureReport {
+packet TradeCaptureCofirm {
     PartitionNo,
     ReportIndex,
     ApplID,
@@ -734,15 +728,15 @@ packet TradeCaptureReport {
     CounterpartyAccountID,
     CounterpartyBranchID,
       match ApplID as ApplExtend {
-        "031": Extend031,
-        "051": Extend051,
-        "060": Extend060,
-        "061": Extend061,
-        "062": Extend062,
+        "031": TradeCaptureCofirmExtend031,
+        "051": TradeCaptureCofirmExtend051,
+        "060": TradeCaptureCofirmExtend060,
+        "061": TradeCaptureCofirmExtend061,
+        "062": TradeCaptureCofirmExtend062,
     },
 }
 
-packet Extend031 {
+packet TradeCaptureCofirmExtend031 {
     MemberID,
     TraderCode,
     CounterpartyMemberID,
@@ -753,14 +747,14 @@ packet Extend031 {
     Memo,
 }
 
-packet Extend051 {
+packet TradeCaptureCofirmExtend051 {
     ExpirationDays,
     ExpirationType,
     MaturityDate,
     ShareProperty,
 }
 
-packet Extend062 {
+packet TradeCaptureCofirmExtend062 {
     CashMargin,
 }
 

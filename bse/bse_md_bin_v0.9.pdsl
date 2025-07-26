@@ -4,7 +4,7 @@ options {
     LittleEndian = true;
     JavaPackage = "com.finproto.bjse.md.messages";
     GoPackage = "bjse_md_bin";
-    GoMoudle = "github.com/xinchentechnote/fin-proto-go/bjse-md-bin/messages";
+    GoModule = "github.com/xinchentechnote/fin-proto-go/bjse-md-bin/messages";
 }
 
 MetaData DataField {
@@ -90,7 +90,6 @@ MetaData Bussines{
     char OrdType `订单类型`,
     LocalTimestamp OrigTime `数据生成时间`,
     Price PreClosePx `昨收价`,
-    Price Price `委托价格`,
     Amt PosAmt `日中剩余额度`,
     char[10] QuoteID `报价消息编号`,
     char[] RawData `变长二进制数据`,
@@ -102,7 +101,6 @@ MetaData Bussines{
     uint8 ResendStatus `重传状态`,
     uint8 ResendType `重发种类`,
     char[16] SecondaryOrderID `竞买场次编号`,
-    SecurityID SecurityID `证券代码`,
     char[4] SecurityIDSource `证券代码源`,
     char[40] SecuritySymbol `证券简称`,
     Boolean SecuritySwitchStatus `开关状态`,
