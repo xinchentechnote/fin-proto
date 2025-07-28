@@ -18,7 +18,7 @@ MetaData DataType {
 root packet SseBinary {
     uint32 MsgType `消息类型`,
     uint64 MsgSeqNum `消息序列号`,
-    uint32 MsgBodyLen = lengthof(Body) `消息体长度`,
+    uint32 MsgBodyLen @lengthOf(Body) `消息体长度`,
     match MsgType as Body {
         33 : Heartbeat,
         40 : Logon,
@@ -35,7 +35,7 @@ root packet SseBinary {
         207 : ExecRptSyncRsp,
         210 : ExecRptEndOfStream,
     },
-    uint32 Checksum `校验和`,
+    uint32 Checksum @calculatedFrom("SSE_BIN") `校验和`,
 }
 
 packet Heartbeat {
