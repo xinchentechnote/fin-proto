@@ -62,7 +62,7 @@ MetaData Bussines{
     uint16 ExpirationDays `期限，单位为天数`,
     uint8 ExpirationExecInst `到期续做方式，1=自动，2=手动`,
     uint8 ExpirationType `期限类型，1=固定期限`,
-    timestamp ExpireTime `询价请求失效时间`,
+    LocalTimestamp ExpireTime `询价请求失效时间`,
     Price HighLimitPrice `价格上限`,
     char[8] InsufficientSecurityID `申购赎回不足成份股证券代码`,
     char[2] InvestmentType `资金用途类型，01=生产经营，02=补充流动资金，…，99=其他`,
@@ -159,6 +159,16 @@ MetaData Bussines{
     char[4] UnderlyingSecurityIDSource `基础证券代码源，106=北京证券交易所`,
     char[2] UnderlyingShareProperty `基础证券股份性质，00=无限售流通股，01=首发后限售股`,
     char[32] UserInfo `用户私有信息，仅可包含 ASCII 可显示字符`,
+
+    //missing metadata
+    ClOrdID QuoteReqID `报价请求编号`,
+    ClOrdID QuoteRespID `报价响应编号`,
+    uint8 QuoteType `报价类型`,
+    Price BidPx `买价`,
+    Price OfferPx `卖价`,
+    Qty BidSize `买量`,
+    Qty OfferSize `卖量`,
+    LocalTimestamp ValidUntilTime `报价有效时间`,
 }
 
 
