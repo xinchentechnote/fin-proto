@@ -77,6 +77,7 @@ MetaData Bussines{
     uint16 MaxPriceLevels `最多成交价位数，正数，0表示不限制`,
     char[120] Memo `备注，可包含中文字符，最长120字节`,
     Qty MinQty `最低成交数量`,
+    uint32 Numingroup `重复组数量，表示该重复组的个数，正数`,
     Numingroup NoBaskets `质押篮子个数`,
     Numingroup NoCounterParty `对手方个数`,
     Numingroup NoCounterPartyPbu `对手方交易单元个数`,
@@ -171,6 +172,13 @@ MetaData Bussines{
     Qty OfferSize `卖量`,
     LocalTimestamp ValidUntilTime `报价有效时间`,
     uint64 QuoteRjectReason `拒单原因`,
+    char[3] MarketID `市场代码，3 位数字字符，首位空格，106=北京证券交易所`,
+    char[20] PartitionName `分区名称，最多 20 个字节`,
+    char[3] MarketSegmentID `市场分段代码，3 位数字字符，首位空格，106=北京证券交易所`,
+    char[3] TradingSessionID `交易会话ID，3 位数字字符，首位空格，106=北京证券交易所`,
+    char[3] TradingSessionSubID `交易会话子ID，3 位数字字符，首位空格，106=北京证券交易所`,
+    uint8 TradSesStatus `交易会话状态，0=PreOpen 未开放，2=Open 开放，3=Halt 暂停开放，4=Close 关闭`,
+    LocalTimestamp TradSesStartTime `交易会话开始时间，格式为 YYYYMMDDHHMMSSsss（毫秒）`,
 }
 
 
@@ -232,6 +240,11 @@ packet Extend010 {
     SettlPeriod,
 }
 
+packet Extend041 {}
+packet Extend042 {}
+packet Extend043 {}
+packet Extend044 {}
+packet Extend045 {}
 packet Extend040 {
     StopPx,
     MinQty,
@@ -336,6 +349,11 @@ packet ConfirmExtend010 {
     CashMargin,
 }
 
+packet ConfirmExtend041 {}
+packet ConfirmExtend042 {}
+packet ConfirmExtend043 {}
+packet ConfirmExtend044 {}
+packet ConfirmExtend045 {}
 packet ConfirmExtend040 {
     StopPx,
     MinQty,
@@ -639,6 +657,8 @@ packet TradeCaptureReportExtend051 {
     ShareProperty,
 }
 
+packet TradeCaptureReportExtend060 {}
+packet TradeCaptureReportExtend061 {}
 packet TradeCaptureReportExtend062 {
     CashMargin,
 }
@@ -704,6 +724,8 @@ packet TradeCaptureReportAckExtend051 {
     ShareProperty,
 }
 
+packet TradeCaptureReportAckExtend060 {}
+packet TradeCaptureReportAckExtend061 {}
 packet TradeCaptureReportAckExtend062 {
     CashMargin,
 }
@@ -766,6 +788,8 @@ packet TradeCaptureCofirmExtend051 {
     ShareProperty,
 }
 
+packet TradeCaptureCofirmExtend060 {}
+packet TradeCaptureCofirmExtend061 {}
 packet TradeCaptureCofirmExtend062 {
     CashMargin,
 }
