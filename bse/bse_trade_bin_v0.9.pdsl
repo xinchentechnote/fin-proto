@@ -219,18 +219,18 @@ packet NewOrder {
     OrderQty,
     Price,
     match ApplID as ApplExtend {
-        "010": Extend010,
-        "040": Extend040,
-        "041": Extend041,
-        "042": Extend042,
-        "043": Extend043,
-        "044": Extend044,
-        "045": Extend045,
-        "050": Extend050,
+        "010": ExtendNewOrder010,
+        "040": ExtendNewOrder040,
+        "041": ExtendNewOrder041,
+        "042": ExtendNewOrder042,
+        "043": ExtendNewOrder043,
+        "044": ExtendNewOrder044,
+        "045": ExtendNewOrder045,
+        "050": ExtendNewOrder050,
     },
 }
 
-packet Extend010 {
+packet ExtendNewOrder010 {
     StopPx,
     MinQty,
     MaxPriceLevels,
@@ -240,12 +240,12 @@ packet Extend010 {
     SettlPeriod,
 }
 
-packet Extend041 {}
-packet Extend042 {}
-packet Extend043 {}
-packet Extend044 {}
-packet Extend045 {}
-packet Extend040 {
+packet ExtendNewOrder041 {}
+packet ExtendNewOrder042 {}
+packet ExtendNewOrder043 {}
+packet ExtendNewOrder044 {}
+packet ExtendNewOrder045 {}
+packet ExtendNewOrder040 {
     StopPx,
     MinQty,
     MaxPriceLevels,
@@ -253,7 +253,7 @@ packet Extend040 {
     CashMargin,
 }
 
-packet Extend050 {
+packet ExtendNewOrder050 {
     ExpirationDays,
     ExpirationType,
     ShareProperty,
