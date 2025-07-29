@@ -132,14 +132,14 @@ MetaData Bussines{
     char[16] VersionCode `版本代码`,
     uint32 NewsNo `公告序号`,
     uint8 NewsType `公告类型`,
-    //TODO 文档缺失
+    //TODO miss metadata
     char[8] BidBranchName `买方营业部名称`,
     char[8] OfferBranchName `卖方营业部名称`,
     char SecurityType `证券类型`,
     char NPOrdType `非参与方订单类型`,
     char MMDataType `做市商数据类型`,
     char MMOrdType `做市商订单类型`,
-
+    char[8] SubTradingPhaseCodes `交易方式所处的交易阶段代码`,
 }
 
 //登录消息（Logon）
