@@ -40,7 +40,7 @@ MetaData SessionField {
     uint32 Checksum `校验和`,
 }
 
-MetaData Bussines{
+MetaData Business{
     char[3] ApplID `应用标识`,
     uint16 BusinessRejectReason `拒绝原因`,
     char[10] BusinessRejectRefID `被拒绝消息对应的业务层ID`,
@@ -731,7 +731,7 @@ packet TradeCaptureReportAckExtend062 {
 }
 
 //4.5.3. 成交确认（Trade Capture Report）
-packet TradeCaptureCofirm {
+packet TradeCaptureConfirm {
     PartitionNo,
     ReportIndex,
     ApplID,
@@ -762,15 +762,15 @@ packet TradeCaptureCofirm {
     CounterPartyAccountID,
     CounterPartyBranchID,
       match ApplID as ApplExtend {
-        "031": TradeCaptureCofirmExtend031,
-        "051": TradeCaptureCofirmExtend051,
-        "060": TradeCaptureCofirmExtend060,
-        "061": TradeCaptureCofirmExtend061,
-        "062": TradeCaptureCofirmExtend062,
+        "031": TradeCaptureConfirmExtend031,
+        "051": TradeCaptureConfirmExtend051,
+        "060": TradeCaptureConfirmExtend060,
+        "061": TradeCaptureConfirmExtend061,
+        "062": TradeCaptureConfirmExtend062,
     },
 }
 
-packet TradeCaptureCofirmExtend031 {
+packet TradeCaptureConfirmExtend031 {
     MemberID,
     TraderCode,
     CounterPartyMemberID,
@@ -781,16 +781,16 @@ packet TradeCaptureCofirmExtend031 {
     Memo,
 }
 
-packet TradeCaptureCofirmExtend051 {
+packet TradeCaptureConfirmExtend051 {
     ExpirationDays,
     ExpirationType,
     MaturityDate,
     ShareProperty,
 }
 
-packet TradeCaptureCofirmExtend060 {}
-packet TradeCaptureCofirmExtend061 {}
-packet TradeCaptureCofirmExtend062 {
+packet TradeCaptureConfirmExtend060 {}
+packet TradeCaptureConfirmExtend061 {}
+packet TradeCaptureConfirmExtend062 {
     CashMargin,
 }
 
