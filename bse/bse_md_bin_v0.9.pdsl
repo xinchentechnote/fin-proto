@@ -34,7 +34,7 @@ MetaData SessionField {
     int32 SessionStatus `会话状态`,
 }
 
-MetaData Bussines{
+MetaData Business{
     char AmountStatus `额度状态`,
     SeqNum ApplBegSeqNum `起始序号`,
     SeqNum ApplEndSeqNum `结束序号`,
