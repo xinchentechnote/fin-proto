@@ -1,0 +1,2 @@
+- The Beijing Stock Exchange (BSE) streaming binary protocol documentation contains errors and needs to be fixed.
+- 北交所流式二进制协议文档存在错误，待修复！

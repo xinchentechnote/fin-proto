@@ -1822,22 +1822,10 @@ function szse_binary_proto.dissector(buf, pinfo, tree)
     elseif msg_type == 102701 then -- NewOrder
         dissect_new_order(buf, pinfo, tree, offset)
         pinfo.cols.info:set("NewOrder")
-    elseif msg_type == 102701 then -- NewOrder
-        dissect_new_order(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("NewOrder")
-    elseif msg_type == 102801 then -- NewOrder
-        dissect_new_order(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("NewOrder")
     elseif msg_type == 102801 then -- NewOrder
         dissect_new_order(buf, pinfo, tree, offset)
         pinfo.cols.info:set("NewOrder")
     elseif msg_type == 102901 then -- NewOrder
-        dissect_new_order(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("NewOrder")
-    elseif msg_type == 102901 then -- NewOrder
-        dissect_new_order(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("NewOrder")
-    elseif msg_type == 103101 then -- NewOrder
         dissect_new_order(buf, pinfo, tree, offset)
         pinfo.cols.info:set("NewOrder")
     elseif msg_type == 103101 then -- NewOrder
@@ -1918,22 +1906,10 @@ function szse_binary_proto.dissector(buf, pinfo, tree)
     elseif msg_type == 202702 then -- ExecutionConfirm
         dissect_execution_confirm(buf, pinfo, tree, offset)
         pinfo.cols.info:set("ExecutionConfirm")
-    elseif msg_type == 202702 then -- ExecutionConfirm
-        dissect_execution_confirm(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("ExecutionConfirm")
-    elseif msg_type == 202802 then -- ExecutionConfirm
-        dissect_execution_confirm(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("ExecutionConfirm")
     elseif msg_type == 202802 then -- ExecutionConfirm
         dissect_execution_confirm(buf, pinfo, tree, offset)
         pinfo.cols.info:set("ExecutionConfirm")
     elseif msg_type == 202902 then -- ExecutionConfirm
-        dissect_execution_confirm(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("ExecutionConfirm")
-    elseif msg_type == 202902 then -- ExecutionConfirm
-        dissect_execution_confirm(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("ExecutionConfirm")
-    elseif msg_type == 203102 then -- ExecutionConfirm
         dissect_execution_confirm(buf, pinfo, tree, offset)
         pinfo.cols.info:set("ExecutionConfirm")
     elseif msg_type == 203102 then -- ExecutionConfirm
@@ -1943,12 +1919,6 @@ function szse_binary_proto.dissector(buf, pinfo, tree)
         dissect_execution_confirm(buf, pinfo, tree, offset)
         pinfo.cols.info:set("ExecutionConfirm")
     elseif msg_type == 203302 then -- ExecutionConfirm
-        dissect_execution_confirm(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("ExecutionConfirm")
-    elseif msg_type == 203302 then -- ExecutionConfirm
-        dissect_execution_confirm(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("ExecutionConfirm")
-    elseif msg_type == 203502 then -- ExecutionConfirm
         dissect_execution_confirm(buf, pinfo, tree, offset)
         pinfo.cols.info:set("ExecutionConfirm")
     elseif msg_type == 203502 then -- ExecutionConfirm

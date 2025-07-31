@@ -7,7 +7,7 @@ local fields = {
     root_packet_msg_type = ProtoField.uint32("root_packet.msg_type", "MsgType", base.DEC),
     root_packet_payload_len = ProtoField.uint32("root_packet.payload_len", "PayloadLen", base.DEC),
     -- Unsupported type: match
-    root_packet_checksum = ProtoField.int("root_packet.checksum", "Checksum", base.DEC),
+    root_packet_checksum = ProtoField.uint32("root_packet.checksum", "Checksum", base.DEC),
     -- Field from BasicPacket
     basic_packet_field_i_8 = ProtoField.int("basic_packet.field_i_8", "fieldI8", base.DEC),
     basic_packet_field_i_16 = ProtoField.int("basic_packet.field_i_16", "fieldI16", base.DEC),
