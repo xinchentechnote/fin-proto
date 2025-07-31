@@ -1,0 +1,368 @@
+// base in reference/mit203_-_native_trading_gateway_specification_-_issue_17.0_2.pdf
+// TODO not completed
+options {
+    StringPreFixLenType = u8;
+    RepeatPreFixSizeType = u16;
+    LittleEndian = true;
+    JavaPackage = "com.lseg.native.messages";
+    GoPackage = "lseg_native_bin";
+    GoModule = "github.com/xinchentechnote/fin-proto-go/lseg-native-bin/messages";
+}
+
+MetaData BasicType {
+    i64 Price,
+}
+
+root packet LsegNativeMessage {
+    i8 Start,
+    i16 MsgLen @lengthOf(Payload),
+    char[1] MsgType,
+    match MsgType as Payload {
+        "A": Logon,
+        "B": LogonReply,
+        "5": Logout,
+        "0": Heartbeat,
+        "M": MissedMessageRequest,
+        "N": MissedMessageRequestAck,
+        "P": MissedMessageReport,
+        "3": Reject,
+        "n": SystemStatus,
+
+        "D": NewOrder,
+        "F": OrderCancelRequest,
+        "q": OrderMassCancelRequest,
+        // "G": OrderCancel,
+        "8": ExecutionReport,
+        "9": OrderCancelReject,
+        "r": OrderMassCancelReport,
+
+        "S": NewQuote,
+        "a": QuoteRequest,
+        "b": QuoteRequestReject,
+        "d": RFQQuote,
+        "f": QuoteResponse,
+
+        "c": QuoteStatusReport,
+        "e": QuoteAck,
+        "g": RFQExecutionReport,
+        "j": BusinessMessageReject,
+    },
+}
+
+packet Logon {
+    char[25] Username,
+    char[25] Password,
+    char[25] NewPassword,
+    u8 MessageVesion,
+}
+
+packet LogonReply {
+    i32 RejectCode,
+    char[30] PasswordExpiryDayCount,
+}
+
+packet Logout {
+    char[20] reason,
+}
+
+
+packet Heartbeat {
+
+}
+
+packet MissedMessageRequest {
+    i8 AppID,
+    i32 LastMsgSeqNum,
+}
+
+packet MissedMessageRequestAck {
+    u8 ResponseType,
+}
+
+packet MissedMessageReport {
+    u8 ResponseType,
+}
+
+packet Reject {
+    i32 RejectCode,
+    char[30] RejectReason,
+    char[1] RejectMessageType,
+    char[20] ClientOrderID,
+}
+
+packet SystemStatus {
+    u8 AppID,
+    u8 AppStatus,
+}
+
+packet NewOrder {
+    char[20] ClientOrderID,
+    char[11] TraderID,
+    char[10] Account,
+    u8 ClearingAccount,
+    i32 InstrumentID,
+    //TODO bit-field
+    u8 OrderType,
+    u8 TimeInForce,
+    u32 ExpireDateTime,
+    u8 Side,
+    i32 OrderQty,
+    i32 DisplayQty,
+    i64 LimitPrice,  // 8-byte, 8 decimals implied
+    u8 Capacity,
+    u8 AutoCancel,   
+    u8 OrderSubType,   
+    u8 Anonymity,   
+    i64 StopPrice,
+    u8 PassiveOnlyOrder,  
+    u32 ClientID,
+    u32 InvestmentDecisionMaker,
+    u8 GroupID,
+    i32 MinimumQuantity,
+    u32 ExecutingTrader,
+    i32 Offset,
+    char[16] Reserved,
+}
+
+packet NewQuote {
+    char[20] ClientOrderID,
+    char[11] TraderID,
+    u8 ClearingAccount,
+    i32 InstrumentID,
+    Price BidPrice,
+    i32 BidSize,
+    Price AskPrice,
+    i32 AskSize,
+    u8 Capacity,
+    u8 AutoCancel,
+    u32 ClientID,
+    u32 InvestmentDecisionMaker,
+    u32 ExecutingTrader,
+    //TODO bit field
+    u8 MiFIDFlags,
+    u8 PartyRoleQualifiers,
+}
+
+packet OrderReplaceRequest {
+    char[20] ClientOrderID,
+    char[20] OriginalClientOrderID,
+    char[12] OrderID,
+    i32 InstrumentID,
+    u8 GroupID,
+    i8 Reserved2,
+    u32 ExpireDateTime,
+    i32 OrderQty,
+    i32 DisplayQty,
+    Price LimitPrice,
+    char[10] Account,
+    i8 ReservedField3,
+    i8 Side,
+    Price StopPrice,
+    i8 PassiveOnlyOrder,
+    i32 Offset,
+    char[5] ReservedField,
+    i32 MinimumQuantity,
+}
+
+packet OrderCancelRequest {
+    char[20] ClientOrderID,
+    char[20] OriginalClientOrderID,
+    char[12] OrderID,
+    i32 InstrumentID,
+    i8 ReservedField1,
+    i8 ReservedField2,
+    u32 ExpireDateTime,
+    i8 Side,
+    char[10] RfqID,
+}
+
+packet OrderMassCancelRequest {
+    char[20] ClientOrderID,
+    u8 MassCancelRequestType,  // 3, 4, 7, 8, 9, 15, 56, 57, 58
+    i32 InstrumentID,
+    i8 Reserved1,
+    u8 GroupID,
+    char[4] Segment,
+    u8 OrderSubType,
+    char[10] Reserved2,
+}
+
+packet ExecutionReport {
+    u8 AppID,
+    i32 SequenceNo,
+    char[12] ExecutionID,
+    char[20] ClientOrderID,
+    char[12] OrderID,
+    char[1] ExecType,     // Alpha
+    char[12] ExecRefID,   // if Trade Cancel
+    u8 OrderStatus,
+    i32 OrderRejectCode,       // if ExecType = 8 or C
+    Price ExecPrice,
+    i32 ExecutedQty,
+    i32 LeavesQty,
+    u8 WaiverFlags,
+    i32 DisplayQty,
+    i32 InstrumentID,
+    u8 RestatementReason,
+    i8 ReservedField1,
+    i8 Side,
+    u64 ReservedField2,
+    char[11] Counterparty,
+    char[1] TradeLiquidityIndicator,
+    u64 TradeMatchID,
+    u64 TransactTime,
+    u8 LastMarket,
+    u8 TupeOfTrade,
+    u8 Capacity,
+    char[1] ReservedField4,
+    char[12] PublicOrderID,
+    i32 MinimumQuantity,
+}
+
+
+packet OrderCancelReject {
+    u8 AppID,
+    i32 SequenceNo,
+    char[20] ClientOrderID,
+    char[12] OrderID,
+    i32 CancelRejectReason,
+    u64 TransactTime,
+    char[10] RfqID,
+}
+
+
+packet OrderMassCancelReport {
+    u8 AppID,
+    i32 SequenceNo,
+    char[20] ClientOrderID,
+    u8 MassCancelResponse,        // 0: Rejected, 7: Accepted
+    i32 MassCancelRejectReason,
+    i32 ReservedField1,
+    u64 TransactTime,
+    char[10] ReservedField2,
+}
+
+
+packet QuoteRequest {
+    u8 PartitionID,
+    i32 SequenceNumber,
+    char[10] QuoteReqID,
+    u8 OrderBook,
+    u8 PrivateQuote,
+    i32 InstrumentID,
+    u8 Side,
+    i32 OrderQuantity,
+    u32 ExpireTime,
+    char[60] MarketMakers,       // pipe-separated Firm IDs
+    char[11] ContraTrader,
+    char[11] ContraFirm,
+    char[10] RfqID,
+    u32 ClientID,
+    u32 InvestmentDecisionMaker,
+    u32 ExecutingTrader,
+    u8 MiFIDFlags,
+    u8 PartyRoleQualifiers,
+    u8 QuoteRequestType,
+    Price,
+    u8 RFQExecutionDelay,
+    u8 RFQMinQuotes,
+    u8 AccountType,
+    u8 OrderCapacity,
+    u8 RFQDiscloseSide,
+    u32 ExpireTimeMilliseconds,
+    u8 AutoRFQExecStrategy,
+    u8 NumOfCompetitors,
+    u8 MarketMakerRank,
+    char[23] ReservedField,
+}
+
+
+packet QuoteStatusReport {
+
+}
+
+packet QuoteRequestReject {
+    char[10] QuoteReqID,
+    i32 RejectCode,
+    u8 OrderBook,
+    i32 InstrumentID,
+    u8 Side,
+    i32 OrderQuantity,
+    char[60] MarketMakers,
+    char[11] ContraTrader,
+    char[10] RFQID,
+}
+
+packet RFQQuote {
+    char[20] QuoteMsgID,
+    char[10] RFQID,
+    i32 InstrumentID,
+    i64 BidPrice,
+    i32 BidQuantity,
+    i64 OfferPrice,
+    i32 OfferQuantity,
+    u8 AutoCancel,
+    char[11] MarketMaker,
+    char[11] MarketMakerFirm,
+    char[12] BidID,
+    char[12] OfferID,
+    u8 Capacity,
+    u8 ClearingAccount,
+}
+
+packet QuoteResponse {
+    char[20] QuoteMsgID,
+    char[10] RFQID,
+    u8 QuoteRespType,           // 1=Hit/Lift, 7=End Trade, 100=Replace
+    i32 InstrumentID,
+    u8 Side,
+    i32 OrderQuantity,
+    i64 LimitPrice,
+    u8 OrderBook,
+    char[12] BidID,
+    char[12] OfferID,
+    u8 Capacity,
+    u8 ClearingAccount,
+    u64 Reserved,
+}
+
+packet QuoteAck {
+    char[20] QuoteMsgID,
+    char[10] RFQID,
+    char[12] BidID,
+    char[12] OfferID,
+    u8 QuoteAckStatus,     // 1=Accepted, 2=Rejected
+    i32 RejectCode,
+    u8 OrderBook,
+}
+
+packet RFQExecutionReport {
+    char[12] ExecutionID,
+    char[10] RFQID,
+    char[12] OrderID,
+    char[1] ExecutionType,     // F=Trade, H=Cancel, etc.
+    u64 TradeMatchID,
+    u8 Side,
+    i32 ExecutedQty,
+    i64 ExecutedPrice,
+    u64 TransactTime,
+    i64 ReservedField2,
+    i64 ReservedField3,
+    u8 OrderStatus,
+    i32 LeavesQty,
+    i32 InstrumentID,
+    i64 ReservedField4,
+    i64 ReservedField5,
+    char[11] ContraFirm,
+    u8 Capacity,
+    u8 ClearingAccount,
+    u8 WaiverFlags,
+    char[12] ExecutionReportRefID,
+    u8 ContraOrderBook,
+    i64 AvgPx,
+}
+
+
+packet BusinessMessageReject {
+
+}
