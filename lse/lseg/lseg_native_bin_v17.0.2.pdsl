@@ -9,7 +9,7 @@ options {
     GoModule = "github.com/xinchentechnote/fin-proto-go/lseg-native-bin/messages";
 }
 
-MetaData BasicType {
+MetaData DataTypes {
     i64 Price,
 }
 
@@ -31,7 +31,7 @@ root packet LsegNativeMessage {
         "D": NewOrder,
         "F": OrderCancelRequest,
         "q": OrderMassCancelRequest,
-        // "G": OrderCancel,
+        "G": OrderCancelReplaceRequest,
         "8": ExecutionReport,
         "9": OrderCancelReject,
         "r": OrderMassCancelReport,
@@ -143,7 +143,7 @@ packet NewQuote {
     u8 PartyRoleQualifiers,
 }
 
-packet OrderReplaceRequest {
+packet OrderCancelReplaceRequest {
     char[20] ClientOrderID,
     char[20] OriginalClientOrderID,
     char[12] OrderID,
@@ -278,10 +278,24 @@ packet QuoteRequest {
 
 
 packet QuoteStatusReport {
-
+    u8 PartitionID,
+    i32 SequenceNumber,
+    char[20] QuoteMsgID,
+    char[10] QuoteReqID,
+    u8 QuoteStatus,
+    i32 RejectCode,
+    u8 OrderBook,
+    char[60] MarketMakers,
+    char[10] RfqID,
+    u32 ExpireTime,
+    char[12] BidID,
+    char[12] OfferID,
+    u32 ExpireTimeMilliseconds,
 }
 
 packet QuoteRequestReject {
+    u8 PartitionID,
+    i32 SequenceNumber,
     char[10] QuoteReqID,
     i32 RejectCode,
     u8 OrderBook,
@@ -294,6 +308,8 @@ packet QuoteRequestReject {
 }
 
 packet RFQQuote {
+    u8 PartitionID,
+    i32 SequenceNumber,
     char[20] QuoteMsgID,
     char[10] RFQID,
     i32 InstrumentID,
@@ -308,9 +324,30 @@ packet RFQQuote {
     char[12] OfferID,
     u8 Capacity,
     u8 ClearingAccount,
+    u32 ClientID,
+    u32 InvestmentDecisionMaker,
+    u32 ExecutingTrader,
+    u8 MiFIDFlags,
+    u8 PartyRoleQualifiers,
+    char[16] ReservedField,
 }
 
+packet QuoteAck {
+    u8 PartitionID,
+    i32 SequenceNumber,
+    char[20] QuoteMsgID,
+    char[10] RFQID,
+    char[12] BidID,
+    char[12] OfferID,
+    u8 QuoteAckStatus,     // 1=Accepted, 2=Rejected
+    i32 RejectCode,
+    u8 OrderBook,
+}
+
+
 packet QuoteResponse {
+    u8 PartitionID,//Server
+    i32 SequenceNumber,//Server
     char[20] QuoteMsgID,
     char[10] RFQID,
     u8 QuoteRespType,           // 1=Hit/Lift, 7=End Trade, 100=Replace
@@ -326,43 +363,43 @@ packet QuoteResponse {
     u64 Reserved,
 }
 
-packet QuoteAck {
-    char[20] QuoteMsgID,
-    char[10] RFQID,
-    char[12] BidID,
-    char[12] OfferID,
-    u8 QuoteAckStatus,     // 1=Accepted, 2=Rejected
-    i32 RejectCode,
-    u8 OrderBook,
-}
-
 packet RFQExecutionReport {
+    u8 PartitionID,
+    i32 SequenceNumber,
     char[12] ExecutionID,
     char[10] RFQID,
     char[12] OrderID,
     char[1] ExecutionType,     // F=Trade, H=Cancel, etc.
     u64 TradeMatchID,
     u8 Side,
-    i32 ExecutedQty,
-    i64 ExecutedPrice,
+    i32 ExecutedQuantity,
+    Price ExecutedPrice,
     u64 TransactTime,
     i64 ReservedField2,
     i64 ReservedField3,
     u8 OrderStatus,
     i32 LeavesQty,
     i32 InstrumentID,
-    i64 ReservedField4,
-    i64 ReservedField5,
+    Price ReservedField4,
+    Price ReservedField5,
     char[11] ContraFirm,
     u8 Capacity,
     u8 ClearingAccount,
     u8 WaiverFlags,
     char[12] ExecutionReportRefID,
     u8 ContraOrderBook,
-    i64 AvgPx,
+    Price AvgPx,
+    u8 LastMarket,
+    char[7] ReservedField,
 }
 
 
 packet BusinessMessageReject {
-
+    u8 AppID,
+    i32 SequenceNo,
+    i32 RejectCode,
+    char[20] ClientOrderID,
+    char[12] OrderID,
+    u64 TransactTime,
+    char[10] ReservedField,
 }
