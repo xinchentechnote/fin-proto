@@ -1,0 +1,386 @@
+// Based on reference/HKEx_CCCG_Binary_Trading_Interface_Specifications_v1_4 (tracked_changes).pdf
+// TODO not completed
+options {
+    StringPreFixLenType = u16;
+    RepeatPreFixSizeType = u16;
+    LittleEndian = true;
+    JavaPackage = "com.finproto.hkex.cccg.messages";
+    GoPackage = "hkex_cccg_bin";
+    GoModule = "github.com/xinchentechnote/fin-proto-go/hkex-cccg-bin/messages";
+}
+
+MetaData DataTypes {
+    i64 Decimal,
+    i64 BitmapFixedLength,
+}
+
+MetaData DataDictionary {
+    Bitmap BodyFieldsPresenceMap `Bitmap indicates the fields and repeating blocks present in the body of the message; 1=available, 0=unavailable`,
+    u32 Checksum `CRC32C based checksum, polynomial 0x1EDC6F41`,
+    char[12] CompID `Comp ID assigned to the sender of the message`,
+    u16 Length `Length of the message including all header, body, and trailer fields`,
+    u8 MessageType `Defines the message type: 0=Heartbeat, 1=Test Request, 2=Resend Request, 3=Reject, 4=Sequence Reset, 5=Logon, 6=Logout, 7=Lookup Request, 8=Lookup Response, 9=Business Message Reject, 10=Execution Report, 11=New Order, 13=Cancel Request, 25=Throttle Entitlement Request, 26=Throttle Entitlement Response, 27=Party Entitlements Request, 28=Party Entitlements Report`,
+    u8 PossDup `Indicates possible retransmission of message with this sequence number: 0=No (original transmission), 1=Yes (possible duplicate)`,
+    u8 PossResend `Indicates message may contain information sent under another sequence number: 0=No, 1=Yes`,
+    u32 SequenceNumber `Message sequence number applicable to the message`,
+    u8 StartOfMessage `Indicates start of a message, always ASCII STX (0x02)`,
+    char[21] BCAN `Identifier of the client assigned by CCEP/TTEP for Northbound order submission; valid range 100–9,999,999,999; reserved: 1=Individual no consent (sell only), 2=Institutional no consent (sell only), 3=Mainland individual (sell only), 4=Mainland institutional (sell only); leading zeros rejected`,
+    char[12] BrokerID `The Broker ID of the User as allocated by HKEX`,
+    char[11] BrokerLocationID `Location ID of the Submitting Broker, limited to maximum 8 digits`,
+    u16 BusinessRejectCode `Reason for business message rejection: 0=Other, 1=Unknown ID, 2=Unknown Security, 3=Unspecified Msg Type, 4=Application not available, 5=Conditionally required field missing, 8=Throttle Limit exceeded`,
+    char[21] BusinessRejectReferenceID `The business-level ID value in the referenced message`,
+    u16 CancelRejectCode `Reason for cancel/amend rejects: 0=Too late to cancel, 1=Unknown Order, 3=Order in Pending Cancel, 6=Duplicate Client Order ID, 99=Other (Default)`,
+    char[21] ClientOrderID `Client specified identifier of the order, limited to maximum 8 digits`,
+    char[12] CounterpartyBrokerID `Broker ID of the user on the opposite side of the trade`,
+    Decimal CumulativeQuantity `Cumulative execution quantity`,
+    u16 DisclosureInstructions `Disclosure instructions using 16-bit flags: bit0=None (1=Yes), bits1–15=Reserved; 0=No, 1=Yes; if bit0=Yes, ignore others`,
+    u32 EndSequence `Sequence number of the last message expected to be resent, 0=request all messages from StartSequence`,
+    char[21] EntitlementID `Unique identifier for a specific Entitlement Group instance`,
+    u8 EntitlementIndicator `Determines if the party is entitled for the specified Entitlement Type: 0=No, 1=Yes`,
+    char[21] EntitlementRequestID `Unique identifier assigned to the Party Entitlement Request Message`,
+    char[21] EntitlementReportID `Unique ID assigned to the Party Entitlement Report by the system`,
+    u8 EntitlementType `Indicates entitlement meaning: 0=Trade; absence means implicit`,
+    char[1] ExecType `Execution type: '0'=New, '4'=Cancel, '6'=Pending Cancel, '8'=Reject, 'A'=Pending New, 'F'=Trade, 'X'=Cancel Reject`,
+    char[21] ExecutionID `Unique Execution ID assigned by the system for each Execution Report generated`,
+    Decimal ExecutionPrice `Execution price`,
+    char[21] ExecutionID `Unique Execution ID assigned by the system for each Execution Report generated`,
+    Decimal ExecutionPrice `Execution price`,
+    Decimal ExecutionQuantity `Execution Size`,
+    u16 ExecRestatementReason `Code to identify the reason for an Execution Report with ExecType=4 (Cancel) or H (Trade Cancel): 8=Market Operation, 99=Other (default), 105=Cancel due to Broker suspended, 106=Cancel due to Exchange Participant suspended, 107=System Cancel, 108=Cancelled by home market`,
+    char[1] GapFill `Indicates whether the sequence number is to be interpreted in RESET mode or GAP-FILL mode: N=Reset, Y=Gap Fill`,
+    u8 InstrumentScopeOperator `Operator to perform on the instrument(s) specified in Instrument Scope Symbol: 1=Include`,
+    char[21] SPSAInvestorID `Investor ID as assigned by CCASS for a Special Segregated Account (SPSA), limited to maximum 6 digits`,
+    u8 LastFragment `Indicates whether this message is the last in a sequence of fragmented messages: 0=No, 1=Yes`,
+    Decimal LeavesQuantity `Open order quantity`,
+    char[75] LogoutText `Textual reason for the logout`,
+    u8 LotType `Defines the lot type assigned to the order, absence indicates Round Lot: 2=Round Lot`,
+    u8 LookupRejectCode `Code to identify the lookup request rejection: 0=Invalid Client, 1=Invalid service type, 2=Invalid Protocol, 3=Client is Blocked, 4=Other`,
+    char[20] MarketSegmentID `Identifies a market/market segment in the entitlement scope: ASHR=Shanghai-HK Stock Connect, ASZR=Shenzhen-HK Stock Connect`,
+    u8 MatchType `The point in the matching process at which this trade was matched: 4=Auto Match`,
+    u8 MaxPriceLevels `The maximum number of price levels to trade through`,
+    u16 MessageRejectCode `Code specifying the reason for the session level rejection: 1=Required field missing, 2=Field not defined, 3=Undefined field, 4=Field specified without a value, 5=Value incorrect, 6=Incorrect format, 9=Comp ID problem, 11=Invalid message type, 13=Field appears more than once, 99=Other`,
+    char[450] NewPassword `New password for Comp ID`,
+    u32 NewSequenceNumber `Indicates the sequence number of the next message to be sent by the sender`,
+    u32 NextExpectedMessageSequence `Indicates the next expected message sequence number by the initiating party`,
+    u16 NoEntitlements `The number of entitlements attached to a Broker ID in the Party Entitlement Report`,
+    Bitmap[2] NoEntitlementsBodyFieldsPresenceMap `Indicates the fields/nested repeating blocks present in No Entitlement repeating block in the Party Entitlement Report`,
+    u16 NoMarketSegments `Number of market segments in entitlement scope`,
+    Bitmap[2] NoMarketSegmentScopeGroupPresenceMap `Indicates the fields/nested repeating blocks present in No Market Segments repeating block in the Party Entitlement Report`,
+    u16 NoThrottles `The number of Throttles to follow in the User Response message`,
+    Bitmap[2] NoThrottlesBodyFieldsPresenceMap `Indicates the fields/nested repeating blocks present in No Throttles repeating block in the User Response message`,
+    char[21] OrderID `Order ID of the order`,
+    u8 OrderCapacity `Designates the capacity of the firm placing the order: 1=Agency, 2=Principal`,
+    Decimal OrderQuantity `Total order quantity of the order, max 99,999,999 integral part`,
+    u16 OrderRejectCode `Reject code for order reject: 3=Order Exceed Limit, 6=Duplicate order, 13=Incorrect Qty, 22=Short sell not permitted, 99=Other, 101=Price exceeds price band`,
+    u8 OrderStatus `Order status after applying the transaction: 0=New, 1=Partially Filled, 2=Filled, 4=Cancelled, 6=Pending Cancel, 8=Rejected, 10=Pending New`,
+    u8 OrderType `Order type applicable to the order: 2=Limit`,
+    char[21] OriginalClientOrderID `Client Order ID of the order being amended or cancelled, max 8 digits`,
+    char[12] OwningBrokerID `Order owner’s Broker ID as defined within CCCG`,
+    char[450] Password `Password assigned to the Comp ID`,
+    u8 PositionEffect `Indicates resulting position after a trade: 1=Close (only if Side=1 Buy)`,
+    Decimal Price `Limit price of the order, required if OrderType=2 (Limit)`,
+    u8 ProtocolType `Type of protocol required by the client to connect: 1=Binary`,
+    char[16] PrimaryIP `The IP of the primary service in x.x.x.x format if lookup successful`,
+    u16 PrimaryPort `The port of the primary service if lookup successful`,
+    char[50] ReferenceFieldName `Name of the field (as per the data dictionary) which caused the rejection`,
+    u8 ReferenceMessageType `Type of message rejected`,
+    u32 ReferenceSequenceNumber `Sequence number of the message which caused the rejection`,
+    u16 ReferenceTestRequestID `Required if Heartbeat is in response to a Test Request, echoes the received Test Request ID`,
+    char[100] Reason `Textual description of the transaction communicated (e.g., Execution Report)`,
+    u16 RequestResult `Result of Party Entitlement Report: 0=Valid Request, 1=Invalid/unsupported, 2=No data found, 3=Not authorized, 4=Data temporarily unavailable, 5=Request not supported, 99=Other`,
+    char[5] SecurityExchange `Market identifier: XSSC=Shanghai-HK Stock Connect, XSEC=Shenzhen-HK Stock Connect (required if SecurityIDSource=8)`,
+    char[21] SecurityID `Instrument identifier value of security ID source type`,
+    u8 SecurityIDSource `Identifies the source of the security ID: 8=Exchange Symbol`,
+    char[16] SecondaryIP `The IP of the mirror service in x.x.x.x format if lookup successful`,
+    u16 SecondaryPort `The port of the mirror service if lookup successful`,
+    u8 SessionStatus `Status of the Binary session: 0=Active, 1=Password change, 2=Password expiring, 3=New password invalid, 4=Logout complete, 5=Invalid credentials, 6=Account locked, 7=Logons not allowed, 8=Password expired, 100=Password change required, 101=Other`,
+    u8 Side `Side of the order: 1=Buy, 2=Sell, 5=Sell Short`,
+    u32 StartSequence `Sequence number of the first message expected to be resent`,
+    u8 Status `Indicates if the Lookup Request was accepted or rejected by CCCG: 0=Accepted, 1=Rejected`,
+    char[12] SubmittingBrokerID `The Broker ID of the user that is submitting the new order`,
+    char[50] Text `Free Text`,
+    u8 TIF `Time qualifier of the order, absence interpreted as Day (0): 0=Day (Default)`,
+    u8 TestMessageIndicator `Indicates if connected to Test or Production Mode: 0=No (Production Mode), 1=Yes (Test Mode)`,
+    u16 TestRequestID `A unique ID applicable to the Test Request`,
+    u16 TotalNoPartyList `The total number of Broker IDs to be returned across all fragments of Party Entitlement Report`,
+    char[25] TransactionTime `The time the message was generated, format YYYYMMDD-HH:MM:SS.sss UTC`,
+    char[25] TradeMatchID `Identifier assigned to a trade by a matching system`,
+    u32 TradeDate `Trading day date (YYYYMMDD), absence indicates current day, may differ if TestMessageIndicator=Test Mode`,
+    u8 ThrottleAction `Action if throttle limit exceeded: 2=Rejected`,
+    u32 ThrottleNoMessages `The maximum number of messages allowed by the throttle`,
+    u16 ThrottleTimeInterval `Interval in which ThrottleNoMessages may be sent (required if ThrottleType=0 Inbound Rate)`,
+    u8 ThrottleTimeUnit `Unit of ThrottleTimeInterval: 0=Seconds (default, required if ThrottleType=0 Inbound Rate)`,
+    u8 ThrottleType `Type of throttle: 0=Inbound Rate (Absolute Throttle Rate)`,
+    u8 TypeOfService `Type of service required by the client: 1=Order Input`,
+    char[50] UserName `Any free format text for user identification`,
+    char[20] UserRequestID `Unique identifier assigned for the User Request message`,
+    u8 UserRequestType `Indicates the action required: 5=Request Throttle Limit`,
+
+}
+
+root packet HkeBinary {
+    u8 StartOfMessage `消息起始标识，固定值0x02`,
+    u16 MessageLength @lengthOf(Body) `从MessageType开始到Trailer的总长度`,
+    char[1] MessageType `消息类型`,
+    SequenceNumber,
+    PossDup,
+    PossResend,
+    CompID,
+    match MessageType as Body {
+        0 : Heartbeat,
+        1 : TestRequest,
+        2 : ResendRequest,
+        3 : Reject,
+        4 : SequenceReset,
+        5 : Logon,
+        6 : Logout,
+        7 : LookupRequest,
+        8 : LookupResponse,
+        9 : BusinessReject,
+        10 : ExecutionReport,
+        11 : NewOrder,
+        13 : CancelRequest,
+        25 : ThrottleEntitlementRequest,
+        26 : ThrottleEntitlementResponse,
+        27 : PartyEntitlementRequest,
+        28 : PartyEntitlementReport,
+    },
+    u32 Checksum `CRC32C 校验，包含Header和Body所有字段`,
+}
+
+packet LookupRequest {
+    Bitmap[2],
+    TypeOfService `Type of service required for the client:1 = Order Input`,
+    ProtocolType `Type of message protocol required by the client in order to connect to the specified service:1 = Binary`,
+}
+
+packet LookupResponse {
+    Bitmap[7],
+    Status `Indicates whether the Lookup Request was accepted or rejected by the CCCG: 0=Accepted, 1=Rejected`,
+    LookupRejectCode `If request is rejected, code identifying rejection: 0=Invalid Client, 1=Invalid service type, 2=Invalid Protocol, 3=Client is blocked, 4=Other`,
+    Reason `Textual reason for the Lookup Request rejection`,
+    PrimaryIP `IP Address of the primary service in case of a successful lookup`,
+    PrimaryPort `Port number of the primary service in case of a successful lookup`,
+    SecondaryIP `IP Address of the secondary service in case of a successful lookup`,
+    SecondaryPort `Port number of the secondary service in case of a successful lookup`,
+}
+
+packet Logon {
+    Bitmap[6],
+    Password `Encrypted Password assigned to the Comp ID`,
+    NewPassword `New encrypted Password for Comp ID`,
+    NextExpectedMessageSequence `Indicates the next expected message sequence number by the party initiating this message`,
+    SessionStatus `Status of the Binary session, required if generated by the CCCG`,
+    Text `Conveys number of days to password expiry when CCCG replies with Logon after successful attempt`,
+    TestMessageIndicator `Indicates whether connected to Test or Production Mode: 0=No (Production Mode), 1=Yes (Test Mode)`,
+}
+
+
+packet Logout {
+    Bitmap[2],
+    LogoutText `Textual reason for the Logout`,
+    SessionStatus `Status of the Binary session, may be present if generated by CCCG`,
+}
+
+packet TestRequest {
+    Bitmap[1],
+    TestRequestID `Identifier included in Test Request message to be returned in resulting Heartbeat`,
+}
+
+packet ResendRequest {
+    Bitmap[2],
+    StartSequence `Sequence number of the first message expected to be resent`,
+    EndSequence `Sequence number of the last message expected to be resent; 0 requests all messages from StartSequence`,
+}
+
+packet Reject {
+    Bitmap[6],
+    MessageRejectCode `Code specifying the reason for the rejection of the message`,
+    Reason `Textual reason for the reject`,
+    ReferenceMessageType `Type of message rejected`,
+    ReferenceFieldName `Name of the field (as per the data dictionary) which caused the rejection`,
+    ReferenceSequenceNumber `Sequence number of the message which caused the rejection`,
+    ClientOrderID `Client specified identifier of the rejected message if available`,
+}
+
+packet SequenceReset {
+    Bitmap[2],
+    GapFill `Indicates whether the sequence number is to be interpreted in RESET ('N') or GAP-FILL ('Y') mode; default is 'N' (RESET)`,
+    NewSequenceNumber `Indicates the sequence number of the next message to be sent by the sender`,
+}
+
+packet NewOrderSingle {
+    Bitmap[22],  
+    ClientOrderID `Client specified identifier of the order`,
+    SubmittingBrokerID `The Broker ID of the user submitting the new order`,
+    SecurityID `Instrument identifier value of Security ID Source type`,
+    SecurityIDSource `Identifies the source of the Security ID; required if SecurityID specified`,
+    SecurityExchange `Market identifying the security; required if SecurityIDSource=8 (Exchange Symbol)`,
+    BrokerLocationID `Location ID of the Submitting Broker`,
+    TransactionTime `Time at which the particular message was generated`,
+    Side `Side of the order: 1=Buy, 2=Sell, 5=Sell Short`,
+    OrderType `Order type applicable: 2=Limit`,
+    Price `Price of order; required if OrderType=2 (Limit)`,
+    OrderQuantity `Total order quantity of the order`,
+    TimeInForce `Time qualifier of the order; absence interpreted as 0=Day (Default)`,
+    PositionEffect `Indicates position after trade; 1=Close; applicable only if Side=1 (Buy)`,
+    MaxPriceLevels `Maximum number of price levels to trade through; applicable if OrderType=2 (Limit); should be set as 1 if present`,
+    OrderCapacity `Capacity of firm placing order: 1=Agency, 2=Principal`,
+    Text `Free text`,
+    DisclosureInstructions `Disclosure instructions bitmap; bit 0=None (must be 1 if nothing to disclose); 0=No, 1=Yes`,
+    SPSAInvestorID `SPSA Investor ID`,
+    BCAN `Client identifier assigned by CCEP/TTEP for Northbound order submission; mandatory; valid range 100–9,999,999,999; reserved values 1–4 for special clients; leading zeros rejected`,
+}
+
+packet CancelOrder {
+    Bitmap[11],  
+    ClientOrderID `New client specified identifier of the order`,
+    SubmittingBrokerID `The Broker ID of the user submitting the cancel request; should match original order`,
+    SecurityID `Instrument identifier value of Security ID Source type; must be same as original order`,
+    SecurityIDSource `Identifies the source of the Security ID; required if SecurityID specified`,
+    SecurityExchange `Market identifying the security; required if SecurityIDSource=8 (Exchange Symbol)`,
+    BrokerLocationID `Location ID of the Submitting Broker`,
+    TransactionTime `Time at which the particular message was generated`,
+    Side `Side of the original order: 1=Buy, 2=Sell, 5=Sell Short`,
+    OriginalClientOrderID `Client Order ID of the order being cancelled`,
+    OrderID `Order ID of the order being cancelled`,
+    Text `Free text`,
+}
+
+packet ExecutionReport {
+    Bitmap[41],  
+    ClientOrderID `Client specified identifier of the order`,
+    SubmittingBrokerID `Broker ID of the user that submitted the order`,
+    SecurityID `Instrument identifier value of security ID source type`,
+    SecurityIDSource `Identifies the source of the security ID`,
+    SecurityExchange `Market which is used to identify the security`,
+    BrokerLocationID `Location ID of the Submitting Broker`,
+    TransactionTime `Time at which the message was generated (Format: YYYYMMDD-HH:MM:SS.sss)`,
+    Side `Side of the order: 1=Buy, 2=Sell, 5=Sell Short`,
+    OrderID `Order ID assigned for the order`,
+    OrderType `Type of the order`,
+    Price `Limit price (required if Order Type = 2 (Limit))`,
+    OrderQuantity `Total order quantity`,
+    TIF `Time qualifier of the order`,
+    PositionEffect `Indicates if resulting position should be closing position`,
+    MaxPriceLevels `Maximum number of price levels to trade through`,
+    OrderCapacity `Capacity of the firm placing the order`,
+    Text `Most recent text sent by the client, echoed back`,
+    Reason `Textual description of rejection (only for rejected orders)`,
+    ExecutionID `Unique execution ID assigned by the system`,
+    OrderStatus `Order status after applying the transaction`,
+    ExecType `Execution type indicating reason for this report`,
+    CumulativeQuantity `Cumulative execution quantity`,
+    LeavesQuantity `Open order quantity`,
+    OrderRejectCode `Reject code indicating reason for order rejection`,
+    LotType `Defines lot type assigned to the order (e.g., 2=Round Lot)`,
+    SPSAInvestorID `SPSA Investor ID`,
+    OriginalClientOrderID `Original Client Order ID (for cancel reports)`,
+}
+
+
+
+
+
+
+
+packet BusinessReject {
+    u8 RejectCode,
+    char[30] RejectReason,
+}
+
+packet NewOrder {
+    char[20] ClientOrderID,
+    char[11] SubmittingBrokerID,
+    char[12] SecurityID,
+    u8 SecurityIDSource,
+    char[4] SecurityExchange,
+    char[4] BrokerLocationID,
+    string TransactionTime, // YYYYMMDD-HH:MM:SS.sss
+    u8 Side,
+    u8 OrderType,
+    i64 Price,
+    i32 OrderQuantity,
+    u8 TIF,
+    u8 PositionEffect,
+    u8 MaxPriceLevels,
+    u8 OrderCapacity,
+    char[10] Text,
+}
+
+packet CancelRequest {
+    char[20] OrigClientOrderID,
+    char[12] OrigOrderID,
+    char[10] Text,
+}
+
+packet ExecutionReport {
+    char[20] ClientOrderID,
+    char[11] SubmittingBrokerID,
+    char[12] SecurityID,
+    u8 SecurityIDSource,
+    char[4] SecurityExchange,
+    char[4] BrokerLocationID,
+    string TransactionTime,
+    u8 Side,
+    char[12] OrderID,
+    u8 OrderType,
+    i64 Price,
+    i32 OrderQuantity,
+    u8 TIF,
+    u8 PositionEffect,
+    u8 MaxPriceLevels,
+    u8 OrderCapacity,
+    char[10] Text,
+    char[12] ExecutionID,
+    u8 OrderStatus, // 0=New, 1=PartiallyFilled, 2=Filled, etc.
+    char[1] ExecType, // A=PendingNew, 0=New, 4=Cancelled, F=Trade, etc.
+    i32 CumQty,
+    i32 LeavesQty,
+    char[1] LotType, // 2=RoundLot
+    char[20] RejectReason, // when ExecType=8 or C
+}
+
+
+packet ThrottleEntitlementRequest {
+    char[21] UserRequestID `唯一请求标识`,
+    u8 UserRequestType `请求类型: 5=Request Throttle Limit`,
+    char[12] UserName `客户端 Comp ID`,
+}
+
+packet ThrottleEntitlementResponse {
+    char[21] UserRequestID `请求ID，应与请求一致`,
+    char[12] UserName `客户端 Comp ID`,
+    //`分配给该用户的TPS信息`
+    repeat ThrottleInfo { 
+        u8 ThrottleAction `超过限制的处理方式: 2=Rejected`,
+        u8 ThrottleType `限速类型: 0=Inbound Rate`,
+        u32 ThrottleNoMessages `限速消息数量`,
+        u16 ThrottleTimeInterval `限速时间间隔`,
+        u8 ThrottleTimeUnit `时间单位: 0=秒`,
+    },
+}
+
+packet PartyEntitlementRequest {
+    char[21] EntitlementRequestID `唯一请求标识`,
+}
+
+packet PartyEntitlementReport {
+    char[21] EntitlementReportID `系统生成的回报ID`,
+    char[21] EntitlementRequestID `请求ID，可选`,
+    u16 RequestResult `请求结果: 0=成功, 1=无效请求, 2=无数据, 5=不支持, 99=其他`,
+    u16 TotalNoPartyList `总Broker ID数量（跨分片）`,
+    u8 LastFragment `是否最后一片: 0=否, 1=是`,
+    //`每个Broker ID对应的权限信息`
+    repeat BrokerEntitlement {
+        char[12] BrokerID,
+        repeat Entitlement {
+            u8 EntitlementType `权限类型: 0=交易`,
+            u8 EntitlementIndicator `是否具备该权限: 0=否, 1=是`,
+            repeat MarketSegment {
+                char[20] MarketSegmentID `所属市场段: 如 ASHR, ASZR`,
+            },
+            char[21] EntitlementID `唯一的权限组实例标识`,
+        },
+    },
+}
