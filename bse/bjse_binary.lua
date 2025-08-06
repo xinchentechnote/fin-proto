@@ -421,55 +421,55 @@ local fields = {
     -- Field from TradeCaptureReportAckExtend061
     -- Field from TradeCaptureReportAckExtend062
     trade_capture_report_ack_extend_062_cash_margin = ProtoField.string("trade_capture_report_ack_extend_062.cash_margin", "CashMargin"),
-    -- Field from TradeCaptureCofirm
-    trade_capture_cofirm_partition_no = ProtoField.int("trade_capture_cofirm.partition_no", "PartitionNo", base.DEC),
-    trade_capture_cofirm_report_index = ProtoField.int64("trade_capture_cofirm.report_index", "ReportIndex", base.DEC),
-    trade_capture_cofirm_appl_id = ProtoField.string("trade_capture_cofirm.appl_id", "ApplID"),
-    trade_capture_cofirm_reporting_pbuid = ProtoField.string("trade_capture_cofirm.reporting_pbuid", "ReportingPBUID"),
-    trade_capture_cofirm_submitting_pbuid = ProtoField.string("trade_capture_cofirm.submitting_pbuid", "SubmittingPBUID"),
-    trade_capture_cofirm_security_id = ProtoField.string("trade_capture_cofirm.security_id", "SecurityID"),
-    trade_capture_cofirm_security_id_source = ProtoField.string("trade_capture_cofirm.security_id_source", "SecurityIDSource"),
-    trade_capture_cofirm_owner_type = ProtoField.uint32("trade_capture_cofirm.owner_type", "OwnerType", base.DEC),
-    trade_capture_cofirm_clearing_firm = ProtoField.string("trade_capture_cofirm.clearing_firm", "ClearingFirm"),
-    trade_capture_cofirm_transact_time = ProtoField.int64("trade_capture_cofirm.transact_time", "TransactTime", base.DEC),
-    trade_capture_cofirm_user_info = ProtoField.string("trade_capture_cofirm.user_info", "UserInfo"),
-    trade_capture_cofirm_trade_id = ProtoField.string("trade_capture_cofirm.trade_id", "TradeID"),
-    trade_capture_cofirm_trade_report_id = ProtoField.string("trade_capture_cofirm.trade_report_id", "TradeReportID"),
-    trade_capture_cofirm_trade_report_type = ProtoField.uint32("trade_capture_cofirm.trade_report_type", "TradeReportType", base.DEC),
-    trade_capture_cofirm_trade_report_trans_type = ProtoField.uint32("trade_capture_cofirm.trade_report_trans_type", "TradeReportTransType", base.DEC),
-    trade_capture_cofirm_trade_handling_instr = ProtoField.string("trade_capture_cofirm.trade_handling_instr", "TradeHandlingInstr"),
-    trade_capture_cofirm_last_px = ProtoField.int64("trade_capture_cofirm.last_px", "LastPx", base.DEC),
-    trade_capture_cofirm_last_qty = ProtoField.int64("trade_capture_cofirm.last_qty", "LastQty", base.DEC),
-    trade_capture_cofirm_trd_type = ProtoField.uint32("trade_capture_cofirm.trd_type", "TrdType", base.DEC),
-    trade_capture_cofirm_trd_sub_type = ProtoField.uint32("trade_capture_cofirm.trd_sub_type", "TrdSubType", base.DEC),
-    trade_capture_cofirm_confirm_id = ProtoField.uint32("trade_capture_cofirm.confirm_id", "ConfirmID", base.DEC),
-    trade_capture_cofirm_exec_id = ProtoField.string("trade_capture_cofirm.exec_id", "ExecID"),
-    trade_capture_cofirm_side = ProtoField.string("trade_capture_cofirm.side", "Side"),
-    trade_capture_cofirm_pbuid = ProtoField.string("trade_capture_cofirm.pbuid", "PBUID"),
-    trade_capture_cofirm_account_id = ProtoField.string("trade_capture_cofirm.account_id", "AccountID"),
-    trade_capture_cofirm_branch_id = ProtoField.string("trade_capture_cofirm.branch_id", "BranchID"),
-    trade_capture_cofirm_counter_party_pbuid = ProtoField.string("trade_capture_cofirm.counter_party_pbuid", "CounterPartyPBUID"),
-    trade_capture_cofirm_counter_party_account_id = ProtoField.string("trade_capture_cofirm.counter_party_account_id", "CounterPartyAccountID"),
-    trade_capture_cofirm_counter_party_branch_id = ProtoField.string("trade_capture_cofirm.counter_party_branch_id", "CounterPartyBranchID"),
+    -- Field from TradeCaptureConfirm
+    trade_capture_confirm_partition_no = ProtoField.int("trade_capture_confirm.partition_no", "PartitionNo", base.DEC),
+    trade_capture_confirm_report_index = ProtoField.int64("trade_capture_confirm.report_index", "ReportIndex", base.DEC),
+    trade_capture_confirm_appl_id = ProtoField.string("trade_capture_confirm.appl_id", "ApplID"),
+    trade_capture_confirm_reporting_pbuid = ProtoField.string("trade_capture_confirm.reporting_pbuid", "ReportingPBUID"),
+    trade_capture_confirm_submitting_pbuid = ProtoField.string("trade_capture_confirm.submitting_pbuid", "SubmittingPBUID"),
+    trade_capture_confirm_security_id = ProtoField.string("trade_capture_confirm.security_id", "SecurityID"),
+    trade_capture_confirm_security_id_source = ProtoField.string("trade_capture_confirm.security_id_source", "SecurityIDSource"),
+    trade_capture_confirm_owner_type = ProtoField.uint32("trade_capture_confirm.owner_type", "OwnerType", base.DEC),
+    trade_capture_confirm_clearing_firm = ProtoField.string("trade_capture_confirm.clearing_firm", "ClearingFirm"),
+    trade_capture_confirm_transact_time = ProtoField.int64("trade_capture_confirm.transact_time", "TransactTime", base.DEC),
+    trade_capture_confirm_user_info = ProtoField.string("trade_capture_confirm.user_info", "UserInfo"),
+    trade_capture_confirm_trade_id = ProtoField.string("trade_capture_confirm.trade_id", "TradeID"),
+    trade_capture_confirm_trade_report_id = ProtoField.string("trade_capture_confirm.trade_report_id", "TradeReportID"),
+    trade_capture_confirm_trade_report_type = ProtoField.uint32("trade_capture_confirm.trade_report_type", "TradeReportType", base.DEC),
+    trade_capture_confirm_trade_report_trans_type = ProtoField.uint32("trade_capture_confirm.trade_report_trans_type", "TradeReportTransType", base.DEC),
+    trade_capture_confirm_trade_handling_instr = ProtoField.string("trade_capture_confirm.trade_handling_instr", "TradeHandlingInstr"),
+    trade_capture_confirm_last_px = ProtoField.int64("trade_capture_confirm.last_px", "LastPx", base.DEC),
+    trade_capture_confirm_last_qty = ProtoField.int64("trade_capture_confirm.last_qty", "LastQty", base.DEC),
+    trade_capture_confirm_trd_type = ProtoField.uint32("trade_capture_confirm.trd_type", "TrdType", base.DEC),
+    trade_capture_confirm_trd_sub_type = ProtoField.uint32("trade_capture_confirm.trd_sub_type", "TrdSubType", base.DEC),
+    trade_capture_confirm_confirm_id = ProtoField.uint32("trade_capture_confirm.confirm_id", "ConfirmID", base.DEC),
+    trade_capture_confirm_exec_id = ProtoField.string("trade_capture_confirm.exec_id", "ExecID"),
+    trade_capture_confirm_side = ProtoField.string("trade_capture_confirm.side", "Side"),
+    trade_capture_confirm_pbuid = ProtoField.string("trade_capture_confirm.pbuid", "PBUID"),
+    trade_capture_confirm_account_id = ProtoField.string("trade_capture_confirm.account_id", "AccountID"),
+    trade_capture_confirm_branch_id = ProtoField.string("trade_capture_confirm.branch_id", "BranchID"),
+    trade_capture_confirm_counter_party_pbuid = ProtoField.string("trade_capture_confirm.counter_party_pbuid", "CounterPartyPBUID"),
+    trade_capture_confirm_counter_party_account_id = ProtoField.string("trade_capture_confirm.counter_party_account_id", "CounterPartyAccountID"),
+    trade_capture_confirm_counter_party_branch_id = ProtoField.string("trade_capture_confirm.counter_party_branch_id", "CounterPartyBranchID"),
     -- Unsupported type: match
-    -- Field from TradeCaptureCofirmExtend031
-    trade_capture_cofirm_extend_031_member_id = ProtoField.string("trade_capture_cofirm_extend_031.member_id", "MemberID"),
-    trade_capture_cofirm_extend_031_trader_code = ProtoField.string("trade_capture_cofirm_extend_031.trader_code", "TraderCode"),
-    trade_capture_cofirm_extend_031_counter_party_member_id = ProtoField.string("trade_capture_cofirm_extend_031.counter_party_member_id", "CounterPartyMemberID"),
-    trade_capture_cofirm_extend_031_counter_party_trader_code = ProtoField.string("trade_capture_cofirm_extend_031.counter_party_trader_code", "CounterPartyTraderCode"),
-    trade_capture_cofirm_extend_031_settl_type = ProtoField.string("trade_capture_cofirm_extend_031.settl_type", "SettlType"),
-    trade_capture_cofirm_extend_031_settl_period = ProtoField.string("trade_capture_cofirm_extend_031.settl_period", "SettlPeriod"),
-    trade_capture_cofirm_extend_031_cash_margin = ProtoField.string("trade_capture_cofirm_extend_031.cash_margin", "CashMargin"),
-    trade_capture_cofirm_extend_031_memo = ProtoField.string("trade_capture_cofirm_extend_031.memo", "Memo"),
-    -- Field from TradeCaptureCofirmExtend051
-    trade_capture_cofirm_extend_051_expiration_days = ProtoField.uint32("trade_capture_cofirm_extend_051.expiration_days", "ExpirationDays", base.DEC),
-    trade_capture_cofirm_extend_051_expiration_type = ProtoField.uint32("trade_capture_cofirm_extend_051.expiration_type", "ExpirationType", base.DEC),
-    trade_capture_cofirm_extend_051_maturity_date = ProtoField.uint32("trade_capture_cofirm_extend_051.maturity_date", "MaturityDate", base.DEC),
-    trade_capture_cofirm_extend_051_share_property = ProtoField.string("trade_capture_cofirm_extend_051.share_property", "ShareProperty"),
-    -- Field from TradeCaptureCofirmExtend060
-    -- Field from TradeCaptureCofirmExtend061
-    -- Field from TradeCaptureCofirmExtend062
-    trade_capture_cofirm_extend_062_cash_margin = ProtoField.string("trade_capture_cofirm_extend_062.cash_margin", "CashMargin"),
+    -- Field from TradeCaptureConfirmExtend031
+    trade_capture_confirm_extend_031_member_id = ProtoField.string("trade_capture_confirm_extend_031.member_id", "MemberID"),
+    trade_capture_confirm_extend_031_trader_code = ProtoField.string("trade_capture_confirm_extend_031.trader_code", "TraderCode"),
+    trade_capture_confirm_extend_031_counter_party_member_id = ProtoField.string("trade_capture_confirm_extend_031.counter_party_member_id", "CounterPartyMemberID"),
+    trade_capture_confirm_extend_031_counter_party_trader_code = ProtoField.string("trade_capture_confirm_extend_031.counter_party_trader_code", "CounterPartyTraderCode"),
+    trade_capture_confirm_extend_031_settl_type = ProtoField.string("trade_capture_confirm_extend_031.settl_type", "SettlType"),
+    trade_capture_confirm_extend_031_settl_period = ProtoField.string("trade_capture_confirm_extend_031.settl_period", "SettlPeriod"),
+    trade_capture_confirm_extend_031_cash_margin = ProtoField.string("trade_capture_confirm_extend_031.cash_margin", "CashMargin"),
+    trade_capture_confirm_extend_031_memo = ProtoField.string("trade_capture_confirm_extend_031.memo", "Memo"),
+    -- Field from TradeCaptureConfirmExtend051
+    trade_capture_confirm_extend_051_expiration_days = ProtoField.uint32("trade_capture_confirm_extend_051.expiration_days", "ExpirationDays", base.DEC),
+    trade_capture_confirm_extend_051_expiration_type = ProtoField.uint32("trade_capture_confirm_extend_051.expiration_type", "ExpirationType", base.DEC),
+    trade_capture_confirm_extend_051_maturity_date = ProtoField.uint32("trade_capture_confirm_extend_051.maturity_date", "MaturityDate", base.DEC),
+    trade_capture_confirm_extend_051_share_property = ProtoField.string("trade_capture_confirm_extend_051.share_property", "ShareProperty"),
+    -- Field from TradeCaptureConfirmExtend060
+    -- Field from TradeCaptureConfirmExtend061
+    -- Field from TradeCaptureConfirmExtend062
+    trade_capture_confirm_extend_062_cash_margin = ProtoField.string("trade_capture_confirm_extend_062.cash_margin", "CashMargin"),
     -- Field from BusinessReject
     business_reject_appl_id = ProtoField.string("business_reject.appl_id", "ApplID"),
     business_reject_transact_time = ProtoField.int64("business_reject.transact_time", "TransactTime", base.DEC),
@@ -1685,140 +1685,140 @@ local function dissect_trade_capture_report_ack_extend_062(buf, pinfo, tree, off
 end
 
 
-local function dissect_trade_capture_cofirm(buf, pinfo, tree, offset)
-    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureCofirm")
-    subtree:le_add(fields.trade_capture_cofirm_partition_no, buf(offset, 4))
+local function dissect_trade_capture_confirm(buf, pinfo, tree, offset)
+    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureConfirm")
+    subtree:le_add(fields.trade_capture_confirm_partition_no, buf(offset, 4))
     offset = offset + 4
-    subtree:le_add(fields.trade_capture_cofirm_report_index, buf(offset, 8))
+    subtree:le_add(fields.trade_capture_confirm_report_index, buf(offset, 8))
     offset = offset + 8
     local appl_id = buf(offset, 3):string()
-    subtree:add(fields.trade_capture_cofirm_appl_id, buf(offset, 3))
+    subtree:add(fields.trade_capture_confirm_appl_id, buf(offset, 3))
     offset = offset + 3
-    subtree:add(fields.trade_capture_cofirm_reporting_pbuid, buf(offset, 6))
+    subtree:add(fields.trade_capture_confirm_reporting_pbuid, buf(offset, 6))
     offset = offset + 6
-    subtree:add(fields.trade_capture_cofirm_submitting_pbuid, buf(offset, 6))
+    subtree:add(fields.trade_capture_confirm_submitting_pbuid, buf(offset, 6))
     offset = offset + 6
-    subtree:add(fields.trade_capture_cofirm_security_id, buf(offset, 8))
+    subtree:add(fields.trade_capture_confirm_security_id, buf(offset, 8))
     offset = offset + 8
-    subtree:add(fields.trade_capture_cofirm_security_id_source, buf(offset, 4))
+    subtree:add(fields.trade_capture_confirm_security_id_source, buf(offset, 4))
     offset = offset + 4
-    subtree:le_add(fields.trade_capture_cofirm_owner_type, buf(offset, 2))
+    subtree:le_add(fields.trade_capture_confirm_owner_type, buf(offset, 2))
     offset = offset + 2
-    subtree:add(fields.trade_capture_cofirm_clearing_firm, buf(offset, 2))
+    subtree:add(fields.trade_capture_confirm_clearing_firm, buf(offset, 2))
     offset = offset + 2
-    subtree:le_add(fields.trade_capture_cofirm_transact_time, buf(offset, 8))
+    subtree:le_add(fields.trade_capture_confirm_transact_time, buf(offset, 8))
     offset = offset + 8
-    subtree:add(fields.trade_capture_cofirm_user_info, buf(offset, 32))
+    subtree:add(fields.trade_capture_confirm_user_info, buf(offset, 32))
     offset = offset + 32
-    subtree:add(fields.trade_capture_cofirm_trade_id, buf(offset, 16))
+    subtree:add(fields.trade_capture_confirm_trade_id, buf(offset, 16))
     offset = offset + 16
-    subtree:add(fields.trade_capture_cofirm_trade_report_id, buf(offset, 10))
+    subtree:add(fields.trade_capture_confirm_trade_report_id, buf(offset, 10))
     offset = offset + 10
-    subtree:le_add(fields.trade_capture_cofirm_trade_report_type, buf(offset, 1))
+    subtree:le_add(fields.trade_capture_confirm_trade_report_type, buf(offset, 1))
     offset = offset + 1
-    subtree:le_add(fields.trade_capture_cofirm_trade_report_trans_type, buf(offset, 1))
+    subtree:le_add(fields.trade_capture_confirm_trade_report_trans_type, buf(offset, 1))
     offset = offset + 1
-    subtree:add(fields.trade_capture_cofirm_trade_handling_instr, buf(offset, 1))
+    subtree:add(fields.trade_capture_confirm_trade_handling_instr, buf(offset, 1))
     offset = offset + 1
-    subtree:le_add(fields.trade_capture_cofirm_last_px, buf(offset, 8))
+    subtree:le_add(fields.trade_capture_confirm_last_px, buf(offset, 8))
     offset = offset + 8
-    subtree:le_add(fields.trade_capture_cofirm_last_qty, buf(offset, 8))
+    subtree:le_add(fields.trade_capture_confirm_last_qty, buf(offset, 8))
     offset = offset + 8
-    subtree:le_add(fields.trade_capture_cofirm_trd_type, buf(offset, 2))
+    subtree:le_add(fields.trade_capture_confirm_trd_type, buf(offset, 2))
     offset = offset + 2
-    subtree:le_add(fields.trade_capture_cofirm_trd_sub_type, buf(offset, 2))
+    subtree:le_add(fields.trade_capture_confirm_trd_sub_type, buf(offset, 2))
     offset = offset + 2
-    subtree:le_add(fields.trade_capture_cofirm_confirm_id, buf(offset, 4))
+    subtree:le_add(fields.trade_capture_confirm_confirm_id, buf(offset, 4))
     offset = offset + 4
-    subtree:add(fields.trade_capture_cofirm_exec_id, buf(offset, 16))
+    subtree:add(fields.trade_capture_confirm_exec_id, buf(offset, 16))
     offset = offset + 16
-    subtree:add(fields.trade_capture_cofirm_side, buf(offset, 1))
+    subtree:add(fields.trade_capture_confirm_side, buf(offset, 1))
     offset = offset + 1
-    subtree:add(fields.trade_capture_cofirm_pbuid, buf(offset, 6))
+    subtree:add(fields.trade_capture_confirm_pbuid, buf(offset, 6))
     offset = offset + 6
-    subtree:add(fields.trade_capture_cofirm_account_id, buf(offset, 10))
+    subtree:add(fields.trade_capture_confirm_account_id, buf(offset, 10))
     offset = offset + 10
-    subtree:add(fields.trade_capture_cofirm_branch_id, buf(offset, 2))
+    subtree:add(fields.trade_capture_confirm_branch_id, buf(offset, 2))
     offset = offset + 2
-    subtree:add(fields.trade_capture_cofirm_counter_party_pbuid, buf(offset, 6))
+    subtree:add(fields.trade_capture_confirm_counter_party_pbuid, buf(offset, 6))
     offset = offset + 6
-    subtree:add(fields.trade_capture_cofirm_counter_party_account_id, buf(offset, 10))
+    subtree:add(fields.trade_capture_confirm_counter_party_account_id, buf(offset, 10))
     offset = offset + 10
-    subtree:add(fields.trade_capture_cofirm_counter_party_branch_id, buf(offset, 2))
+    subtree:add(fields.trade_capture_confirm_counter_party_branch_id, buf(offset, 2))
     offset = offset + 2
-    if appl_id == "031" then -- TradeCaptureCofirmExtend031
-        dissect_trade_capture_cofirm_extend_031(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("TradeCaptureCofirmExtend031")
-    elseif appl_id == "051" then -- TradeCaptureCofirmExtend051
-        dissect_trade_capture_cofirm_extend_051(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("TradeCaptureCofirmExtend051")
-    elseif appl_id == "060" then -- TradeCaptureCofirmExtend060
-        dissect_trade_capture_cofirm_extend_060(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("TradeCaptureCofirmExtend060")
-    elseif appl_id == "061" then -- TradeCaptureCofirmExtend061
-        dissect_trade_capture_cofirm_extend_061(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("TradeCaptureCofirmExtend061")
-    elseif appl_id == "062" then -- TradeCaptureCofirmExtend062
-        dissect_trade_capture_cofirm_extend_062(buf, pinfo, tree, offset)
-        pinfo.cols.info:set("TradeCaptureCofirmExtend062")
+    if appl_id == "031" then -- TradeCaptureConfirmExtend031
+        dissect_trade_capture_confirm_extend_031(buf, pinfo, tree, offset)
+        pinfo.cols.info:set("TradeCaptureConfirmExtend031")
+    elseif appl_id == "051" then -- TradeCaptureConfirmExtend051
+        dissect_trade_capture_confirm_extend_051(buf, pinfo, tree, offset)
+        pinfo.cols.info:set("TradeCaptureConfirmExtend051")
+    elseif appl_id == "060" then -- TradeCaptureConfirmExtend060
+        dissect_trade_capture_confirm_extend_060(buf, pinfo, tree, offset)
+        pinfo.cols.info:set("TradeCaptureConfirmExtend060")
+    elseif appl_id == "061" then -- TradeCaptureConfirmExtend061
+        dissect_trade_capture_confirm_extend_061(buf, pinfo, tree, offset)
+        pinfo.cols.info:set("TradeCaptureConfirmExtend061")
+    elseif appl_id == "062" then -- TradeCaptureConfirmExtend062
+        dissect_trade_capture_confirm_extend_062(buf, pinfo, tree, offset)
+        pinfo.cols.info:set("TradeCaptureConfirmExtend062")
     end
     return offset
 end
 
 
-local function dissect_trade_capture_cofirm_extend_031(buf, pinfo, tree, offset)
-    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureCofirmExtend031")
-    subtree:add(fields.trade_capture_cofirm_extend_031_member_id, buf(offset, 6))
+local function dissect_trade_capture_confirm_extend_031(buf, pinfo, tree, offset)
+    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureConfirmExtend031")
+    subtree:add(fields.trade_capture_confirm_extend_031_member_id, buf(offset, 6))
     offset = offset + 6
-    subtree:add(fields.trade_capture_cofirm_extend_031_trader_code, buf(offset, 5))
+    subtree:add(fields.trade_capture_confirm_extend_031_trader_code, buf(offset, 5))
     offset = offset + 5
-    subtree:add(fields.trade_capture_cofirm_extend_031_counter_party_member_id, buf(offset, 6))
+    subtree:add(fields.trade_capture_confirm_extend_031_counter_party_member_id, buf(offset, 6))
     offset = offset + 6
-    subtree:add(fields.trade_capture_cofirm_extend_031_counter_party_trader_code, buf(offset, 5))
+    subtree:add(fields.trade_capture_confirm_extend_031_counter_party_trader_code, buf(offset, 5))
     offset = offset + 5
-    subtree:add(fields.trade_capture_cofirm_extend_031_settl_type, buf(offset, 1))
+    subtree:add(fields.trade_capture_confirm_extend_031_settl_type, buf(offset, 1))
     offset = offset + 1
-    subtree:add(fields.trade_capture_cofirm_extend_031_settl_period, buf(offset, 1))
+    subtree:add(fields.trade_capture_confirm_extend_031_settl_period, buf(offset, 1))
     offset = offset + 1
-    subtree:add(fields.trade_capture_cofirm_extend_031_cash_margin, buf(offset, 1))
+    subtree:add(fields.trade_capture_confirm_extend_031_cash_margin, buf(offset, 1))
     offset = offset + 1
-    subtree:add(fields.trade_capture_cofirm_extend_031_memo, buf(offset, 120))
+    subtree:add(fields.trade_capture_confirm_extend_031_memo, buf(offset, 120))
     offset = offset + 120
     return offset
 end
 
 
-local function dissect_trade_capture_cofirm_extend_051(buf, pinfo, tree, offset)
-    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureCofirmExtend051")
-    subtree:le_add(fields.trade_capture_cofirm_extend_051_expiration_days, buf(offset, 2))
+local function dissect_trade_capture_confirm_extend_051(buf, pinfo, tree, offset)
+    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureConfirmExtend051")
+    subtree:le_add(fields.trade_capture_confirm_extend_051_expiration_days, buf(offset, 2))
     offset = offset + 2
-    subtree:le_add(fields.trade_capture_cofirm_extend_051_expiration_type, buf(offset, 1))
+    subtree:le_add(fields.trade_capture_confirm_extend_051_expiration_type, buf(offset, 1))
     offset = offset + 1
-    subtree:le_add(fields.trade_capture_cofirm_extend_051_maturity_date, buf(offset, 4))
+    subtree:le_add(fields.trade_capture_confirm_extend_051_maturity_date, buf(offset, 4))
     offset = offset + 4
-    subtree:add(fields.trade_capture_cofirm_extend_051_share_property, buf(offset, 2))
+    subtree:add(fields.trade_capture_confirm_extend_051_share_property, buf(offset, 2))
     offset = offset + 2
     return offset
 end
 
 
-local function dissect_trade_capture_cofirm_extend_060(buf, pinfo, tree, offset)
-    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureCofirmExtend060")
+local function dissect_trade_capture_confirm_extend_060(buf, pinfo, tree, offset)
+    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureConfirmExtend060")
     subtree:append_text(" (No Body)")
     return offset
 end
 
 
-local function dissect_trade_capture_cofirm_extend_061(buf, pinfo, tree, offset)
-    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureCofirmExtend061")
+local function dissect_trade_capture_confirm_extend_061(buf, pinfo, tree, offset)
+    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureConfirmExtend061")
     subtree:append_text(" (No Body)")
     return offset
 end
 
 
-local function dissect_trade_capture_cofirm_extend_062(buf, pinfo, tree, offset)
-    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureCofirmExtend062")
-    subtree:add(fields.trade_capture_cofirm_extend_062_cash_margin, buf(offset, 1))
+local function dissect_trade_capture_confirm_extend_062(buf, pinfo, tree, offset)
+    local subtree = tree:add(bjse_binary_proto, buf(offset, 1), "TradeCaptureConfirmExtend062")
+    subtree:add(fields.trade_capture_confirm_extend_062_cash_margin, buf(offset, 1))
     offset = offset + 1
     return offset
 end
