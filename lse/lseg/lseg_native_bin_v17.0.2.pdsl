@@ -53,7 +53,7 @@ packet Logon {
     char[25] Username,
     char[25] Password,
     char[25] NewPassword,
-    u8 MessageVesion,
+    u8 MessageVersion,
 }
 
 packet LogonReply {
