@@ -249,7 +249,8 @@ MetaData BusinessField {
 
 root packet SzseBinary {
     MsgType,
-    BodyLength @lengthOf(Body),
+    @lengthOf(Body)
+    BodyLength,
     match MsgType as Body {
         1 : Logon,
         2 : Logout,
@@ -284,7 +285,8 @@ root packet SzseBinary {
         190007 : OrderCancelRequest,
         290008 : CancelReject,
     },
-    int32 Checksum @calculatedFrom("SZSE_BIN"),
+    @calculatedFrom("SZSE_BIN")
+    int32 Checksum,
 }
 
 packet Logon {

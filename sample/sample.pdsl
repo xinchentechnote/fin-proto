@@ -14,14 +14,16 @@ options {
 // root packet
 root packet RootPacket {
     u16 MsgType `msgType`,
-    u32 PayloadLen @lengthOf(Payload) `length of the payload`,
+    @lengthOf(Payload)
+    u32 PayloadLen `length of the payload`,
     match MsgType as Payload {
         1 : BasicPacket,
         2 : StringPacket,
         3 : NestedPacket,
         4 : EmptyPacket,
     },
-    u32 Checksum @calculatedFrom("CRC32") `校验和`,
+    @calculatedFrom("CRC32")
+    u32 Checksum `校验和`,
 }
 
 // BasicPacket is a packet that contains various basic data types.
