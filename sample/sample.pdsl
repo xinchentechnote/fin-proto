@@ -59,10 +59,14 @@ packet StringPacket {
     char[] fieldDynamicString1,
     char[1] fieldFixedString1,
     char[10] fieldFixedString10,
+    @leftPadding(' ')
+    char[10] fieldFixedString10Padding,
     repeat string fieldDynamicStringList,
     repeat char[] fieldDynamicString1List,
     repeat char[1] fieldFixedString1List,
     repeat char[10] fieldFixedString10List,
+    @rightPadding(' ')
+    repeat char[10] fieldFixedString10ListPadding,
 }
 
 // NestedPacket is a packet that contains a sub-packet and an inner packet.
