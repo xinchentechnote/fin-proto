@@ -65,7 +65,7 @@ packet StringPacket {
     repeat char[] fieldDynamicString1List,
     repeat char[1] fieldFixedString1List,
     repeat char[10] fieldFixedString10List,
-    @rightPadding(' ')
+    @rightPadding('0')
     repeat char[10] fieldFixedString10ListPadding,
 }
 
