@@ -1,7 +1,7 @@
 //base on reference/IS122_TDGW_Move_Binary_CV0.57_MTP_Test_20230926.pdf
 options {
-    StringPreFixLenType = u16;
-    RepeatPreFixSizeType = u16;
+    StringPrefixLenType = u16;
+    ArrayPrefixLenType = u16;
     LittleEndian = false;
     JavaPackage = "com.finproto.sse.bin.messages";
     GoPackage = "sse_bin"

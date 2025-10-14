@@ -3,12 +3,14 @@
 // strings, nested packets, and empty packets.
 // protocol definition base on antlr4 :https://github.com/xinchentechnote/fin-protoc/blob/main/grammar/PacketDsl.g4
 options {
-    StringPreFixLenType = u16;
-    RepeatPreFixSizeType = u16;
+    StringPrefixLenType = u16;
+    ArrayPrefixLenType = u16;
     LittleEndian = true;
     JavaPackage = "com.finproto.sample.messages";
     GoPackage = "sample_bin";
     GoModule = "github.com/xinchentechnote/fin-proto-go/sample-bin/messages";
+    FixedStringPadFromLeft = true;
+    FixedStringPadChar = '0';
 }
 
 // root packet
@@ -59,14 +61,14 @@ packet StringPacket {
     char[] fieldDynamicString1,
     char[1] fieldFixedString1,
     char[10] fieldFixedString10,
-    @leftPadding(' ')
-    char[10] fieldFixedString10Padding,
+    @leftPad(' ')
+    char[10] fieldFixedString10Pad,
     repeat string fieldDynamicStringList,
     repeat char[] fieldDynamicString1List,
     repeat char[1] fieldFixedString1List,
     repeat char[10] fieldFixedString10List,
-    @rightPadding('0')
-    repeat char[10] fieldFixedString10ListPadding,
+    @rightPad('0')
+    repeat char[10] fieldFixedString10ListPad,
 }
 
 // NestedPacket is a packet that contains a sub-packet and an inner packet.

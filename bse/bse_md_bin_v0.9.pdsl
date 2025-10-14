@@ -1,6 +1,6 @@
 options {
-    StringPreFixLenType = u16;
-    RepeatPreFixSizeType = u16;
+    StringPrefixLenType = u16;
+    ArrayPrefixLenType = u16;
     LittleEndian = true;
     JavaPackage = "com.finproto.bjse.md.messages";
     GoPackage = "bjse_md_bin";

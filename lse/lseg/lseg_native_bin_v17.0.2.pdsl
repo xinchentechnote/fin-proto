@@ -1,8 +1,8 @@
 // base in reference/mit203_-_native_trading_gateway_specification_-_issue_17.0_2.pdf
 // TODO not completed
 options {
-    StringPreFixLenType = u8;
-    RepeatPreFixSizeType = u16;
+    StringPrefixLenType = u8;
+    ArrayPrefixLenType = u16;
     LittleEndian = true;
     JavaPackage = "com.lseg.native.messages";
     GoPackage = "lseg_native_bin";

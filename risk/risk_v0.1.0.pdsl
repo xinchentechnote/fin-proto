@@ -1,7 +1,7 @@
 //简化版风控内部协议
 options {
-    StringPreFixLenType = u32;
-    RepeatPreFixSizeType = u32;
+    StringPrefixLenType = u32;
+    ArrayPrefixLenType = u32;
     LittleEndian = false;
     JavaPackage = "com.finproto.risk.bin.messages";
     GoPackage = "risk_bin"

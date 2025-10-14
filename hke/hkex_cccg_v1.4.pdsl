@@ -1,8 +1,8 @@
 // Based on reference/HKEx_CCCG_Binary_Trading_Interface_Specifications_v1_4 (tracked_changes).pdf
 // TODO not completed
 options {
-    StringPreFixLenType = u16;
-    RepeatPreFixSizeType = u16;
+    StringPrefixLenType = u16;
+    ArrayPrefixLenType = u16;
     LittleEndian = true;
     JavaPackage = "com.finproto.hkex.cccg.messages";
     GoPackage = "hkex_cccg_bin";
