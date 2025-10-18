@@ -9,6 +9,7 @@ local fields = {
     rc_binary_msg_body_len = ProtoField.uint32("rc_binary.msg_body_len", "MsgBodyLen", base.DEC),
     -- Unsupported type: match
     -- Field from NewOrder
+    new_order_unique_order_id = ProtoField.string("new_order.unique_order_id", "UniqueOrderID"),
     new_order_cl_ord_id = ProtoField.string("new_order.cl_ord_id", "ClOrdID"),
     new_order_security_id = ProtoField.string("new_order.security_id", "SecurityID"),
     new_order_side = ProtoField.string("new_order.side", "Side"),
@@ -17,24 +18,35 @@ local fields = {
     new_order_ord_type = ProtoField.string("new_order.ord_type", "OrdType"),
     new_order_account = ProtoField.string("new_order.account", "Account"),
     -- Field from OrderConfirm
+    order_confirm_unique_order_id = ProtoField.string("order_confirm.unique_order_id", "UniqueOrderID"),
+    order_confirm_unique_orig_order_id = ProtoField.string("order_confirm.unique_orig_order_id", "UniqueOrigOrderID"),
     order_confirm_cl_ord_id = ProtoField.string("order_confirm.cl_ord_id", "ClOrdID"),
     order_confirm_exec_type = ProtoField.string("order_confirm.exec_type", "ExecType"),
     order_confirm_ord_rej_reason = ProtoField.uint32("order_confirm.ord_rej_reason", "OrdRejReason", base.DEC),
     order_confirm_ord_cnfm_id = ProtoField.string("order_confirm.ord_cnfm_id", "OrdCnfmID"),
     -- Field from ExecutionReport
+    execution_report_unique_order_id = ProtoField.string("execution_report.unique_order_id", "UniqueOrderID"),
     execution_report_cl_ord_id = ProtoField.string("execution_report.cl_ord_id", "ClOrdID"),
     execution_report_ord_cnfm_id = ProtoField.string("execution_report.ord_cnfm_id", "OrdCnfmID"),
     execution_report_last_px = ProtoField.uint64("execution_report.last_px", "LastPx", base.DEC),
     execution_report_last_qty = ProtoField.uint64("execution_report.last_qty", "LastQty", base.DEC),
     execution_report_ord_status = ProtoField.string("execution_report.ord_status", "OrdStatus"),
     -- Field from OrderCancel
+    order_cancel_unique_order_id = ProtoField.string("order_cancel.unique_order_id", "UniqueOrderID"),
+    order_cancel_unique_orig_order_id = ProtoField.string("order_cancel.unique_orig_order_id", "UniqueOrigOrderID"),
     order_cancel_cl_ord_id = ProtoField.string("order_cancel.cl_ord_id", "ClOrdID"),
     order_cancel_orig_cl_ord_id = ProtoField.string("order_cancel.orig_cl_ord_id", "OrigClOrdID"),
     order_cancel_security_id = ProtoField.string("order_cancel.security_id", "SecurityID"),
     -- Field from CancelReject
+    cancel_reject_unique_order_id = ProtoField.string("cancel_reject.unique_order_id", "UniqueOrderID"),
+    cancel_reject_unique_orig_order_id = ProtoField.string("cancel_reject.unique_orig_order_id", "UniqueOrigOrderID"),
     cancel_reject_cl_ord_id = ProtoField.string("cancel_reject.cl_ord_id", "ClOrdID"),
     cancel_reject_orig_cl_ord_id = ProtoField.string("cancel_reject.orig_cl_ord_id", "OrigClOrdID"),
     cancel_reject_cxl_rej_reason = ProtoField.uint32("cancel_reject.cxl_rej_reason", "CxlRejReason", base.DEC),
+    -- Field from RiskResult
+    risk_result_unique_order_id = ProtoField.string("risk_result.unique_order_id", "UniqueOrderID"),
+    risk_result_risk_status = ProtoField.uint32("risk_result.risk_status", "RiskStatus", base.DEC),
+    risk_result_risk_reason = ProtoField.string("risk_result.risk_reason", "RiskReason"),
 }
 
 for _, field in pairs(fields) do
@@ -43,6 +55,11 @@ end
 
 local function dissect_new_order(buf, pinfo, tree, offset)
     local subtree = tree:add(rc_binary_proto, buf(offset, 1), "NewOrder")
+    local new_order_unique_order_id_len = buf(offset, 4):uint()
+    subtree:add("UniqueOrderID Len: ".. new_order_unique_order_id_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.new_order_unique_order_id, buf(offset, new_order_unique_order_id_len))
+    offset = offset + new_order_unique_order_id_len
     local new_order_cl_ord_id_len = buf(offset, 4):uint()
     subtree:add("ClOrdID Len: ".. new_order_cl_ord_id_len, buf(offset, 4))
     offset = offset + 4
@@ -72,6 +89,16 @@ end
 
 local function dissect_order_confirm(buf, pinfo, tree, offset)
     local subtree = tree:add(rc_binary_proto, buf(offset, 1), "OrderConfirm")
+    local order_confirm_unique_order_id_len = buf(offset, 4):uint()
+    subtree:add("UniqueOrderID Len: ".. order_confirm_unique_order_id_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.order_confirm_unique_order_id, buf(offset, order_confirm_unique_order_id_len))
+    offset = offset + order_confirm_unique_order_id_len
+    local order_confirm_unique_orig_order_id_len = buf(offset, 4):uint()
+    subtree:add("UniqueOrigOrderID Len: ".. order_confirm_unique_orig_order_id_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.order_confirm_unique_orig_order_id, buf(offset, order_confirm_unique_orig_order_id_len))
+    offset = offset + order_confirm_unique_orig_order_id_len
     local order_confirm_cl_ord_id_len = buf(offset, 4):uint()
     subtree:add("ClOrdID Len: ".. order_confirm_cl_ord_id_len, buf(offset, 4))
     offset = offset + 4
@@ -92,6 +119,11 @@ end
 
 local function dissect_execution_report(buf, pinfo, tree, offset)
     local subtree = tree:add(rc_binary_proto, buf(offset, 1), "ExecutionReport")
+    local execution_report_unique_order_id_len = buf(offset, 4):uint()
+    subtree:add("UniqueOrderID Len: ".. execution_report_unique_order_id_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.execution_report_unique_order_id, buf(offset, execution_report_unique_order_id_len))
+    offset = offset + execution_report_unique_order_id_len
     local execution_report_cl_ord_id_len = buf(offset, 4):uint()
     subtree:add("ClOrdID Len: ".. execution_report_cl_ord_id_len, buf(offset, 4))
     offset = offset + 4
@@ -114,6 +146,16 @@ end
 
 local function dissect_order_cancel(buf, pinfo, tree, offset)
     local subtree = tree:add(rc_binary_proto, buf(offset, 1), "OrderCancel")
+    local order_cancel_unique_order_id_len = buf(offset, 4):uint()
+    subtree:add("UniqueOrderID Len: ".. order_cancel_unique_order_id_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.order_cancel_unique_order_id, buf(offset, order_cancel_unique_order_id_len))
+    offset = offset + order_cancel_unique_order_id_len
+    local order_cancel_unique_orig_order_id_len = buf(offset, 4):uint()
+    subtree:add("UniqueOrigOrderID Len: ".. order_cancel_unique_orig_order_id_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.order_cancel_unique_orig_order_id, buf(offset, order_cancel_unique_orig_order_id_len))
+    offset = offset + order_cancel_unique_orig_order_id_len
     local order_cancel_cl_ord_id_len = buf(offset, 4):uint()
     subtree:add("ClOrdID Len: ".. order_cancel_cl_ord_id_len, buf(offset, 4))
     offset = offset + 4
@@ -135,6 +177,16 @@ end
 
 local function dissect_cancel_reject(buf, pinfo, tree, offset)
     local subtree = tree:add(rc_binary_proto, buf(offset, 1), "CancelReject")
+    local cancel_reject_unique_order_id_len = buf(offset, 4):uint()
+    subtree:add("UniqueOrderID Len: ".. cancel_reject_unique_order_id_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.cancel_reject_unique_order_id, buf(offset, cancel_reject_unique_order_id_len))
+    offset = offset + cancel_reject_unique_order_id_len
+    local cancel_reject_unique_orig_order_id_len = buf(offset, 4):uint()
+    subtree:add("UniqueOrigOrderID Len: ".. cancel_reject_unique_orig_order_id_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.cancel_reject_unique_orig_order_id, buf(offset, cancel_reject_unique_orig_order_id_len))
+    offset = offset + cancel_reject_unique_orig_order_id_len
     local cancel_reject_cl_ord_id_len = buf(offset, 4):uint()
     subtree:add("ClOrdID Len: ".. cancel_reject_cl_ord_id_len, buf(offset, 4))
     offset = offset + 4
@@ -147,6 +199,24 @@ local function dissect_cancel_reject(buf, pinfo, tree, offset)
     offset = offset + cancel_reject_orig_cl_ord_id_len
     subtree:add(fields.cancel_reject_cxl_rej_reason, buf(offset, 4))
     offset = offset + 4
+    return offset
+end
+
+
+local function dissect_risk_result(buf, pinfo, tree, offset)
+    local subtree = tree:add(rc_binary_proto, buf(offset, 1), "RiskResult")
+    local risk_result_unique_order_id_len = buf(offset, 4):uint()
+    subtree:add("UniqueOrderID Len: ".. risk_result_unique_order_id_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.risk_result_unique_order_id, buf(offset, risk_result_unique_order_id_len))
+    offset = offset + risk_result_unique_order_id_len
+    subtree:add(fields.risk_result_risk_status, buf(offset, 1))
+    offset = offset + 1
+    local risk_result_risk_reason_len = buf(offset, 4):uint()
+    subtree:add("RiskReason Len: ".. risk_result_risk_reason_len, buf(offset, 4))
+    offset = offset + 4
+    subtree:add(fields.risk_result_risk_reason, buf(offset, risk_result_risk_reason_len))
+    offset = offset + risk_result_risk_reason_len
     return offset
 end
 
@@ -176,6 +246,9 @@ function rc_binary_proto.dissector(buf, pinfo, tree)
     elseif msg_type == 290008 then -- CancelReject
         dissect_cancel_reject(buf, pinfo, tree, offset)
         pinfo.cols.info:set("CancelReject")
+    elseif msg_type == 800001 then -- RiskResult
+        dissect_risk_result(buf, pinfo, tree, offset)
+        pinfo.cols.info:set("RiskResult")
     end
 end
 

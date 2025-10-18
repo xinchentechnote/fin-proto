@@ -103,21 +103,19 @@ local fields = {
     report_security_id = ProtoField.string("report.security_id", "SecurityID"),
     report_account = ProtoField.string("report.account", "Account"),
     report_owner_type = ProtoField.uint32("report.owner_type", "OwnerType", base.DEC),
+    report_order_entry_time = ProtoField.uint64("report.order_entry_time", "OrderEntryTime", base.DEC),
+    report_last_px = ProtoField.int64("report.last_px", "LastPx", base.DEC),
+    report_last_qty = ProtoField.int64("report.last_qty", "LastQty", base.DEC),
+    report_gross_trade_amt = ProtoField.int64("report.gross_trade_amt", "GrossTradeAmt", base.DEC),
     report_side = ProtoField.string("report.side", "Side"),
-    report_price = ProtoField.int64("report.price", "Price", base.DEC),
     report_order_qty = ProtoField.int64("report.order_qty", "OrderQty", base.DEC),
     report_leaves_qty = ProtoField.int64("report.leaves_qty", "LeavesQty", base.DEC),
-    report_cxl_qty = ProtoField.int64("report.cxl_qty", "CxlQty", base.DEC),
-    report_ord_type = ProtoField.string("report.ord_type", "OrdType"),
-    report_time_in_force = ProtoField.string("report.time_in_force", "TimeInForce"),
     report_ord_status = ProtoField.string("report.ord_status", "OrdStatus"),
     report_credit_tag = ProtoField.string("report.credit_tag", "CreditTag"),
-    report_orig_cl_ord_id = ProtoField.string("report.orig_cl_ord_id", "OrigClOrdID"),
     report_clearing_firm = ProtoField.string("report.clearing_firm", "ClearingFirm"),
     report_branch_id = ProtoField.string("report.branch_id", "BranchID"),
-    report_ord_rej_reason = ProtoField.uint32("report.ord_rej_reason", "OrdRejReason", base.DEC),
+    report_trd_cnfm_id = ProtoField.string("report.trd_cnfm_id", "TrdCnfmID"),
     report_ord_cnfm_id = ProtoField.string("report.ord_cnfm_id", "OrdCnfmID"),
-    report_orig_ord_cnfm_id = ProtoField.string("report.orig_ord_cnfm_id", "OrigOrdCnfmID"),
     report_trade_date = ProtoField.uint32("report.trade_date", "TradeDate", base.DEC),
     report_transact_time = ProtoField.uint64("report.transact_time", "TransactTime", base.DEC),
     report_user_info = ProtoField.string("report.user_info", "UserInfo"),
@@ -377,35 +375,31 @@ local function dissect_report(buf, pinfo, tree, offset)
     offset = offset + 13
     subtree:add(fields.report_owner_type, buf(offset, 1))
     offset = offset + 1
+    subtree:add(fields.report_order_entry_time, buf(offset, 8))
+    offset = offset + 8
+    subtree:add(fields.report_last_px, buf(offset, 8))
+    offset = offset + 8
+    subtree:add(fields.report_last_qty, buf(offset, 8))
+    offset = offset + 8
+    subtree:add(fields.report_gross_trade_amt, buf(offset, 8))
+    offset = offset + 8
     subtree:add(fields.report_side, buf(offset, 1))
     offset = offset + 1
-    subtree:add(fields.report_price, buf(offset, 8))
-    offset = offset + 8
     subtree:add(fields.report_order_qty, buf(offset, 8))
     offset = offset + 8
     subtree:add(fields.report_leaves_qty, buf(offset, 8))
     offset = offset + 8
-    subtree:add(fields.report_cxl_qty, buf(offset, 8))
-    offset = offset + 8
-    subtree:add(fields.report_ord_type, buf(offset, 1))
-    offset = offset + 1
-    subtree:add(fields.report_time_in_force, buf(offset, 1))
-    offset = offset + 1
     subtree:add(fields.report_ord_status, buf(offset, 1))
     offset = offset + 1
     subtree:add(fields.report_credit_tag, buf(offset, 2))
     offset = offset + 2
-    subtree:add(fields.report_orig_cl_ord_id, buf(offset, 10))
-    offset = offset + 10
     subtree:add(fields.report_clearing_firm, buf(offset, 8))
     offset = offset + 8
     subtree:add(fields.report_branch_id, buf(offset, 8))
     offset = offset + 8
-    subtree:add(fields.report_ord_rej_reason, buf(offset, 4))
-    offset = offset + 4
-    subtree:add(fields.report_ord_cnfm_id, buf(offset, 16))
+    subtree:add(fields.report_trd_cnfm_id, buf(offset, 16))
     offset = offset + 16
-    subtree:add(fields.report_orig_ord_cnfm_id, buf(offset, 16))
+    subtree:add(fields.report_ord_cnfm_id, buf(offset, 16))
     offset = offset + 16
     subtree:add(fields.report_trade_date, buf(offset, 4))
     offset = offset + 4
