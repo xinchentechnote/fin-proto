@@ -1,0 +1,254 @@
+
+options {
+    ProtocolType = "step",
+}
+
+MetaData Basic {
+    @tag(8)
+    char[16] BeginString `起始串，固定FIXT1.1`,
+    @tag(9)
+    int32 BodyLength `消息体长度`,
+
+}
+
+message Header {
+    BeginString,
+    BodyLength,
+    MsgType,
+    SenderCompID,
+    TargetCompID,
+    MsgSeqNum,
+    PossResend,
+    SendingTime,
+    MessgaeEncoding,
+}
+
+message Logon {
+    Header,
+    EncryptMethod,
+    HeartBtInt,
+    ResetSeqNumFlag,
+    NextExpectedMsgSeqNum,
+    Username,
+    Password,
+    DefaultApplVerID,
+    DefaultApplExtID,
+    DefaultCstmApplVerID,
+    Trailer,
+}
+
+message Logout {
+    Header,
+    SessionStatus,
+    Text,
+    Trailer,
+}
+
+message Heartbeat {
+    Header,
+    TestReqID,
+    Trailer,
+}
+
+
+message TestRequest {
+    Header,
+    TestReqID,
+    Trailer,
+}
+
+
+message ResendRequest{
+    Header,
+    BeginSeqNo,
+    EndSeqNo,
+    Trailer,
+}
+
+
+message SessionReject {
+    Header,
+    RefSeqNum,
+    RefTagID,
+    RefMsgType,
+    SessionRejectReason,
+    Text,
+    Trailer,
+}
+
+message SeqReset {
+    Header,
+    GapFillFlag,
+    NewSeqNo,
+    Trailer,
+}
+
+message NewOrderSingle {
+    Header,
+    ApplID,
+    ClOrdID,
+    SecurityID,
+    OwnerType,
+    Side,
+    Price,
+    OrderQty,
+    OrdType,
+    TimeInForce,
+    TransactTime,
+    CashMargin,
+    Text,
+    repeat NoPartyIDs {
+        PartyID,
+        PartyRole,
+    },
+    DividendSelect,
+    DestSecurity,
+    Trailer,
+}
+
+
+message OrderCancel {
+    Header,
+    ApplID,
+    ClOrdID,
+    SecurityID,
+    OwnerType,
+    Side,
+    OrigClOrdID,
+    TransactTime,
+    Text,
+    repeat NoPartyIDs {
+        PartyID,
+        PartyRole,
+    },
+    Trailer,
+}
+
+message ExecutionReport {
+    Header,
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ExecType,
+    ClOrdID,
+    SecurityID,
+    OwnerType,
+    Side,
+    OrderEntryTime,
+    Price,
+    OrderQty,
+    LeavesQty,
+    LastPx,
+    LastQty,
+    TotalValueTraded,
+    CxlQty,
+    OrdType,
+    TimeInForce,
+    OrdStatus,
+    CashMargin,
+    OrigClOrdID,
+    OrdRejReason,
+    ExecID,
+    OrderID,
+    RefOrderID,
+    TradeDate,
+    TransactTime,
+    Text,
+    repeat NoPartyIDs {
+        PartyID,
+        PartyRole,
+    },
+    DividendSelect,
+    DestSecurity,
+    Trailer,
+}
+
+message OrderCancelReject {
+    Header,
+    PartitionNo,
+    ReportIndex,
+    ApplID,
+    ClOrdID,
+    SecurityID,
+    OrigClOrdID,
+    TradeDate,
+    TransactTime,
+    OrdRejReason,
+    Text,
+    repeat NoPartyIDs {
+        PartyID,
+        PartyRole,
+    },
+    Trailer,
+}
+
+
+message OrderReject {
+    Header,
+    ApplID,
+    ClOrdID,
+    SecurityID,
+    OrdRejReason,
+    TradeDate,
+    TransactTime,
+    Text,
+    repeat NoPartyIDs {
+        PartyID,
+        PartyRole,
+    },
+    Trailer,
+}
+
+message PlatformState {
+    Header,
+    PlatformID,
+    PlatformStatus,
+    Trailer,
+}
+
+message ExecRptInfo {
+    Header,
+    PlatformID,
+    repeat NoGateWayPBUs {
+        GateWayPBU
+    },
+    repeat NoPartitions {
+        PartitionNo
+    },
+    Trailer,
+}
+
+message ExecRptSync {
+    Header,
+    repeat NoPartitions {
+        GateWayPBU,
+        PartitionNo,
+        BeginReportIndex,
+    },
+    Trailer,
+}
+
+message ExecRptSyncRsp {
+    Header,
+    repeat NoPartitions {
+        GateWayPBU,
+        PartitionNo,
+        BeginReportIndex,
+        EndReportIndex,
+        OrdRejReason,
+        Text,
+    }
+    Trailer,
+}
+
+message ExecRptEndOfStream {
+    Header,
+    GateWayPBU,
+    PartitionNo,
+    EndReportIndex,
+    Trailer,
+}
+
+message Trailer {
+    CheckSum,
+}
