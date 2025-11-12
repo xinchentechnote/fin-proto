@@ -20,7 +20,7 @@ message Header {
     MsgSeqNum,
     PossResend,
     SendingTime,
-    MessgaeEncoding,
+    MessageEncoding,
 }
 
 message Logon {
