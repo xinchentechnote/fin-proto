@@ -37,11 +37,13 @@ local fields = {
     string_packet_field_fixed_string_1 = ProtoField.string("string_packet.field_fixed_string_1", "fieldFixedString1"),
     string_packet_field_fixed_string_10 = ProtoField.string("string_packet.field_fixed_string_10", "fieldFixedString10"),
     string_packet_field_fixed_string_10_pad = ProtoField.string("string_packet.field_fixed_string_10_pad", "fieldFixedString10Pad"),
+    string_packet_field_fixed_string_10_pad_with_null_terminator = ProtoField.string("string_packet.field_fixed_string_10_pad_with_null_terminator", "fieldFixedString10PadWithNullTerminator"),
     string_packet_field_dynamic_string_list = ProtoField.string("string_packet.field_dynamic_string_list", "fieldDynamicStringList"),
     string_packet_field_dynamic_string_1_list = ProtoField.string("string_packet.field_dynamic_string_1_list", "fieldDynamicString1List"),
     string_packet_field_fixed_string_1_list = ProtoField.string("string_packet.field_fixed_string_1_list", "fieldFixedString1List"),
     string_packet_field_fixed_string_10_list = ProtoField.string("string_packet.field_fixed_string_10_list", "fieldFixedString10List"),
     string_packet_field_fixed_string_10_list_pad = ProtoField.string("string_packet.field_fixed_string_10_list_pad", "fieldFixedString10ListPad"),
+    string_packet_field_fixed_string_10_pad_with_null_terminator_list = ProtoField.string("string_packet.field_fixed_string_10_pad_with_null_terminator_list", "fieldFixedString10PadWithNullTerminatorList"),
     -- Field from NestedPacket
     -- Field from SubPacket
     sub_packet_field_u_32 = ProtoField.uint32("sub_packet.field_u_32", "fieldU32", base.DEC),
@@ -194,6 +196,8 @@ local function dissect_string_packet(buf, pinfo, tree, offset)
     offset = offset + 10
     subtree:add(fields.string_packet_field_fixed_string_10_pad, buf(offset, 10))
     offset = offset + 10
+    subtree:add(fields.string_packet_field_fixed_string_10_pad_with_null_terminator, buf(offset, 10))
+    offset = offset + 10
     local string_packet_field_dynamic_string_list_size = buf(offset, 2):le_uint()
     subtree:add("fieldDynamicStringList Size: ".. string_packet_field_dynamic_string_list_size, buf(offset, 2))
     offset = offset + 2
@@ -239,6 +243,14 @@ local function dissect_string_packet(buf, pinfo, tree, offset)
         subtree:add(fields.string_packet_field_fixed_string_10_list_pad, buf(offset, 10))
         offset = offset + 10
         pinfo.cols.info:append(" fieldFixedString10ListPad["..i.."]")
+    end
+    local string_packet_field_fixed_string_10_pad_with_null_terminator_list_size = buf(offset, 2):le_uint()
+    subtree:add("fieldFixedString10PadWithNullTerminatorList Size: ".. string_packet_field_fixed_string_10_pad_with_null_terminator_list_size, buf(offset, 2))
+    offset = offset + 2
+    for i=1,string_packet_field_fixed_string_10_pad_with_null_terminator_list_size do
+        subtree:add(fields.string_packet_field_fixed_string_10_pad_with_null_terminator_list, buf(offset, 10))
+        offset = offset + 10
+        pinfo.cols.info:append(" fieldFixedString10PadWithNullTerminatorList["..i.."]")
     end
     return offset
 end
