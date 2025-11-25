@@ -48,7 +48,9 @@ local fields = {
     -- Field from SubPacket
     sub_packet_field_u_32 = ProtoField.uint32("sub_packet.field_u_32", "fieldU32", base.DEC),
     sub_packet_field_i_16_list = ProtoField.int("sub_packet.field_i_16_list", "fieldI16List", base.DEC),
-    -- Unsupported type: SubPacket
+    -- Field from SubPacket
+    sub_packet_field_u_32 = ProtoField.uint32("sub_packet.field_u_32", "fieldU32", base.DEC),
+    sub_packet_field_i_16_list = ProtoField.int("sub_packet.field_i_16_list", "fieldI16List", base.DEC),
     -- Field from InerPacket
     iner_packet_field_u_32 = ProtoField.uint32("iner_packet.field_u_32", "fieldU32", base.DEC),
     iner_packet_field_i_16_list = ProtoField.int("iner_packet.field_i_16_list", "fieldI16List", base.DEC),
