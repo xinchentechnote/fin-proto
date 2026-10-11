@@ -861,9 +861,22 @@ root packet BjseBinary {
         201000 : CancelReject,
         202010 : ExecutionConfirm,
         203010 : ExecutionReport,
+        4 : BusinessReject,
         5 : ReportSynchronization,
         6 : PlatformStateInfo,
         7 : ReportFinished,
+        9 : PlatformInfo,
+        10 : TradingSessionStatus,
+        //成交申报族 TCR=103xxx Ack=204xxx Confirm=205xxx（PDF 表3-2/4.5节）
+        [103031, 103051, 103060, 103061, 103062] : TradeCaptureReport,
+        [204031, 204051, 204060, 204061, 204062] : TradeCaptureReportAck,
+        [205031, 205051, 205060, 205061, 205062] : TradeCaptureConfirm,
+        //报价族（PDF 4.4节: 104xxx=报价 105xxx=报价回复 206xxx=报价状态回报 207xxx=转发报价 208xxx=转发报价回复）
+        [104070, 104071] : Quote,
+        105070 : QuoteResponse,
+        206070 : QuoteStatusReport,
+        207070 : AllegeQuote,
+        208070 : AllegeQuoteResponse,
     },
     Checksum,
 }

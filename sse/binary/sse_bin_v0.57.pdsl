@@ -36,6 +36,8 @@ root packet SseBinary {
         206 : ExecRptSync,
         207 : ExecRptSyncRsp,
         210 : ExecRptEndOfStream,
+        306 : PasswordService,
+        308 : PasswordServiceResp,
     },
     @calculatedFrom("SSE_BIN")
     uint32 Checksum `校验和`,
@@ -143,7 +145,7 @@ packet Report {
     uint32 SetID `平台内分区号`,
     uint64 ReportIndex `执行报告编号 从 1 开始连续递增编号`,
     uint32 BizID `业务编号`,
-    char[1] ExecType `执行类型 0=订单申报成功 4=订单撤销成功 8=订单申报拒绝`,
+    char[1] ExecType `订单执行状态 F=成交`,
     char[8] BizPbu `业务 PBU 编号`,
     char[10] ClOrdID `会员内部订单编号`,
     char[12] SecurityID `证券代码`,
@@ -156,12 +158,12 @@ packet Report {
     char[1] Side `买卖方向`,
     quantity OrderQty `申报数量`,
     quantity LeavesQty `剩余数量`,
-    char[1] OrdStatus `订单状态 0=新订单 4=已撤销 8=已拒绝`,
+    char[1] OrdStatus `订单状态 1=部分成交 2=全部成交`,
     char[2] CreditTag `信用标签`,
-    char[8] ClearingFirm `结算会员代码`,
+    char[8] ClearingFirm `清算会员代码`,
     char[8] BranchID `营业部代码`,
     char[16] TrdCnfmID `成交编号`,
-    char[16] OrdCnfmID `交易所成交编号`,
+    char[16] OrdCnfmID `交易所订单编号`,
     date TradeDate `交易日期`,
     ntime TransactTime `回报时间`,
     char[32] UserInfo `用户私有信息，前 12 位有效`,
@@ -212,4 +214,36 @@ packet ExecRptEndOfStream {
     char[8] Pbu `登录或订阅 PBU`,
     uint32 SetID `分区`,
     uint64 EndReportIndex `执行报告流最大序号，本消息编入该分区执行报告编号序列`,
+}
+
+//4.4.1 网络密码服务申报
+packet PasswordService {
+    uint32 BizID `业务编号，300100`,
+    char[8] BizPbu `业务 PBU 编号`,
+    char[10] ClOrdID `会员内部订单编号`,
+    char[12] SecurityID `A 股账户：799988；B 股账户：939988。转义为激活或注销网络密码服务`,
+    char[13] Account `证券账户`,
+    uint8 OwnerType `订单所有者类型，暂不启用`,
+    ntime TransactTime `申报时间`,
+    char[8] BranchID `营业部代码，暂不启用`,
+    char[1] Side `1=激活 2=注销`,
+    char[8] ValidationCode `投资者在上交所网站注册时所获得的激活码，取值仅在 Side=1 时有意义`,
+    char[32] UserInfo `用户私有信息，前 12 位有效`,
+}
+
+//4.4.2 网络密码服务申报响应
+packet PasswordServiceResp {
+    uint32 BizID `业务编号`,
+    char[8] BizPbu `业务 PBU 编号`,
+    char[10] ClOrdID `会员内部订单编号`,
+    char[12] SecurityID `证券代码`,
+    char[13] Account `证券账户`,
+    uint8 OwnerType `订单所有者类型，暂不启用`,
+    char[8] BranchID `营业部代码，暂不启用`,
+    char[1] Side `1=激活 2=注销`,
+    char[8] ValidationCode `投资者在上交所网站注册时所获得的激活码`,
+    uint32 OrdRejReason `订单拒绝码，当申报成功响应时返回值 0`,
+    date TradeDate `交易日期`,
+    ntime TransactTime `回报时间`,
+    char[32] UserInfo `用户私有信息，前 12 位有效`,
 }

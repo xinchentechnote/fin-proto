@@ -259,7 +259,7 @@ root packet SzseBinary {
         5 : ReportSynchronization,
         6 : PlatformStateInfo,
         7 : ReportFinished,
-        9 : PlatformPartition,
+        9 : PlatformInfo,
         10 : TradingSessionStatus,
         [
             100101, 100201, 100301, 100401, 100501,
@@ -286,7 +286,7 @@ root packet SzseBinary {
         290008 : CancelReject,
     },
     @calculatedFrom("SZSE_BIN")
-    int32 Checksum,
+    uint32 Checksum,
 }
 
 packet Logon {
@@ -327,7 +327,7 @@ packet NewOrder {
         "010" : Extend100101,
         "020" : Extend100201,
         "030" : Extend100301,
-        //"040" : Extend100401,
+        "040" : Extend100401,
         ["051", "052"] : Extend100501,
         ["060", "061"] : Extend100601,
         "070" : Extend100701,
@@ -376,7 +376,7 @@ packet Extend100301 {
     TimeInForce `订单有效时间类型`,
 }
 
-packet Extend101401 {
+packet Extend100401 {
     StopPx `止损价`,
     MinQty `最低成交数量`,
     MaxPriceLevels `最多成交价位数，0 表示不限制成交价位数`,
@@ -514,8 +514,8 @@ packet ExecutionConfirm {
         "010" : Extend200102,
         "020" : Extend200202,
         "030" : Extend200302,
-        //"040" : Extend200402,
-        ["051", "052"] : Extend200502,
+        "040" : Extend200402,
+        ["051", "052", "056"] : Extend200502,
         ["060", "061"] : Extend200602,
         "070" : Extend200702,
         // 120 Extend2012012
@@ -531,13 +531,13 @@ packet ExecutionConfirm {
         ["270", "271"] : Extend202702,
         ["280", "281"] : Extend202802,
         ["290", "291"] : Extend202902,
-        //310 311 203102
+        ["310", "311"] : Extend203102,
         "630" : Extend206302,
         //330 331 Extend203302
         ["350", "351"] : Extend203502,
         "370" : Extend203702,
-        "410" : Extend204102,
-        "417" : Extend204129,
+        ["410", "412"] : Extend204102,
+        ["417", "418"] : Extend204129,
         "470" : Extend204702,
     },
 }
@@ -592,11 +592,12 @@ packet Extend200702 {
 
 packet Extend201202 {
     InsufficientSecurityID `申赎不足成份股证券代码`,
-    NoSecurity `成份股记录数`,
-    UnderlyingSecurityID `成份股证券代码`,
-    UnderlyingSecurityIDSource `证券代码源`,
-    DeliveryQty `股份交付数量`,
-    SubstCash `现金替代金额`,
+    repeat NoSecurity {
+        UnderlyingSecurityID `成份股证券代码`,
+        UnderlyingSecurityIDSource `证券代码源`,
+        DeliveryQty `股份交付数量`,
+        SubstCash `现金替代金额`,
+    },
 }
 
 packet Extend201502 {
@@ -632,10 +633,11 @@ packet Extend202902 {
 
 packet Extend203102 {
     InsufficientSecurityID `合并不足子基金代码`,
-    NoSecurity `子基金记录数`,
-    UnderlyingSecurityID `子基金证券代码`,
-    UnderlyingSecurityIDSource `证券代码源`,
-    DeliveryQty `子基金交付数量`,
+    repeat NoSecurity {
+        UnderlyingSecurityID `子基金证券代码`,
+        UnderlyingSecurityIDSource `证券代码源`,
+        DeliveryQty `子基金交付数量`,
+    },
 }
 
 packet Extend206302 {
@@ -716,17 +718,17 @@ packet ExecutionReport {
     BranchID `营业部代码`,
     match ApplID as ApplExtend {
         "010" : Extend200115,
-        "020" : Extend200215,
-        "030" : Extend200315,
-        //"040" : Extend200415,
+        ["020", "029"] : Extend200215,
+        //030 200315 无扩展字段（表4-50）
+        "040" : Extend200415,
         ["051", "052", "056", "057"] : Extend200515,
         ["060", "061"] : Extend200615,
         "070" : Extend200715,
-        "630" : Extend206315,
+        //630 206315 无扩展字段（表4-50）
         "370" : Extend203715,
         ["410", "412", "413", "415", "416"] : Extend204115,
         "417" : Extend204130,
-        "470" : Extend204715,
+        //470 015 族无 204715 报文号（表4-50）
     },
 }
 
@@ -735,10 +737,6 @@ packet Extend200115 {
 }
 
 packet Extend200215 {
-    MaturityDate `到期日`,
-}
-
-packet Extend200315 {
     MaturityDate `到期日`,
 }
 
@@ -758,18 +756,7 @@ packet Extend200615 {
     CashMargin `信用标识`,
 }
 
-packet Extend206315 {
-    CashMargin `信用标识`,
-}
-
 packet Extend200715 {
-    ExpirationDays `期限，单位为天数`,
-    ExpirationType `期限类型`,
-    MaturityDate `到期日`,
-    ShareProperty `股份性质`,
-}
-
-packet Extend204715 {
     ExpirationDays `期限，单位为天数`,
     ExpirationType `期限类型`,
     MaturityDate `到期日`,

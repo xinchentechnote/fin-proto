@@ -250,6 +250,7 @@ packet ExtendMd010 {
         MDEntryPx,
         MDEntrySize,
         MDPriceLevel,
+        NumberOfOrders `价位总委托笔数`,
         repeat NoOrders {
             OrderQty,
         },
@@ -269,6 +270,7 @@ packet ExtendMd020 {
         MDEntryPx,
         MDEntrySize,
         MDPriceLevel,
+        NumberOfOrders `价位总委托笔数`,
         repeat NoOrders {
             OrderQty,
         },
