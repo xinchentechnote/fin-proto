@@ -1,0 +1,610 @@
+// base on reference/NYSE_Pillar_Options_Gateway_Binary_Protocol_Specification.pdf
+// NYSE Pillar Options Gateway, OPTIONS SPEC VERSION 3.24, PROTOCOL VERSION 1.1。
+// 消息头/类型系统与 NYSE Pillar Equities 相同(小端; char(xx)=空格填充;
+// zchar(xx)=NUL 填充; Price/uPrice=u64 隐含 8 位小数; Timestamp=u64 纳秒;
+// MsgHeader=u16 type + u16 length(含头总长), Length 因 @lengthOf 语义限制按普通字段建模)。
+// 与 Equities 规范的差异: BitfieldOrderInstructions 为 16 字节; Price 字段文档记为
+// uPrice(无符号); MarketMaker 为 zchar(10); 新增 Bulk Quote(0x0243/0x0259)、
+// New Order Cross(0x0222)、Bulk Cancel 变体(0x0223/0x0224)、Complex Series(0x0357/0x0358)。
+// 语法缺口(无法表达, 未建模):
+//  - 0x0243/0x0259 New Bulk Quote 尾部按 Series 的报价条目(无计数字段, 条目数由总长推导);
+//  - 0x0294/0x0308 Bulk Quote Ack 的 QuoteAck 重复组(有 u8 计数字段 RepeatingGroups@44,
+//    但 DSL 的 repeat 只能自带头部计数前缀, 无法引用命名字段作计数);
+//  - 0x0357 New Complex Series Request 尾部腿组(无计数字段, 最多 12 腿, 每腿 7 字节);
+//  - 0x0231 MPVLevelReferenceData 的 MPVLevelDefinition(50B)重复(无计数字段);
+//  - 0x0295 ExecutionReport 无变长段(与 Equities 不同, 选项版为定长 136)。
+// 风险消息(0x0330/0x0331/0x0332/0x0333)与 Equities 规范同构, 按 Equities 布局建模。
+options {
+    StringPrefixLenType = u16;
+    ArrayPrefixLenType = u16;
+    LittleEndian = true;
+    JavaPackage = "com.finproto.nyse.pillar.options.messages";
+    GoPackage = "nyse_pillar_options_bin";
+    GoModule = "github.com/xinchentechnote/fin-proto-go/nyse-pillar-options-bin/messages";
+}
+
+MetaData Types {
+    uint64 Price `价格, u64 隐含 8 位小数(规范记为 uPrice)`,
+    uint64 Timestamp `Unix 纪元纳秒时间戳`,
+    char[16] Username `网关会话唯一标识(SenderCompID)`,
+    char[4] MPID `会员标识`,
+    char[10] MarketMaker `做市商代码(zchar(10))`,
+    uint32 SymbolID `标的证券标识号`,
+    uint32 SeriesIndex `期权系列标识号`,
+    uint64 OrderID `交易所分配的订单唯一标识`,
+    uint64 ClOrdID `客户订单标识`,
+}
+
+root packet NysePillarOptionsMessage {
+    uint16 MsgType `消息类型`,
+    uint16 Length `含 MsgHeader 的消息总长`,
+    match MsgType as Body {
+        544 : SessionConfigurationRequest,
+        642 : SequencedFiller,
+        584 : NewOrderSingleComplexCancelReplace,
+        592 : OrderCancelRequest,
+        593 : OrderModifyRequest,
+        579 : NewBulkQuote,
+        601 : NewBulkQuoteAckMode,
+        546 : NewOrderCross,
+        547 : BulkCancelRequest,
+        548 : BulkCancelRequestBlockUnblock,
+        816 : RiskLimitUpdateRequest,
+        817 : RiskActionRequest,
+        585 : OptionalOrderAddOn,
+        855 : NewComplexSeriesRequest,
+        563 : UnderlyingSymbolReferenceData,
+        564 : SeriesReferenceData,
+        560 : MPVClassReferenceData,
+        561 : MPVLevelReferenceData,
+        626 : MPIDConfiguration,
+        627 : MMIDConfiguration,
+        2099 : OptionsMarketMakerSymbolAppointment,
+        545 : SessionConfigurationAcknowledgement,
+        617 : OrderCancelReplaceAcknowledgement,
+        660 : BulkQuoteAcknowledgment,
+        776 : BulkQuoteAcknowledgmentQuoteLevel,
+        632 : OrderModifyCancelAckUROUT,
+        616 : OrderPriorityUpdateAcknowledgment,
+        661 : ExecutionReport,
+        659 : TradeBustCorrect,
+        615 : ApplicationLayerReject,
+        818 : RiskControlAcknowledgement,
+        819 : RiskControlAlert,
+        856 : ComplexSeriesRequestAcknowledgement,
+    },
+}
+
+// ===== 7. Member Firm to Pillar =====
+
+//7.1 (PDF p31) 总长 74
+packet SessionConfigurationRequest {
+    Username Username `offset 4`,
+    uint8 CancelOnDisconnect `offset 20`,
+    uint8 ThrottlePreference `offset 21`,
+    uint8 SelfTradePrevention `offset 22`,
+    uint8 OrderPriorityUpdate `offset 23`,
+    uint8 BOLDDesignation `offset 24`,
+    zchar[49] Reserved `保留, offset 25`,
+}
+
+//7.2 (PDF p33) 消息仅含 MsgHeader(总长 4)
+packet SequencedFiller {
+}
+
+//7.3 (PDF p34-36) New Order Single/Complex 与 Cancel/Replace 共用, Minimum Length=100;
+// 末尾可追加一个 OptionalOrderAddOn(0x0249, 自带 MsgHeader)
+packet NewOrderSingleComplexCancelReplace {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    MarketMaker MarketMaker `offset 12`,
+    zchar[4] MPSubID `offset 22`,
+    ClOrdID ClOrdID `offset 26`,
+    uint64 OrigClOrdID `New Order 填 0, offset 34`,
+    uint64 BitfieldOrderInstructions1 `订单指令位域低 64 位(spec 5.4), offset 42`,
+    uint64 BitfieldOrderInstructions2 `订单指令位域高 64 位, offset 50`,
+    Price Price `offset 58`,
+    uint32 OrderQty `offset 66`,
+    uint32 MinQty `offset 70`,
+    zchar[10] UserData `offset 74`,
+    uint64 LegOpenClose `offset 84`,
+    uint64 AuctionID `offset 92`,
+}
+
+//7.4 (PDF p37) 总长 28
+packet OrderCancelRequest {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    ClOrdID ClOrdID `offset 12`,
+    uint64 OrigClOrdID `offset 20`,
+}
+
+//7.5 (PDF p38) 总长 34
+packet OrderModifyRequest {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    ClOrdID ClOrdID `offset 12`,
+    uint64 OrigClOrdID `offset 20`,
+    uint32 OrderQty `offset 28`,
+    uint8 Side `offset 32`,
+    uint8 LocateReqd `offset 33`,
+}
+
+//7.6 (PDF p39-40) New Bulk Quote, Minimum Length=60;
+// 尾部为按 Series 的报价条目(SeriesIndex u32 + BitFieldQuoteInst u8 + Price u64 +
+// OrderQty u32, 各 17 字节, 无计数字段, 由总长推导 → 语法缺口未建模)
+packet NewBulkQuote {
+    MPID MPID `offset 4`,
+    MarketMaker MarketMaker `offset 8`,
+    zchar[4] SubID `offset 18`,
+    ClOrdID ClOrdID `offset 22`,
+    uint8 SelfTradeType `0=会话默认 1=不自防 2=撤新 3=撤旧, offset 30`,
+    uint32 GroupID `offset 31`,
+    Timestamp MMSentTime `offset 35`,
+}
+
+//7.6 变体: 需要逐笔 Ack 的 Bulk Quote(结构同 0x0243, MsgType 不同)
+packet NewBulkQuoteAckMode {
+    MPID MPID `offset 4`,
+    MarketMaker MarketMaker `offset 8`,
+    zchar[4] SubID `offset 18`,
+    ClOrdID ClOrdID `offset 22`,
+    uint8 SelfTradeType `offset 30`,
+    uint32 GroupID `offset 31`,
+    Timestamp MMSentTime `offset 35`,
+}
+
+//7.7 (PDF p41-42) New Order Cross, Minimum Length=249;
+// offset 81 起为两个内嵌的 84 字节 New Order 核心结构(Exposed/Covered),
+// 结构 = SymbolID+MPID+MarketMaker+MPSubID+ClOrdID+OrigClOrdID+Bitfield(16)+
+// Price+OrderQty+MinQty+UserData, 语法上以内联对象展开其一, 整体见 spec
+packet NewOrderCross {
+    uint64 CrossID `firm 分配的 Cross 唯一 ID, offset 4`,
+    uint8 AllocationPct `分配百分比 0-100, offset 12`,
+    zchar[5] ClearingFirm `offset 13`,
+    zchar[5] ClearingAccount `offset 18`,
+    zchar[16] OptionalData `offset 23`,
+    zchar[5] ClearingFirm2 `offset 39`,
+    zchar[5] ClearingAccount2 `offset 44`,
+    zchar[16] OptionalData2 `offset 49`,
+    char[16] Reserved `offset 65`,
+    // offset 81: Exposed New Order (84B), offset 165: Covered New Order (84B)
+}
+
+//7.8 (PDF p44) Bulk Cancel Request, 总长 65
+packet BulkCancelRequest {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    MarketMaker MarketMaker `offset 12`,
+    ClOrdID ClOrdID `offset 22`,
+    Timestamp MMSentTime `offset 30`,
+    uint8 Side `offset 38`,
+    uint32 GroupID `offset 39`,
+    char[16] TargetCancelUsername `offset 43`,
+    uint8 BulkAction `1=撤 2=Block 3=Unblock, offset 59`,
+    uint8 CancelScope `offset 60`,
+    zchar[4] TargetCancelMPID `offset 61`,
+}
+
+//7.8 变体 (PDF p47-48) Bulk Cancel with Block/Unblock, 总长 66
+packet BulkCancelRequestBlockUnblock {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    zchar[4] MPSubID `offset 12`,
+    ClOrdID ClOrdID `offset 16`,
+    uint8 Side `offset 24`,
+    char[16] TargetCancelUsername `offset 25`,
+    uint8 BulkAction `offset 41`,
+    zchar[4] TargetCancelMPID `offset 43`,
+    zchar[19] Reserved `保留, offset 47`,
+}
+
+//7.9 (PDF p49-55) 与 Equities 规范同构, 总长 272
+packet RiskLimitUpdateRequest {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    MarketMaker MarketMaker `offset 12`,
+    zchar[4] MPSubID `offset 22`,
+    uint32 Reserved `offset 26`,
+    zchar[5] ClearingNum `offset 30`,
+    ClOrdID ClOrdID `offset 35`,
+    uint32 RiskUserCRD `offset 43`,
+    char[1] RiskUserType `offset 47`,
+    uint8 RiskControlType `offset 48`,
+    uint8 RiskControlActivation `offset 49`,
+    int64 USDLimit `offset 50`,
+    int32 TimeLimit `offset 58`,
+    int32 PercentageLimit `offset 62`,
+    int32 CountLimit `offset 66`,
+    uint8 BreachAction `offset 70`,
+    uint8 IOCAttribution `offset 71`,
+    uint8 RiskRangeID `offset 72`,
+    int64 RiskMinimumADV `offset 73`,
+    uint8 PriceScale `offset 81`,
+    zchar[190] Reserved `保留, offset 82`,
+}
+
+//7.10 (PDF p56-59) 与 Equities 规范同构, 总长 250
+packet RiskActionRequest {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    MarketMaker MarketMaker `offset 12`,
+    zchar[4] MPSubID `offset 22`,
+    uint32 Reserved `offset 26`,
+    zchar[5] ClearingNum `offset 30`,
+    ClOrdID ClOrdID `offset 35`,
+    uint32 RiskUserCRD `offset 43`,
+    char[1] RiskUserType `offset 47`,
+    uint8 RiskControlType `offset 48`,
+    uint8 RiskActionType `offset 49`,
+    uint8 RiskControlActivation `offset 50`,
+    uint8 BreachAction `offset 51`,
+    uint8 IOCAttribution `offset 52`,
+    int64 USDLimit `offset 53`,
+    int32 TimeLimit `offset 61`,
+    int32 PercentageLimit `offset 65`,
+    int32 CountLimit `offset 69`,
+    uint8 RiskRangeID `offset 73`,
+    int64 RiskMinimumADV `offset 74`,
+    uint8 PriceScale `offset 82`,
+    zchar[167] Reserved `保留, offset 83`,
+}
+
+//5.x (PDF p21) Options 可选附加段, 总长 47
+packet OptionalOrderAddOn {
+    Price StopPx `offset 4`,
+    uint32 MaxFloor `offset 12`,
+    zchar[5] DeliverToCompID `offset 16`,
+    zchar[5] ClearingFirm `offset 21`,
+    zchar[16] OptionalData `offset 26`,
+    zchar[5] ClearingAccount `offset 42`,
+}
+
+//7.11 (PDF p60-61) New Complex Series Request, Minimum Length=16;
+// 尾部腿组(LegSymbolID u32 + LegRatioQty u16 + LegSide u8, 各 7 字节,
+// 最多 12 腿, 无计数字段 → 语法缺口未建模)
+packet NewComplexSeriesRequest {
+    ClOrdID ClOrdID `offset 4`,
+    MPID MPID `offset 12`,
+}
+
+// ===== 8. Pillar to Member Firm =====
+
+//8.1 (PDF p62-63) Underlying Symbol Reference Data, 总长 58
+packet UnderlyingSymbolReferenceData {
+    Timestamp TransactTime `offset 4`,
+    SymbolID SymbolID `offset 12`,
+    char[24] NYSESymbol `offset 16`,
+    zchar[4] ListedMIC `offset 40`,
+    char[1] UnderlyingType `offset 44`,
+    Price MaxOrderPrice `offset 45`,
+    uint16 MPVClassID `offset 53`,
+    uint8 TestSymbolIndicator `offset 55`,
+    uint8 ChannelID `offset 56`,
+    uint8 LegalWidthMultiplier `offset 57`,
+}
+
+//8.2 (PDF p63) Series Reference Data, 总长 67
+packet SeriesReferenceData {
+    Timestamp TransactTime `offset 4`,
+    SeriesIndex SeriesIndex `offset 12`,
+    SymbolID SymbolID `标的 SymbolID, offset 16`,
+    char[24] OCCSymbolRoot `OCC 期权根代码, offset 20`,
+    uint8 PutOrCall `0=Put 1=Call, offset 44`,
+    Price StrikePrice `行权价, offset 45`,
+    zchar[8] MaturityDate `到期日, offset 53`,
+    uint32 ContractMultiplier `合约乘数, offset 61`,
+    uint8 SeriesType `offset 65`,
+    uint8 ClosingOnlyIndicator `offset 66`,
+}
+
+//8.3 Complex Series Reference Data: 规范明确 Binary 不提供, 无消息
+
+//8.4 (PDF p64) MPV Class Reference Data, 总长 50
+packet MPVClassReferenceData {
+    Timestamp TransactTime `offset 4`,
+    zchar[20] MPVClassName `offset 12`,
+    uint16 MPVClassID `offset 32`,
+    Price RPIMPV `零售价改善 MPV, offset 34`,
+    Price LULDMPV `LULD MPV, offset 42`,
+}
+
+//8.5 (PDF p65-66) MPV Level Reference Data, Minimum Length=12;
+// 之后为 0..n 个 MPVLevelDefinition(各 50 字节, 无计数字段, 由总长推导,
+// 语法缺口未建模):
+//   MPVLevelName char[24]@+0, Price u64@+24, QuotingMPV@+32, TradingMPV@+40, MPVClassID u16@+48
+packet MPVLevelReferenceData {
+    Timestamp TransactTime `offset 4`,
+}
+
+//8.6 (PDF p66-67) MPID Configuration, 总长 83
+packet MPIDConfiguration {
+    Timestamp TransactTime `offset 4`,
+    uint8 MPIDStatus `offset 12`,
+    MPID MPID `offset 13`,
+    Username Username `offset 17`,
+    char[50] Reserved `保留, offset 33`,
+}
+
+//8.7 (PDF p67-68) MMID Configuration, 总长 142
+packet MMIDConfiguration {
+    Timestamp TransactTime `offset 4`,
+    MarketMaker MarketMaker `offset 12`,
+    uint32 MMID `offset 22`,
+    Username Username `offset 26`,
+    char[100] Reserved `保留, offset 42`,
+}
+
+//8.8 (PDF p68-69) Options Market Maker Symbol Appointment, 总长 106
+packet OptionsMarketMakerSymbolAppointment {
+    Timestamp TransactTime `offset 4`,
+    SymbolID SymbolID `offset 12`,
+    char[24] NYSESymbol `offset 16`,
+    zchar[10] MarketMaker `offset 40`,
+    MPID MPID `offset 50`,
+    uint8 MMType `offset 54`,
+    uint8 AppointmentStatus `offset 55`,
+    char[50] Reserved `保留, offset 56`,
+}
+
+//8.9 (PDF p69-71) Session Configuration Acknowledgement, 总长 98
+packet SessionConfigurationAcknowledgement {
+    Timestamp TransactTime `offset 4`,
+    uint8 UserSessionType `offset 12`,
+    uint8 UserSessionStatus `offset 13`,
+    Username Username `offset 14`,
+    char[4] MIC `offset 30`,
+    uint8 CancelOnDisconnect `offset 34`,
+    uint8 ThrottlePreference `offset 35`,
+    uint16 ThrottleWindow `offset 36`,
+    uint16 ThrottleThreshold `offset 38`,
+    uint8 SymbolEligibility `offset 40`,
+    uint32 MaxOrderQuantity `offset 41`,
+    uint8 SelfTradePrevention `offset 45`,
+    uint8 OrderPriorityUpdateAckSubscription `offset 46`,
+    uint8 AckStatus `offset 47`,
+    uint8 BOLDDesignation `offset 48`,
+    zchar[49] Reserved `保留, offset 49`,
+}
+
+//8.10 (PDF p73-76) Order and Cancel/Replace Acknowledgement, 总长 137
+packet OrderCancelReplaceAcknowledgement {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    MarketMaker MarketMaker `offset 12`,
+    zchar[4] MPSubID `offset 22`,
+    ClOrdID ClOrdID `offset 26`,
+    uint64 OrigClOrdID `offset 34`,
+    uint64 BitfieldOrderInstructions1 `订单指令位域低 64 位, offset 42`,
+    uint64 BitfieldOrderInstructions2 `订单指令位域高 64 位, offset 50`,
+    Price Price `offset 58`,
+    uint32 OrderQty `offset 66`,
+    uint32 MinQty `offset 70`,
+    zchar[10] UserData `offset 74`,
+    Timestamp TransactTime `offset 84`,
+    OrderID OrderID `offset 92`,
+    uint32 LeavesQty `offset 100`,
+    Price WorkingPrice `offset 104`,
+    uint8 WorkingAway `offset 112`,
+    zchar[4] PreLiquidityIndicator `offset 113`,
+    uint16 ReasonCode `offset 117`,
+    uint8 AckType `offset 119`,
+    uint8 BitfieldFlowIndicator `offset 120`,
+    uint64 LegOpenClose `offset 121`,
+    uint64 AuctionID `offset 129`,
+}
+
+//8.11 (PDF p77-78) Bulk Quote Acknowledgment(汇总型), Minimum Length=66;
+// offset 45 起为 QuoteAck 重复组(各 21 字节), 计数字段 RepeatingGroups u8@44,
+// 当前语法无法以命名字段作重复组计数 → 仅建模 1 组示意:
+//   QuoteAck(21B): SeriesIndex u32@+0, Side u8@+4, AckType u8@+5, Price@+6,
+//                  Quantity u32@+14, ReasonCode u16@+18, WorkingAwayFromDisplay u8@+20
+packet BulkQuoteAcknowledgment {
+    Timestamp TransactTime `offset 4`,
+    MPID MPID `offset 12`,
+    MarketMaker MarketMaker `offset 16`,
+    zchar[4] SubID `offset 26`,
+    ClOrdID ClOrdID `offset 30`,
+    uint8 BitfieldFlowIndicator `offset 38`,
+    uint8 SelfTradeType `offset 39`,
+    uint32 GroupID `offset 40`,
+    uint8 RepeatingGroups `QuoteAck 组数, offset 44`,
+}
+
+//8.12 变体 (PDF p79-82) Bulk Quote Acknowledgment(逐笔型), Minimum Length=74;
+// QuoteAck 条目为 29 字节(21 字节 + OrderID u64@+21), 同样受命名计数语法缺口限制
+packet BulkQuoteAcknowledgmentQuoteLevel {
+    Timestamp TransactTime `offset 4`,
+    MPID MPID `offset 12`,
+    MarketMaker MarketMaker `offset 16`,
+    zchar[4] SubID `offset 26`,
+    ClOrdID ClOrdID `offset 30`,
+    uint8 BitfieldFlowIndicator `offset 38`,
+    uint8 SelfTradeType `offset 39`,
+    uint32 GroupID `offset 40`,
+    uint8 RepeatingGroups `QuoteAck 组数, offset 44`,
+}
+
+//8.13 (PDF p83-86) Order Single/Complex Modify/Cancel Request Ack and UROUT, 总长 112
+packet OrderModifyCancelAckUROUT {
+    Timestamp TransactTime `offset 4`,
+    SymbolID SymbolID `offset 12`,
+    MPID MPID `offset 16`,
+    OrderID OrderID `offset 20`,
+    uint64 RefClOrdID `offset 28`,
+    uint64 OrigClOrdID `offset 36`,
+    Price Price `offset 44`,
+    uint32 OrderQty `offset 52`,
+    uint32 LeavesQty `offset 56`,
+    uint8 Side `offset 60`,
+    uint8 LocateReqd `offset 61`,
+    uint16 ReasonCode `offset 62`,
+    uint8 AckType `offset 64`,
+    uint8 BitfieldFlowIndicator `offset 65`,
+    zchar[10] UserData `offset 66`,
+    uint32 GroupID `offset 76`,
+    MarketMaker MarketMaker `offset 80`,
+    char[16] TargetCancelUsername `offset 90`,
+    zchar[4] TargetCancelMPID `offset 106`,
+    uint8 BulkAction `offset 110`,
+    uint8 CancelScope `offset 111`,
+}
+
+//8.14 (PDF p87-88) Order Priority Update Acknowledgment, 总长 64
+packet OrderPriorityUpdateAcknowledgment {
+    Timestamp TransactTime `offset 4`,
+    SymbolID SymbolID `offset 12`,
+    MPID MPID `offset 16`,
+    OrderID OrderID `offset 20`,
+    ClOrdID ClOrdID `offset 28`,
+    Price WorkingPrice `offset 36`,
+    uint32 OrderQty `offset 44`,
+    uint8 WorkingAway `offset 48`,
+    zchar[4] PreLiquidityIndicator `offset 49`,
+    uint8 AckType `offset 53`,
+    zchar[10] UserData `offset 54`,
+}
+
+//8.15 (PDF p90-92) Execution Report, 总长 136
+packet ExecutionReport {
+    Timestamp TransactTime `offset 4`,
+    SymbolID SymbolID `offset 12`,
+    MPID MPID `offset 16`,
+    OrderID OrderID `offset 20`,
+    ClOrdID ClOrdID `offset 28`,
+    uint64 DealID `offset 36`,
+    Price LastPx `offset 44`,
+    uint32 LeavesQty `offset 52`,
+    uint32 CumQty `offset 56`,
+    uint32 LastQty `offset 60`,
+    zchar[4] LiquidityIndicator `offset 64`,
+    uint8 MultilegReporting `offset 68`,
+    uint8 Reserved `offset 69`,
+    uint16 Reserved2 `offset 70`,
+    uint8 LocateReqd `offset 72`,
+    uint8 ParticipantType `offset 73`,
+    uint16 ReasonCode `offset 74`,
+    zchar[10] UserData `offset 76`,
+    uint8 Side `offset 86`,
+    zchar[10] MarketMaker `offset 87`,
+    zchar[10] ContraMarketMaker `offset 97`,
+    zchar[5] ContraClearingFirm `offset 107`,
+    zchar[4] ContraMPID `offset 112`,
+    uint8 ContraOpenClose `offset 116`,
+    uint8 ContraCustomerOrFirm `offset 117`,
+    zchar[5] ContraClearingAccount `offset 118`,
+    uint16 ContraCrossType `offset 123`,
+    uint8 ContraCoveredOrUncovered `offset 125`,
+    uint8 CoveredOrUncovered `offset 126`,
+    uint64 CrossID `offset 127`,
+    uint8 OpenClose `offset 135`,
+}
+
+//8.16 (PDF p93-94) Trade Bust/Correct, 总长 85
+packet TradeBustCorrect {
+    Timestamp TransactTime `offset 4`,
+    SymbolID SymbolID `offset 12`,
+    MPID MPID `offset 16`,
+    OrderID OrderID `offset 20`,
+    ClOrdID ClOrdID `offset 28`,
+    RefSeqMsgID {
+        char[8] StreamId `offset 0`,
+        uint64 Seq `offset 8`,
+    },  // 被撤/更正消息的 SeqMsgId, offset 36
+    uint64 DealID `offset 52`,
+    Price LastPx `offset 60`,
+    uint32 LastQty `offset 68`,
+    uint16 ReasonCode `offset 72`,
+    zchar[10] UserData `offset 74`,
+}
+
+//8.17 (PDF p95-96) Application Layer Reject, 总长 45
+packet ApplicationLayerReject {
+    Timestamp TransactTime `offset 4`,
+    SymbolID SymbolID `offset 12`,
+    MPID MPID `offset 16`,
+    ClOrdID ClOrdID `offset 20`,
+    uint16 ReasonCode `offset 28`,
+    uint8 RejectType `offset 30`,
+    zchar[10] UserData `offset 31`,
+    char[4] Reserved `offset 41`,
+}
+
+//8.18 (PDF p97-104) 与 Equities 规范同构, 总长 314
+packet RiskControlAcknowledgement {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    zchar[10] MarketMaker `offset 12`,
+    zchar[4] MPSubID `offset 22`,
+    uint32 Reserved `offset 26`,
+    zchar[5] ClearingNumber `offset 30`,
+    ClOrdID ClOrdID `offset 35`,
+    uint8 RiskAckType `offset 43`,
+    uint32 RiskUserCRD `offset 44`,
+    char[1] RiskUserType `offset 48`,
+    uint8 RiskControlType `offset 49`,
+    uint8 RiskControlActivation `offset 50`,
+    uint8 RiskActionType `offset 51`,
+    int64 USDLimit `offset 52`,
+    int32 TimeLimit `offset 60`,
+    int32 PercentageLimit `offset 64`,
+    int32 CountLimit `offset 68`,
+    uint8 BreachActionResponse `offset 72`,
+    uint8 IOCAttribution `offset 73`,
+    int64 USDCalculation1 `offset 74`,
+    int64 USDCalculation2 `offset 82`,
+    int64 USDCalculation3 `offset 90`,
+    int64 USDCalculation4 `offset 98`,
+    uint32 CountCalculation `offset 106`,
+    uint8 BlockedByBreach `offset 110`,
+    uint8 BlockedByKillSwitch `offset 111`,
+    uint8 ReinstatementRequested `offset 112`,
+    uint8 ReinstatementResponse `offset 113`,
+    uint8 RiskRangeID `offset 114`,
+    int64 RiskMinimumValue `offset 115`,
+    uint8 PriceScale `offset 123`,
+    zchar[190] Reserved `保留, offset 124`,
+}
+
+//8.19 (PDF p105-110) 与 Equities 规范同构, 总长 305
+packet RiskControlAlert {
+    SymbolID SymbolID `offset 4`,
+    MPID MPID `offset 8`,
+    zchar[10] MarketMaker `offset 12`,
+    zchar[4] MPSubID `offset 22`,
+    uint32 Reserved `offset 26`,
+    zchar[5] ClearingNum `offset 30`,
+    uint32 RiskUserCRD `offset 35`,
+    char[1] RiskUserType `offset 39`,
+    uint8 RiskControlType `offset 40`,
+    int64 USDLimit `offset 41`,
+    int32 TimeLimit `offset 49`,
+    int32 PercentageLimit `offset 53`,
+    int32 CountLimit `offset 57`,
+    uint8 BreachAction `offset 61`,
+    uint8 IOCAttribution `offset 62`,
+    int64 USDCalculation1 `offset 63`,
+    int64 USDCalculation2 `offset 71`,
+    int64 USDCalculation3 `offset 79`,
+    int64 USDCalculation4 `offset 87`,
+    uint32 CountCalculation `offset 95`,
+    uint8 RiskActionType `offset 99`,
+    uint8 ThresholdBreachType `offset 100`,
+    uint8 BlockedByBreach `offset 101`,
+    uint8 BlockedByKillSwitch `offset 102`,
+    uint8 ReinstatementRequested `offset 103`,
+    uint8 ReinstatementResponse `offset 104`,
+    zchar[200] Reserved `保留, offset 105`,
+}
+
+//8.20 (PDF p111) Complex Series Request Acknowledgement, Minimum Length=42;
+// 尾部为腿组(LegSymbolID u32 + LegRatioQty u16 + LegSide u8, 各 7 字节, 无计数字段
+// → 语法缺口未建模)
+packet ComplexSeriesRequestAcknowledgement {
+    Timestamp TransactTime `offset 4`,
+    ClOrdID ClOrdID `offset 12`,
+    uint16 ReasonCode `offset 20`,
+    SymbolID SymbolID `offset 22`,
+    uint8 Side `offset 26`,
+    uint8 RepeatingGroups `腿数, offset 27`,
+}

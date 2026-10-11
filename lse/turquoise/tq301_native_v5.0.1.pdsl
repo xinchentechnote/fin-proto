@@ -1,0 +1,304 @@
+// base on reference/tq301-issue-5_0_1-trading-gateway-native.pdf
+// Turquoise Equities TQ301 - Native Trading Gateway, Issue 5.0.1 (19 June 2024)。
+// 传输层: 点对点 TCP, 无帧封装(一条 TCP 流上按 Header 自带长度切分)。
+// 消息头(7.2): StartOfMessage(i8, 固定 0x02) + MessageLength(u16, 从 MsgType
+// 字段起算 = 总长-3) + MsgType(char)。MessageLength 含 MsgType 本身 1 字节,
+// 当前 DSL 的 @lengthOf 只能表达"等于 match 体长度", 无法表达 +1 偏移,
+// 故按普通字段建模。
+// 数据类型(6.0): Price=i64 隐含 8 位小数; String=NUL 结尾/填充定长串 → zchar[n];
+// Alpha=单字符 char; Bit-Field 字段(MiFIDFlags/PartyRoleQualifiers/WaiverFlags/
+// WaiverFlags2)当前语法无位域类型, 按 u8 建模并在描述中列出位含义。
+// 字段偏移说明: PDF 表格 Offset=N(N>=4) 对应 packet 内偏移 N-4(去掉 3 字节头)。
+options {
+    StringPrefixLenType = u16;
+    ArrayPrefixLenType = u16;
+    LittleEndian = true;
+    JavaPackage = "com.finproto.turquoise.tq301.messages";
+    GoPackage = "tq301_native";
+    GoModule = "github.com/xinchentechnote/fin-proto-go/tq301-native/messages";
+}
+
+MetaData Types {
+    int64 Price `价格, 8 字节有符号小端整数, 隐含 8 位小数`,
+    char[20] ClientOrderID `参与客户订单标识, 仅前 16 字节送 CCP`,
+    char[12] OrderID `撮合系统分配的订单唯一标识`,
+    char[8] CommonSymbol `MTF Common 证券代码`,
+    uint64 TransactTime `消息生成时间, Unix 纪元`,
+}
+
+root packet Tq301Message {
+    i8 StartOfMessage `消息起始标志, 固定 0x02`,
+    uint16 MessageLength `从 MsgType 字段起的消息长度(总长-3, 含 MsgType)`,
+    char[1] MsgType `消息类型`,
+    match MsgType as Body {
+        "A" : Logon,
+        "B" : LogonReply,
+        "5" : Logout,
+        "0" : Heartbeat,
+        "M" : MissedMessageRequest,
+        "N" : MissedMessageRequestAck,
+        "P" : MissedMessageReport,
+        "3" : SessionReject,
+        "n" : SystemStatus,
+        "D" : NewOrder,
+        "G" : OrderCancelReplaceRequest,
+        "F" : OrderCancelRequest,
+        "q" : OrderMassCancelRequest,
+        "C" : NewCrossBTF,
+        "H" : CrossBTFCancelRequest,
+        "8" : ExecutionReport,
+        "9" : OrderCancelReject,
+        "r" : OrderMassCancelReport,
+        "j" : BusinessReject,
+    },
+}
+
+//7.3.1 Logon
+packet Logon {
+    zchar[25] CompID `参与会员名称, offset 4`,
+    zchar[25] Password `密码, offset 29`,
+    zchar[25] NewPassword `新密码, offset 54`,
+    i8 MessageVersion `会话使用的消息版本, 恒为 1, offset 79`,
+}
+
+//7.3.2 Logon Reply
+packet LogonReply {
+    i32 RejectCode `拒绝原因码, offset 4`,
+    zchar[30] PasswordExpiryDayCount `密码到期剩余天数, offset 8`,
+}
+
+//7.3.3 Logout
+packet Logout {
+    zchar[20] LogoutReason `登出原因, offset 4`,
+}
+
+//7.3.4 Heartbeat
+packet Heartbeat {
+}
+
+//7.3.5 Missed Message Request
+packet MissedMessageRequest {
+    i8 AppID `分区 ID: 1/2/3=Partition 1/2/3, offset 4`,
+    i32 LastMsgSeqNum `最后收到的序号, 重传响应包含该序号消息, offset 5`,
+}
+
+//7.3.6 Missed Message Request Ack
+packet MissedMessageRequestAck {
+    i8 ResponseType `0=成功 1=恢复请求达限 2=无效 AppID 3=服务不可用, offset 4`,
+}
+
+//7.3.7 Missed Message Report
+packet MissedMessageReport {
+    i8 ResponseType `0=下载完成 1=消息数达限, offset 4`,
+}
+
+//7.3.8 Session Reject
+packet SessionReject {
+    i32 RejectCode `拒绝原因码, offset 4`,
+    zchar[30] RejectReason `拒绝原因, offset 8`,
+    char[1] RejectedMessageType `被拒绝消息的消息类型, offset 38`,
+    zchar[20] ClientOrderID `被拒绝消息的客户订单标识(如有), offset 39`,
+}
+
+//7.3.9 System Status
+packet SystemStatus {
+    i8 AppID `分区 ID: 1/2/3=Partition 1/2/3, offset 4`,
+    i8 RejectReason `1=恢复服务已恢复 2=恢复服务不可用, offset 5`,
+}
+
+//7.4.1 New Order
+packet NewOrder {
+    ClientOrderID ClientOrderID `offset 4`,
+    zchar[11] TraderID `可选交易员 ID, offset 24`,
+    zchar[10] Account `可选提交订单的部门参考, offset 35`,
+    u8 ClearingAccount `清算账户类型: 1=Client 3=House, offset 45`,
+    CommonSymbol CommonSymbol `offset 46`,
+    i8 OrderType `订单类型: 1=市价 2=限价, offset 54`,
+    i8 TIF `有效期: 0=Day 3=IOC 4=FOK 8=GTT 9=GFA, offset 55`,
+    uint32 ExpireDateTime `GTT 订单到期时间, Unix 秒, offset 56`,
+    i8 Side `方向: 1=买 2=卖, offset 60`,
+    i32 OrderQty `订单总量, offset 61`,
+    i32 DisplayQty `最大可显示数量, offset 65`,
+    Price LimitPrice `限价(限价单必填), offset 69`,
+    i8 Capacity `交易能力: 1=MTCH 2=DEAL 3=AOTC, offset 77`,
+    i8 AutoCancel `断线撒单: 0=不撤 1=检查系统偏好, offset 78`,
+    i8 OrderSubType `子类型: 0=订单 1=BI 3=订单+BDN 5=挂勾单 51=随机, offset 79`,
+    i8 OwnerType `零售标识: 0=非零售 1=Retail 2=Retail LP, offset 80`,
+    Price ReservedField2 `保留, offset 81`,
+    u8 TargetBook `目标订单簿: 0=Plato 1=Lit 3=Dark Lit Sweep 4=Lit Auctions, offset 89`,
+    i8 ExecInstruction `0=默认 1=仅 Uncross 2=仅连续 5=连续+Uncross 6=Uncross 后连续, offset 90`,
+    i32 MinimumQuantity `最小成交数量, 0=无, offset 91`,
+    i8 ReservedField3 `保留, offset 95`,
+    i8 ReservedField4 `保留, offset 96`,
+    i8 PegPriceType `挂勾价格类型: 0=默认(中点) 2=中点 10=最佳买 11=最佳卖, offset 97`,
+    i8 PassiveOnlyOrder `0=无约束 99=仅被动 100=新 BBO 1=BBO 2=1 档 3=2 档, offset 98`,
+    zchar[12] ClOrdLinkID `关联 OSR 的 Order ID, offset 99`,
+    uint32 ClientID `客户标识短码, 0=未指定, offset 111`,
+    uint32 InvestmentDecisionMaker `投资决策人短码, 0=未指定, offset 115`,
+    uint32 ExecutingTrader `执行交易员短码, offset 119`,
+    u8 MiFIDFlags `位域: bit0=DEA bit1=流动性提供 bit2=ALGO, offset 123`,
+    u8 PartyRoleQualifiers `位域: 每 2 位标识 ClientID/投资人/交易员: 00=None 01=LEI/机构 10=Algo 11=自然人, offset 124`,
+}
+
+//7.4.2 Order Cancel/Replace Request
+packet OrderCancelReplaceRequest {
+    ClientOrderID ClientOrderID `offset 4`,
+    zchar[20] OriginalClientOrderID `被改单的原客户订单标识, offset 24`,
+    OrderID OrderID `offset 44`,
+    CommonSymbol CommonSymbol `offset 56`,
+    uint32 ExpireDateTime `GTT 订单到期时间, offset 64`,
+    i32 OrderQty `订单总量, offset 68`,
+    i32 DisplayQty `最大可显示数量, offset 72`,
+    Price LimitPrice `限价; 市价单填负值, offset 76`,
+    zchar[10] Account `投资者参考, 不改则填 NUL, offset 84`,
+    i8 ReservedField `保留, offset 94`,
+    i8 Side `方向: 1=买 2=卖, offset 95`,
+    Price ReservedField1 `保留, offset 96`,
+    u8 TargetBook `目标订单簿: 0=Plato 1=Lit 4=Lit Auctions, offset 104`,
+    i8 ExecInstruction `0=默认 1=仅 Uncross 2=仅连续 5=连续+Uncross 6=Uncross 后连续, offset 105`,
+    i32 MinQty `最小成交数量, 0=无, offset 106`,
+    i8 PassiveOnlyOrder `0=无约束 99=仅被动 100=新 BBO 1/2/3=BBO 档位, offset 110`,
+    zchar[3] ReservedField2 `保留, offset 111`,
+}
+
+//7.4.3 Order Cancel Request
+packet OrderCancelRequest {
+    ClientOrderID ClientOrderID `offset 4`,
+    zchar[20] OriginalClientOrderID `被撤单的原客户订单标识, offset 24`,
+    OrderID OrderID `offset 44`,
+    CommonSymbol CommonSymbol `offset 56`,
+    i8 Side `方向: 1=买 2=卖, offset 64`,
+    u8 TargetBook `目标订单簿: 0=Plato 1=Lit 4=Lit Auctions, offset 65`,
+    zchar[10] ReservedField1 `保留, offset 66`,
+}
+
+//7.4.4 Order Mass Cancel Request
+packet OrderMassCancelRequest {
+    ClientOrderID ClientOrderID `offset 4`,
+    i8 MassCancelType `3=按证券 4=按板块 7=按会员 8=全部 9=会员+证券 15=会员+板块, offset 24`,
+    CommonSymbol CommonSymbol `MassCancelType=3/9 时必填, offset 25`,
+    zchar[4] Segment `板块, MassCancelType=4/15 时必填, offset 33`,
+    i8 ReservedField1 `保留, offset 37`,
+    u8 TargetBook `目标订单簿: 0=Plato 1=Lit 4=Lit Auctions, offset 38`,
+    zchar[9] ReservedField2 `保留, offset 39`,
+}
+
+//7.4.5 Execution Report
+packet ExecutionReport {
+    i8 AppID `分区 ID: 1/2/3=Partition 1/2/3, 0=系统暂停/未知证券, offset 4`,
+    i32 SequenceNo `消息序号, offset 5`,
+    zchar[12] ExecutionID `执行报告唯一标识, 全分区唯一, offset 9`,
+    ClientOrderID ClientOrderID `offset 21`,
+    OrderID OrderID `O 前缀 + 11 位 base62, offset 41`,
+    char[1] ExecType `0=New 4=Cancelled 5=Replaced 6=Pending Cancel 8=Rejected C=Expired D=Restated F=Trade H=Trade Cancel L=Triggered, offset 53`,
+    zchar[12] ExecutionReportRefID `被撤/更正成交的 ExecutionID, offset 54`,
+    i8 OrderStatus `0=新 1=部分成交 2=全部成交 4=已撤 6=过期 8=拒绝 13=待撤, offset 66`,
+    i32 OrderRejectCode `拒绝码, ExecType=8/C 时有效, offset 67`,
+    Price ExecutedPrice `成交价, ExecType=F 时必填, offset 71`,
+    i32 ExecutedQty `本次成交数量, offset 79`,
+    i32 LeavesQty `剩余数量, offset 83`,
+    u8 WaiverFlags `位域: bit5=RFPT(参考价), ExecType=F/H 时填, offset 87`,
+    i32 DisplayQty `最大可显示数量, offset 88`,
+    CommonSymbol CommonSymbol `offset 92`,
+    i8 Side `方向: 1=买 2=卖, offset 100`,
+    uint64 SecondaryOrderID `GTP Order ID, offset 101`,
+    zchar[11] Counterparty `对手方 FirmID 或 CCP(ECCP/LCH/X-Clear), offset 109`,
+    char[1] TradeLiquidityIndicator `A=增加流动性 R=减少流动性 C=Uncross/ auctions B=BTF, offset 120`,
+    uint64 TradeMatchID `成交标识, GTP 行情同源, base36 + B/S 前缀送 CCP, offset 121`,
+    TransactTime TransactTime `offset 129`,
+    u8 TargetBook `生成回报的订单簿: 0/1/4/5/6/7, offset 137`,
+    i8 TypeOfTrade `0=可见 1=隐藏 2=未指定, offset 138`,
+    i8 Capacity `1=MTCH 2=DEAL 3=AOTC, offset 139`,
+    char[1] ReservedField2 `保留, offset 140`,
+    zchar[12] PublicOrderID `冰山单每次补量的唯一标识, base62, offset 141`,
+    i32 MinimumQuantity `最小成交数量, offset 153`,
+    i8 ReputationalScore `BI 参与者信誉分, offset 157`,
+    u8 LastMarket `成交市场: 1=TRQX 2=TRQM 3=TRQA 5=TQEX 6=TQEM 7=TQEA, offset 158`,
+    u8 PegPriceType `0=默认 1=收盘价 2=中点 10=最佳买 11=最佳卖, offset 159`,
+    u8 OwnerType `0=非零售 1=Retail 2=Retail LP, offset 160`,
+    u8 WaiverFlags2 `MiFID II 豁免标志位域: bit0=Pre-trade PRIC bit1=NETW(BTF 成交时 bit1 表示 NETW), ExecType=F/H 时填, offset 161`,
+    zchar[21] ReservedField `保留, offset 162(PDF 误写为 160),`,
+}
+
+//7.4.6 Order Cancel Reject
+packet OrderCancelReject {
+    i8 AppID `分区 ID: 1/2/3=Partition 1/2/3, offset 4`,
+    i32 SequenceNo `消息序号, offset 5`,
+    ClientOrderID ClientOrderID `被拒绝的撤/改单请求订单标识, offset 9`,
+    OrderID OrderID `无法映射活动订单时填 NONE, offset 29`,
+    i32 CancelRejectReason `拒绝原因码, offset 41`,
+    TransactTime TransactTime `offset 45`,
+    zchar[10] ReservedField1 `保留, offset 53`,
+}
+
+//7.4.7 Order Mass Cancel Report
+packet OrderMassCancelReport {
+    i8 AppID `分区 ID: 1/2/3=Partition 1/2/3, offset 4`,
+    i32 SequenceNo `消息序号, offset 5`,
+    ClientOrderID ClientOrderID `offset 9`,
+    i8 MassCancelResponse `0=拒绝 7=接受, offset 29`,
+    i32 MassCancelRejectReason `拒绝原因码, offset 30`,
+    zchar[4] ReservedField1 `保留, offset 34`,
+    TransactTime TransactTime `offset 38`,
+    zchar[10] ReservedField2 `保留, offset 46`,
+}
+
+//7.4.8 New Cross/BTF
+packet NewCrossBTF {
+    zchar[20] CrossID `BTF 预安排成交标识, 日内唯一, offset 4`,
+    u8 CrossType `6=Internal BTF 8=Committed BTF, offset 24`,
+    zchar[20] BuySideClOrdID `买方客户订单标识, offset 25`,
+    u8 BuySideOrderCapacity `1=MTCH 2=DEAL 3=AOTC, offset 45`,
+    u8 BuySideClearingAccount `1=Client 3=House, offset 46`,
+    i32 BuySideOrderQty `买方数量, offset 47`,
+    zchar[4] ReservedField1 `保留, offset 51`,
+    zchar[11] BuySideFirmID `买方会员标识, offset 55`,
+    u8 BuySidePartyRole `1=执行会员 17=对手方会员, offset 66`,
+    u8 BuyMiFIDFlags `位域: bit0=DEA bit1=流动性提供 bit2=ALGO, offset 67`,
+    uint32 BuyClientID `买方客户短码, 0=未指定, offset 68`,
+    uint32 BuyInvestmentDecisionMaker `买方投资决策人短码, offset 72`,
+    uint32 BuyExecutingTrader `买方执行交易员短码, offset 76`,
+    u8 BuyPartyRoleQualifiers `位域, 同 NewOrder.PartyRoleQualifiers, offset 80`,
+    zchar[20] SellSideClOrdID `卖方客户订单标识, offset 81`,
+    u8 SellSideOrderCapacity `1=MTCH 2=DEAL 3=AOTC, offset 101`,
+    u8 SellSideClearingAccount `1=Client 3=House, offset 102`,
+    i32 SellSideOrderQty `卖方数量, offset 103`,
+    zchar[4] ReservedField2 `保留, offset 107`,
+    zchar[11] SellSideFirmID `卖方会员标识, offset 111`,
+    u8 SellSidePartyRole `1=执行会员 17=对手方会员, offset 122`,
+    u8 SellMiFIDFlags `位域: bit0=DEA bit1=流动性提供 bit2=ALGO, offset 123`,
+    uint32 SellClientID `卖方客户短码, 0=未指定, offset 124`,
+    uint32 SellInvestmentDecisionMaker `卖方投资决策人短码, offset 128`,
+    uint32 SellExecutingTrader `卖方执行交易员短码, offset 132`,
+    u8 SellPartyRoleQualifiers `位域, 同 NewOrder.PartyRoleQualifiers, offset 136`,
+    CommonSymbol CommonSymbol `offset 137`,
+    Price Price `BTF 价格, offset 145`,
+    u8 OrderType `BTF 类型: 2=限价, 其他拒绝, offset 153`,
+    u8 TIF `仅 0=DAY 有效, offset 154`,
+}
+
+//7.4.9 Cross/BTF Cancel Request
+packet CrossBTFCancelRequest {
+    zchar[20] CrossID `撤单请求自身标识, 不作唯一性校验, offset 4`,
+    zchar[20] OriginalCrossID `被撤 BTF 的 Cross ID, offset 24`,
+    u8 CrossType `被撤 BTF 提交时的类型, offset 44`,
+    zchar[20] BuySideOriginalClOrdID `被撤 BTF 的买方 ClOrdID(实际唯一标识), offset 45`,
+    i32 BuySideOrderQty `买方数量, offset 65`,
+    zchar[4] ReservedField1 `保留, offset 69`,
+    zchar[20] SellSideOriginalClOrdID `被撤 BTF 的卖方 ClOrdID, offset 73`,
+    i32 SellSideOrderQty `卖方数量, offset 93`,
+    zchar[4] ReservedField2 `保留, offset 97`,
+    CommonSymbol CommonSymbol `被撤 BTF 的证券代码, offset 101`,
+    ClientOrderID ClientOrderID `撤单请求唯一标识, offset 109`,
+}
+
+//7.5.1 Business Reject
+packet BusinessReject {
+    i8 AppID `分区 ID: 1/2/3=Partition 1/2/3, 0=系统暂停/未知证券, offset 4`,
+    i32 SequenceNo `消息序号, offset 5`,
+    i32 RejectCode `拒绝原因码, offset 9`,
+    ClientOrderID ClientOrderID `offset 13`,
+    OrderID OrderID `offset 33`,
+    TransactTime TransactTime `对应交易发生时间, offset 45`,
+    zchar[10] ReservedField1 `保留, offset 53`,
+}

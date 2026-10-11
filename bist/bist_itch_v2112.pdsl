@@ -1,0 +1,257 @@
+// base on reference/bistech-itch-protocol-specification.pdf
+// Borsa Istanbul BISTech ITCH Protocol Specification, Version 2112 (2025-02-28).
+// Transport layer (MoldUDP64 packet framing: sequence number + message count +
+// per-message 2-byte length prefix) is NOT modeled here - this file defines the
+// ITCH message layer only.
+//
+// Data types (spec section 3.2):
+//   Numeric = unsigned big-endian (1/2/4/8 bytes)  -> u8/u16/u32/u64, LittleEndian = false
+//   Alpha   = left justified, padded on the right with spaces (ISO 8859-1)
+//             -> modeled as char[n] (space padded, NOT NUL padded)
+//   Price   = 4-byte signed integer, decimals defined per order book by the
+//             Order Book Directory message; 0x80000000 (MIN_INT) means
+//             "no price available" / market order. -> MetaData type Price (i32).
+//   Timestamps are split: full Unix seconds are sent standalone in the
+//   Seconds ("T") message; all other messages carry only the 4-byte
+//   nanoseconds-portion field.
+options {
+    StringPrefixLenType = u16;
+    ArrayPrefixLenType = u16;
+    LittleEndian = false;
+    JavaPackage = "com.finproto.bist.itch.messages";
+    GoPackage = "bist_itch";
+    GoModule = "github.com/xinchentechnote/fin-proto-go/bist-itch/messages";
+}
+
+MetaData Types {
+    i32 Price `价格,有符号 4 字节整数,小数位数由 Order Book Directory 消息指定;0x80000000 表示无价格/市价单`,
+}
+
+// Root dispatcher: first byte of every ITCH message is the alpha message type.
+root packet BistItchMessage {
+    char[1] MsgType `消息类型 (alpha)`,
+    match MsgType as Body {
+        "T": Seconds,
+        "R": OrderBookDirectory,
+        "M": CombinationOrderBookLeg,
+        "L": TickSizeTableEntry,
+        "V": ShortSellStatus,
+        "S": SystemEvent,
+        "O": OrderBookState,
+        "A": AddOrderNoMPIDAttribution,
+        "F": AddOrderWithMPIDAttribution,
+        "E": OrderExecuted,
+        "C": OrderExecutedWithPrice,
+        "U": OrderReplace,
+        "D": OrderDelete,
+        "Y": OrderBookFlush,
+        "P": Trade,
+        "Z": EquilibriumPriceUpdate,
+    },
+}
+
+// 4.1.1 Seconds Message, Table 1 (type "T"), total length 5.
+// Unix time: number of seconds since 1970-01-01 00:00:00 UTC.
+packet Seconds {
+    char[1] MessageType `Message Type, "T"`,
+    u32 Second `Unix time (seconds since 1970-01-01 00:00:00 UTC)`,
+}
+
+// 4.2.1 Order Book Directory, Table 2 -1/-2 (type "R"), total length 130.
+// Table 2 -2 is the continuation of the same message (fields at offset 97+).
+packet OrderBookDirectory {
+    char[1] MessageType `Message Type, "R"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u32 OrderBookID `Order book ID, primary identifier of an order book`,
+    char[32] Symbol `Security short name`,
+    char[32] LongName `Human-readable long name of security`,
+    char[12] ISIN `ISIN code identifying security`,
+    u8 FinancialProduct `1=Option 2=Forward 3=Future 4=FRA 5=Cash 6=Payment 7=Exchange Rate 8=Interest Rate Swap 9=REPO 10=Synthetic Box Leg/Reference 11=Standard Combination 12=Guarantee 13=OTC General 14=Equity Warrant 15=Security Lending 18=Certificate`,
+    char[3] TradingCurrency `Trading currency`,
+    u16 NumberOfDecimalsInPrice `Number of decimals in price, 256 means traded in fractions (1/256)`,
+    u16 NumberOfDecimalsInNominalValue `Number of decimals in nominal value`,
+    u32 OddLotSize `Odd lot size, 0 = undefined`,
+    u32 RoundLotSize `Round lot size`,
+    u32 BlockLotSize `Block lot size, 0 = undefined`,
+    u64 NominalValue `Nominal value`,
+    u8 NumberOfLegs `Number of legs, only applicable for combination instruments`,
+    u32 UnderlyingOrderBookID `Underlying order book ID, only applicable for derivatives except combinations`,
+    Price StrikePrice `Strike price, only applicable for derivative instruments`,
+    u32 ExpirationDate `Expiration date, format YYYYMMDD, only applicable for derivatives`,
+    u16 NumberOfDecimalsInStrikePrice `Number of decimals in strike price, only applicable for derivatives`,
+    u8 PutOrCall `Option type, 0=undefined 1=Call 2=Put`,
+    u8 RankingType `Ranking type, 1 = Price Time`,
+}
+
+// 4.2.2 Combination Order Book Leg, Table 3 (type "M"), total length 18.
+// Mapping between a combination order book and one of its leg order books;
+// one message per leg.
+packet CombinationOrderBookLeg {
+    char[1] MessageType `Message Type, "M"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u32 CombinationOrderBookID `Combination order book ID`,
+    u32 LegOrderBookID `Leg order book ID`,
+    char[1] LegSide `Leg side, B = As Defined, C = Opposite`,
+    u32 LegRatio `Leg ratio`,
+}
+
+// 4.2.3 Tick Size Table Entry, Table 4 (type "L"), total length 25.
+// Tick Size is the 8-byte price field mentioned in section 3.2 Data Types
+// (Value column reads "Numeric", length 8).
+packet TickSizeTableEntry {
+    char[1] MessageType `Message Type, "L"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u32 OrderBookID `The order book to which this entry belongs`,
+    u64 TickSize `Tick size for the given price range (8-byte price)`,
+    Price PriceFrom `Start of price range for this entry`,
+    Price PriceTo `End of price range for this entry, 0 = infinity`,
+}
+
+// 4.2.4 Short Sell Status (type "V"), total length 10.
+// Indicates the short sell rules of an order book (Equity market only).
+packet ShortSellStatus {
+    char[1] MessageType `Message Type, "V"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u32 OrderBookID `Order book identifier (Equity Market instruments only)`,
+    u8 ShortSaleRestriction `0=No restrictions 1=Short selling not allowed 2=Allowed with up-tick rule`,
+}
+
+// 4.3.1 System Event Message, Table 5 (type "S"), total length 6.
+packet SystemEvent {
+    char[1] MessageType `Message Type, "S"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    char[1] EventCode `Event code, "O" = Start of Messages, "C" = End of Messages`,
+}
+
+// 4.3.2 Order Book State Message, Table 6 (type "O"), total length 29.
+packet OrderBookState {
+    char[1] MessageType `Message Type, "O"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u32 OrderBookID `Order book identifier`,
+    char[20] StateName `Name of order book state`,
+}
+
+// 4.4.1 Add Order - No MPID Attribution, Table 7 (type "A"), total length 45.
+packet AddOrderNoMPIDAttribution {
+    char[1] MessageType `Message Type, "A"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u64 OrderID `Order ID, unique per order book and side`,
+    u32 OrderBookID `Order book identifier`,
+    char[1] Side `B = buy order, S = sell order`,
+    u32 RankingSequenceNumber `Transaction-based sequential number starting from 1, used in ranking logic`,
+    u64 Quantity `Visible quantity, 0 = undisclosed`,
+    Price Price `Display price, 0x80000000 = market order (no price)`,
+    u16 OrderAttributes `Bit map: 0=Not applicable 8192=Bait/implied order, multiple values may be set`,
+    u8 LotType `Lot type, 2 = Round Lot`,
+    u64 RankingTime `Ranking timestamp - nanosecond portion`,
+}
+
+// 4.4.1 Add Order - With MPID Attribution, Table 8 (type "F"), total length 44.
+// Note: not used by BIST, kept in the ITCH specification for future reference.
+packet AddOrderWithMPIDAttribution {
+    char[1] MessageType `Message Type, "F"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u64 OrderID `Order ID, unique per order book and side`,
+    u32 OrderBookID `Order book identifier`,
+    char[1] Side `B = buy order, S = sell order`,
+    u32 OrderBookPosition `Rank within order book`,
+    u64 Quantity `Visible quantity, 0 = undisclosed`,
+    Price Price `Display price, 0x80000000 = market order (no price)`,
+    u16 OrderAttributes `Bit map: 0=Not applicable 8192=Bait/implied order, multiple values may be set`,
+    u8 LotType `Lot type, 2 = Round Lot`,
+    char[7] ParticipantID `Market participant identifier (MPID)`,
+}
+
+// 4.4.2.1 Order Executed Message, Table 9 (type "E"), total length 52.
+packet OrderExecuted {
+    char[1] MessageType `Message Type, "E"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u64 OrderID `Order ID of the executed order`,
+    u32 OrderBookID `Order book identifier`,
+    char[1] Side `B = buy order, S = sell order`,
+    u64 ExecutedQuantity `The quantity being executed`,
+    u64 MatchID `Assigned by the system to each match executed`,
+    u32 ComboGroupID `Groups combination executions with constituent order book trades`,
+    char[7] Reserved1 `Reserved (offset 38)`,
+    char[7] Reserved2 `Reserved (offset 45)`,
+}
+
+// 4.4.2.2 Order Executed with Price Message, Table 10 (type "C"), total length 58.
+packet OrderExecutedWithPrice {
+    char[1] MessageType `Message Type, "C"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u64 OrderID `Order ID of the executed order`,
+    u32 OrderBookID `Order book identifier`,
+    char[1] Side `B = buy order, S = sell order`,
+    u64 ExecutedQuantity `The quantity being executed`,
+    u64 MatchID `Assigned by the system to each match executed`,
+    u32 ComboGroupID `Groups combination executions with constituent order book trades`,
+    char[7] Reserved1 `Reserved (offset 38)`,
+    char[7] Reserved2 `Reserved (offset 45)`,
+    Price TradePrice `Execution price (may differ from display price)`,
+    char[1] OccurredAtCross `Y = at the cross, N = continuous market`,
+    char[1] Printable `Y = printable, N = non-printable`,
+}
+
+// 4.4.2.3 Order Replace Message, Table 11 (type "U"), total length 36.
+// Note: not used, remains in the ITCH specification for future reference.
+packet OrderReplace {
+    char[1] MessageType `Message Type, "U"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u64 OrderID `Original order identifier, unchanged on replace`,
+    u32 OrderBookID `Order book identifier`,
+    char[1] Side `B = buy order, S = sell order`,
+    u32 NewOrderBookPosition `New rank within order book`,
+    u64 Quantity `New visible quantity`,
+    Price Price `New price of the order`,
+    u16 OrderAttributes `Bit map: 0=Not applicable 8192=Bait/implied order, multiple values may be set`,
+}
+
+// 4.4.2.4 Order Delete Message, Table 12 (type "D"), total length 18.
+packet OrderDelete {
+    char[1] MessageType `Message Type, "D"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u64 OrderID `Order ID of the order being deleted`,
+    u32 OrderBookID `Order book identifier`,
+    char[1] Side `B = buy order, S = sell order`,
+}
+
+// 4.4.2.5 Order Book Flush Message, Table 13 (type "Y"), total length 9.
+// All remaining orders of the order book must be removed.
+packet OrderBookFlush {
+    char[1] MessageType `Message Type, "Y"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u32 OrderBookID `Order book identifier`,
+}
+
+// 4.5.1 Trade Message, Table 14 (type "P"), total length 50.
+// Match of a non-displayable order; Side is blank (space) for anonymous markets.
+packet Trade {
+    char[1] MessageType `Message Type, "P"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u64 MatchID `Assigned by the system to each match executed`,
+    u32 ComboGroupID `Groups combination executions with constituent order book trades`,
+    char[1] Side `B = buy, S = sell, space = anonymous market`,
+    u64 Quantity `Quantity being matched in this execution`,
+    u32 OrderBookID `Order book identifier`,
+    Price TradePrice `Trade price`,
+    char[7] Reserved1 `Reserved (offset 34)`,
+    char[7] Reserved2 `Reserved (offset 41)`,
+    char[1] Printable `Y = printable, N = non-printable`,
+    char[1] OccurredAtCross `Y = at the cross, N = continuous market`,
+}
+
+// 4.5.2.1 Equilibrium Price Update, Table 15 (type "Z"), total length 53.
+// Sent during auctions; Price fields may carry 0x80000000 = no price available.
+packet EquilibriumPriceUpdate {
+    char[1] MessageType `Message Type, "Z"`,
+    u32 TimestampNanoseconds `Timestamp - Nanoseconds`,
+    u32 OrderBookID `Order book ID`,
+    u64 AvailableBidQuantityAtEquilibriumPrice `Quantity at equilibrium price on the bid side`,
+    u64 AvailableAskQuantityAtEquilibriumPrice `Quantity at equilibrium price on the ask side`,
+    Price EquilibriumPrice `Equilibrium price`,
+    Price BestBidPrice `Best bid price`,
+    Price BestAskPrice `Best ask price`,
+    u64 BestBidQuantity `Best bid quantity`,
+    u64 BestAskQuantity `Best ask quantity`,
+}

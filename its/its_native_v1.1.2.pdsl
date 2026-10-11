@@ -1,0 +1,455 @@
+// base on reference/tradeBinary_ITS_en.pdf
+// Native Protocol Transactional Gateway (ITS), Interface version 22, Document version 1.1.2 (03 July 2024)。
+// 帧头(frame, 12 字节): size(int2, 不含帧头的消息体长度) + msgid(int2, 消息类型) +
+// seq(int8, 应用消息序号; 会话消息恒为 0)。size 不含帧头自身 → 与 @lengthOf 语义
+// 完全一致。会话层与应用层共用同一帧头, 单一根包统一分发。
+// 数据类型(3.1): 小端; asciiN=定长 ASCII 未用部分填 0 → char[n];
+// charN+1=UTF-8 定长(N+1 字节, 末字节为 0) → zchar[n+1];
+// dec2/dec8=N 位小数的 8 字节整数 → i64; time4=Unix 秒 u32; time8n=Unix 纳秒 u64。
+// 重复组件(3.4): 每个重复组前有两个 int2 字段 — offset(首条目相对本字段的偏移,
+// >=4) + count(条目数)。DSL 的 repeat 计数前缀(ArrayPrefixLenType=u16)对应 count,
+// offset 按普通 u16 字段建模。
+options {
+    StringPrefixLenType = u16;
+    ArrayPrefixLenType = u16;
+    LittleEndian = true;
+    JavaPackage = "com.finproto.its.native.messages";
+    GoPackage = "its_native";
+    GoModule = "github.com/xinchentechnote/fin-proto-go/its-native/messages";
+}
+
+MetaData Types {
+    int64 Dec8 `8 位小数的 8 字节有符号整数(价格/收益率)`,
+    char[16] Login `登录名, 客户网关 ID, ASCII 定长未用填 0`,
+    char[20] ClorderId `客户订单 ID, 日内对用户唯一`,
+    char[20] ExchOrderId `流动性池子订单 ID`,
+    char[16] Party `协商交易对手方代码`,
+    uint64 Time8n `Unix 纳秒时间戳`,
+}
+
+root packet ItsNativeMessage {
+    uint16 Size `消息体长度(不含 12 字节帧头)`,
+    @lengthOf(Body)
+    uint16 MsgId `消息类型`,
+    match MsgId as Body {
+        1 : Hello,
+        2 : Report,
+        8001 : Login,
+        8101 : Logon,
+        8103 : Heartbeat,
+        8005 : ResendRequest,
+        8105 : ResendReport,
+        8004 : SequenceReset,
+        8002 : Logout,
+        8102 : Reject,
+        101 : AddOrder,
+        112 : CancelOrder,
+        103 : MassCancel,
+        105 : CounterDecline,
+        212 : AddReport,
+        207 : Execution,
+        214 : CancelReport,
+        206 : MassCancelReport,
+        201 : RejectReport,
+        203 : CounterReport,
+        209 : CounterUpdateReport,
+        208 : CounterDeclineReport,
+    },
+    int64 Seq `应用消息序号(会话消息为 0)`,
+}
+
+// ===== 会话层: 客户 -> 网关 =====
+
+//Table 11. Hello, msgid=1, size=32 (Discovery 服务)
+packet Hello {
+    char[16] Login `登录名, offset 0`,
+    char[16] Password `密码, offset 16`,
+}
+
+//Table 14. Login, msgid=8001, size=37
+packet Login {
+    Login Login `offset 0`,
+    char[16] Password `offset 16`,
+    i8 ResetSeq `0=序号延续 1=重置序号, offset 32`,
+    uint32 HeartbeatMs `心跳间隔毫秒, offset 33`,
+}
+
+//Table 17. ResendRequest, msgid=8005, size=16
+packet ResendRequest {
+    int64 FromSeq `请求起始消息号(0=最早可用, -1=当日首次接入), offset 0`,
+    int64 TillSeq `请求结束消息号(0=最后可用), offset 8`,
+}
+
+//Table 19. SequenceReset, msgid=8004, size=8
+packet SequenceReset {
+    int64 NextSeq `客户期望的下一个消息号, offset 0`,
+}
+
+//Table 20. Logout, msgid=8002, size=16
+packet Logout {
+    Login Login `客户网关 ID, offset 0`,
+}
+
+// ===== 会话层: 网关 -> 客户 =====
+
+//Table 12. Report, msgid=2, 动态长度 (Discovery 应答)
+packet Report {
+    i16 Status `0=成功 1=登录/密码无效, offset 0`,
+    zchar[128] Reason `文本描述(char127+1), offset 2`,
+    uint16 AddressesOffset `addresses 首条目相对本字段的偏移, offset 130`,
+    uint16 AddressesCount `addresses 条目数, offset 132`,
+    repeat Addresses {
+        GateAddress {
+            i16 Type `网关属性位掩码: 0x1=交易 0x2=DropCopy 0x4=风控 0x8=字典 0x10=行情恢复 0x4000=备份, offset 0`,
+            i8 Ver `接口版本, offset 2`,
+            i8 Pad0 `保留, offset 3`,
+            zchar[48] Address `主机地址与网关端口(char47+1), offset 4`,
+        },
+    },
+}
+
+//Table 15. Logon, msgid=8101, size=24
+packet Logon {
+    int64 LastSeq `网关侧最后一条可用应用消息号, offset 0`,
+    int64 ExpectedSeq `期望客户下一条消息号, offset 8`,
+    char[8] SystemId `部署 ID, offset 16`,
+}
+
+//Table 16. Heartbeat, msgid=8103, size=0
+packet Heartbeat {
+}
+
+//Table 18. ResendReport, msgid=8105, size=2
+packet ResendReport {
+    i16 Status `0=ACK 1=MORE 2=FINISH 3=DUPLICATE_REQUEST 4=UNAVAILABLE, offset 0`,
+}
+
+//Table 21. Reject, msgid=8102, size=45
+packet Reject {
+    int64 RefSeq `被拒消息的序号(会话消息为 0), offset 0`,
+    i16 RefMsgId `被拒消息类型, offset 8`,
+    i16 Reason `拒绝原因码(附录 A), offset 10`,
+    zchar[33] Message `拒绝参数或文本描述(char32+1), offset 12`,
+}
+
+// ===== 应用层: 客户请求 =====
+
+//Table 23. AddOrder, msgid=101, size=194
+packet AddOrder {
+    ClorderId ClorderId `user_header, offset 0`,
+    Instrument {
+        i16 MarketId `流动性池 ID: 1001=匿名 2000=协商, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 20
+    i8 Dir `方向: 1=买 2=卖, offset 26`,
+    i8 Type `1=市价 2=限价 103=协商, offset 27`,
+    i8 TimeInForce `0=Day 2=开盘竞价 3=IOC 4=FOK 7=收盘价 100=延长时段, offset 28`,
+    i8 PassiveOnly `保留, offset 29`,
+    i8 AutoCancel `0=不撤 1=断线自动撤单, offset 30`,
+    i8 OrderSegment `保留, offset 31`,
+    i16 RoutingInstruction `余量路由指令, 0=被动路由, offset 32`,
+    i16 RoutingDest `流动性池 ID, 1001, offset 34`,
+    int32 Amount `订单数量(手), offset 36`,
+    int32 AmountExtra `保留, offset 40`,
+    Dec8 Price `价格(repo 为年化收益率), 8 位隐含小数, offset 44`,
+    Dec8 PriceExtra `附加价格(repo 为成交价), offset 52`,
+    uint64 Flags `撮合参数: 0x2000=eIgnoreDynamicLimits(需开通权限), offset 60`,
+    Time8n TimeValid `订单接受截止时间, offset 68`,
+    uint32 DateExpire `订单过期时间(Unix 秒), 0=不适用, offset 76`,
+    Account {
+        int32 MemberId `会员 ID, offset 0`,
+        char[16] AccountId `清算账户 ID, offset 4`,
+        char[16] ClientId `客户代码 ID, offset 20`,
+    },  // offset 80
+    OtcCodes {
+        Party InitiatorParty `协商订单发送方 ID, offset 0`,
+        Party Ctrparty `协商订单接收方 ID, offset 16`,
+    },  // offset 116
+    zchar[24] Comment `客户备注(char23+1, UTF-8), offset 148`,
+    char[12] ExtraRef `附加订单 ID, offset 172`,
+    char[4] Extra1 `保留, offset 184`,
+    i16 PrimeExchange `主流动性池: 0=DEFAULT 2000=ITS, offset 188`,
+    int32 MatchRef `协商订单撮合可选标识, offset 190`,
+}
+
+//Table 25. CancelOrder, msgid=112, size=100
+packet CancelOrder {
+    ClorderId ClorderId `offset 0`,
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 20
+    i8 Dir `方向: 1=买 2=卖, offset 26`,
+    i8 Type `1=市价 2=限价 103=协商, offset 27`,
+    int64 OrderId `交易系统分配的订单 ID, offset 28`,
+    Account {
+        int32 MemberId `会员 ID, offset 0`,
+        char[16] AccountId `清算账户 ID, offset 4`,
+        char[16] ClientId `客户代码 ID, offset 20`,
+    },  // offset 36
+    uint64 Flags `标志, offset 72`,
+    char[20] OrigClorderId `待撤订单的客户订单 ID, offset 80`,
+}
+
+//Table 27. MassCancel, msgid=103, size=63
+packet MassCancel {
+    ClorderId ClorderId `offset 0`,
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 20
+    i8 Mode `7=按登录 23=登录+工具 39=工具+账户 55=工具+客户, offset 26`,
+    Account {
+        int32 MemberId `会员 ID, offset 0`,
+        char[16] AccountId `清算账户 ID, offset 4`,
+        char[16] ClientId `客户代码 ID, offset 20`,
+    },  // offset 27
+}
+
+//Table 28. CounterDecline, msgid=105, size=72
+packet CounterDecline {
+    ClorderId ClorderId `offset 0`,
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 20
+    i8 Dir `方向: 1=买 2=卖, offset 26`,
+    i8 Type `103=协商, offset 27`,
+    OtcCodes {
+        Party InitiatorParty `协商订单发送方 ID, offset 0`,
+        Party Ctrparty `协商订单接收方 ID, offset 16`,
+    },  // offset 28
+    int64 OrderId `交易系统分配的订单 ID, offset 60`,
+    int32 MatchRef `协商订单撮合标识, offset 68`,
+}
+
+// ===== 应用层: 交易系统回报 =====
+
+//Table 29. AddReport, msgid=212, size=260
+packet AddReport {
+    GateHeader {
+        Time8n SystemTime `请求处理时间, offset 0`,
+        i16 SourceId `消息来源模块(3.5 节: 100-199 网关 200-249 风控 250-259 撮合 300-499 行情), offset 8`,
+        char[20] ClorderId `客户订单 ID, offset 10`,
+        char[16] UserId `客户网关 ID(可空), offset 30`,
+    },  // offset 0
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 46
+    i8 Dir `方向: 1=买 2=卖, offset 52`,
+    i8 Type `1=市价 2=限价 103=协商 104=簿外, offset 53`,
+    i8 TimeInForce `0=Day 2=开盘竞价 3=IOC 4=FOK 7=收盘价 100=延长时段, offset 54`,
+    i8 PassiveOnly `保留, offset 55`,
+    i8 AutoCancel `0=不撤 1=断线自动撤单, offset 56`,
+    i8 OrderSegment `客户 ID 集合, offset 57`,
+    i16 RoutingInstruction `余量路由指令, offset 58`,
+    i16 RoutingDest `流动性池 ID, offset 60`,
+    int32 Amount `订单数量(手), offset 62`,
+    int32 AmountExtra `已披露数量, offset 66`,
+    Dec8 Price `价格, offset 70`,
+    Dec8 PriceExtra `附加价格, offset 78`,
+    uint64 Flags `撮合参数位掩码: 0x1=eUserLastRec 0x2=eMMObligations 0x4=eNoMMTrade 0x8=ePresettlement 0x10=eExternalActivity 0x20=eDelivery 0x40/0x80/0x100=eDeliverySwap 0x200=eNoSystem 0x2000=eIgnoreDynamicLimits 0x100000=eClientPartialExecute 0x200000=eHaltPeriodOrder 0x400000=eOverTheCounter 0x800000=eRFQ, offset 86`,
+    uint32 DateExpire `订单过期时间, offset 94`,
+    Time8n TimeValid `订单接受截止时间, offset 98`,
+    Account {
+        int32 MemberId `会员 ID, offset 0`,
+        char[16] AccountId `清算账户 ID, offset 4`,
+        char[16] ClientId `客户代码 ID, offset 20`,
+    },  // offset 106
+    OtcCodes {
+        Party InitiatorParty `协商订单发送方 ID, offset 0`,
+        Party Ctrparty `协商订单接收方 ID, offset 16`,
+    },  // offset 142
+    int64 OrderId `交易系统分配的订单 ID, offset 174`,
+    int64 OrigOrderid `前一交易日的订单 ID, offset 182`,
+    ExchOrderId ExchOrderId `流动性池子订单 ID, offset 190`,
+    i8 PriceEntry `价格档位(当前版本不处理), offset 210`,
+    char[1] Pad1 `保留, offset 211`,
+    zchar[24] Comment `客户备注(char23+1), offset 212`,
+    char[12] ExtraRef `附加订单 ID, offset 236`,
+    char[4] Extra1 `附加文本字段, offset 248`,
+    i16 PrimeExchange `主流动性池: 0=DEFAULT 2000=ITS, offset 252`,
+    int32 MatchRef `协商订单撮合标识, offset 254`,
+    i16 OrigMarket `客户申报时指定的流动性池, offset 258`,
+}
+
+//Table 30. Execution, msgid=207, 动态长度(deals 重复组)
+packet Execution {
+    GateHeader {
+        Time8n SystemTime `请求处理时间, offset 0`,
+        i16 SourceId `消息来源模块, offset 8`,
+        char[20] ClorderId `客户订单 ID, offset 10`,
+        char[16] UserId `客户网关 ID(可空), offset 30`,
+    },  // offset 0
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 46
+    i8 Dir `方向: 1=买 2=卖, offset 52`,
+    i8 Type `1=市价 2=限价 103=协商 104=簿外, offset 53`,
+    Dec8 Price `价格, offset 54`,
+    Dec8 PriceExtra `报价/repo 成交价, offset 62`,
+    uint64 Flags `撮合参数位掩码, 同 AddReport.Flags, offset 70`,
+    i16 ExecMarket `成交流动性池, offset 78`,
+    Account {
+        int32 MemberId `会员 ID, offset 0`,
+        char[16] AccountId `清算账户 ID, offset 4`,
+        char[16] ClientId `客户代码 ID, offset 20`,
+    },  // offset 80
+    OtcCodes {
+        Party InitiatorParty `协商订单发送方 ID, offset 0`,
+        Party Ctrparty `协商订单接收方 ID, offset 16`,
+    },  // offset 116
+    int64 OrderId `交易系统分配的订单 ID, offset 148`,
+    ExchOrderId ExchOrderId `流动性池子订单 ID, offset 156`,
+    int32 AmountRest `剩余数量(手), offset 176`,
+    uint16 DealsOffset `deals 首条目相对本字段的偏移, offset 180`,
+    uint16 DealsCount `deals 条目数(成交笔数), offset 182`,
+    repeat Deals {
+        Deal {
+            Dec8 DealPrice `成交价, offset 0`,
+            int64 DealId `流动性池分配的成交 ID, offset 8`,
+            int32 Amount `成交数量(手), offset 16`,
+        },
+    },
+}
+
+//Table 32. CancelReport, msgid=214, size=172
+packet CancelReport {
+    GateHeader {
+        Time8n SystemTime `请求处理时间, offset 0`,
+        i16 SourceId `消息来源模块, offset 8`,
+        char[20] ClorderId `客户订单 ID, offset 10`,
+        char[16] UserId `客户网关 ID(可空), offset 30`,
+    },  // offset 0
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 46
+    i8 Dir `方向: 1=买 2=卖, offset 52`,
+    i8 Type `1=市价 2=限价 103=协商 104=簿外, offset 53`,
+    int32 Amount `被撤数量(手), offset 54`,
+    int32 AmountRest `剩余数量(手), offset 58`,
+    Dec8 Price `价格, offset 62`,
+    Dec8 PriceExtra `附加价格, offset 70`,
+    uint64 Flags `撮合参数位掩码, 同 AddReport.Flags, offset 78`,
+    Account {
+        int32 MemberId `会员 ID, offset 0`,
+        char[16] AccountId `清算账户 ID, offset 4`,
+        char[16] ClientId `客户代码 ID, offset 20`,
+    },  // offset 86
+    int64 OrderId `交易系统分配的订单 ID, offset 122`,
+    ExchOrderId ExchOrderId `流动性池子订单 ID, offset 130`,
+    i16 CancelReason `0=用户撤 1=用户批量撤 2=会员撤 4=会员批量撤 5=断线 6=过期 8=管理员 9=IOC 剩余 10=防对倒 11=防交叉订单簿 12=对手方拒绝 14=协商撮合 15=流动性池拒绝 16=流动性池过期, offset 150`,
+    char[20] OrigClorderId `被撤订单的客户订单 ID(可选), offset 152`,
+}
+
+//Table 33. MassCancelReport, msgid=206, size=94
+packet MassCancelReport {
+    GateHeader {
+        Time8n SystemTime `请求处理时间, offset 0`,
+        i16 SourceId `消息来源模块, offset 8`,
+        char[20] ClorderId `客户订单 ID, offset 10`,
+        char[16] UserId `客户网关 ID(可空), offset 30`,
+    },  // offset 0
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 46
+    i8 Mode `7=按登录 23=登录+工具 39=工具+账户 55=工具+客户, offset 52`,
+    Account {
+        int32 MemberId `会员 ID, offset 0`,
+        char[16] AccountId `清算账户 ID, offset 4`,
+        char[16] ClientId `客户代码 ID, offset 20`,
+    },  // offset 53
+    i16 CancelReason `保留, 0, offset 89`,
+    i16 NumOrders `被撤订单数, offset 91`,
+    i8 CancelStatus `0=无可撤 1=已撤 2=部分未定义, offset 93`,
+}
+
+//Table 34. RejectReport, msgid=201, size=91
+packet RejectReport {
+    GateHeader {
+        Time8n SystemTime `请求处理时间, offset 0`,
+        i16 SourceId `消息来源模块, offset 8`,
+        char[20] ClorderId `客户订单 ID, offset 10`,
+        char[16] UserId `客户网关 ID(可空), offset 30`,
+    },  // offset 0
+    i16 Market `拒绝订单的流动性池, offset 46`,
+    i16 Reason `拒绝原因码(附录 A), offset 48`,
+    zchar[33] Message `拒绝参数或文本描述(char32+1), offset 50`,
+    int64 ExtraData0 `按 order_id 撤单被拒时的订单 ID, offset 83`,
+}
+
+//Table 35. CounterReport, msgid=203, size=122
+packet CounterReport {
+    GateHeader {
+        Time8n SystemTime `请求处理时间, offset 0`,
+        i16 SourceId `消息来源模块, offset 8`,
+        char[20] ClorderId `客户订单 ID, offset 10`,
+        char[16] UserId `客户网关 ID(可空), offset 30`,
+    },  // offset 0
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 46
+    i8 Dir `方向: 1=买 2=卖, offset 52`,
+    i8 Type `103=协商, offset 53`,
+    int32 Amount `数量(手), offset 54`,
+    Dec8 Price `价格, offset 58`,
+    Dec8 PriceExtra `附加价格, offset 66`,
+    uint64 Flags `撮合参数位掩码, 同 AddReport.Flags, offset 74`,
+    OtcCodes {
+        Party InitiatorParty `协商订单发送方 ID, offset 0`,
+        Party Ctrparty `协商订单接收方 ID, offset 16`,
+    },  // offset 82
+    int64 OrderId `交易系统分配的订单 ID, offset 114`,
+}
+
+//Table 36. CounterUpdateReport, msgid=209, size=123
+packet CounterUpdateReport {
+    GateHeader {
+        Time8n SystemTime `请求处理时间, offset 0`,
+        i16 SourceId `消息来源模块, offset 8`,
+        char[20] ClorderId `客户订单 ID, offset 10`,
+        char[16] UserId `客户网关 ID(可空), offset 30`,
+    },  // offset 0
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 46
+    i8 Dir `方向: 1=买 2=卖, offset 52`,
+    i8 Type `103=协商, offset 53`,
+    int32 AmountRest `剩余数量(手), offset 54`,
+    Dec8 Price `价格, offset 58`,
+    Dec8 PriceExtra `附加价格, offset 66`,
+    uint64 Flags `撮合参数位掩码, 同 AddReport.Flags, offset 74`,
+    OtcCodes {
+        Party InitiatorParty `协商订单发送方 ID, offset 0`,
+        Party Ctrparty `协商订单接收方 ID, offset 16`,
+    },  // offset 82
+    int64 OrderId `交易系统分配的订单 ID, offset 114`,
+    i8 Reason `0=用户撤 12=对手方拒绝 14=协商撮合成交, offset 122`,
+}
+
+//Table 37. CounterDeclineReport, msgid=208, size=94
+packet CounterDeclineReport {
+    GateHeader {
+        Time8n SystemTime `请求处理时间, offset 0`,
+        i16 SourceId `消息来源模块, offset 8`,
+        char[20] ClorderId `客户订单 ID, offset 10`,
+        char[16] UserId `客户网关 ID(可空), offset 30`,
+    },  // offset 0
+    Instrument {
+        i16 MarketId `流动性池 ID, offset 0`,
+        int32 InstrumentId `交易工具 ID, offset 2`,
+    },  // offset 46
+    i8 Dir `方向: 1=买 2=卖, offset 52`,
+    i8 Type `103=协商, offset 53`,
+    OtcCodes {
+        Party InitiatorParty `协商订单发送方 ID, offset 0`,
+        Party Ctrparty `协商订单接收方 ID, offset 16`,
+    },  // offset 54
+    int64 OrderId `交易系统分配的订单 ID, offset 86`,
+}

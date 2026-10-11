@@ -1,0 +1,410 @@
+// base on reference/深圳证券交易所STEP交易数据接口规范(Ver1.29).pdf
+// TODO not completed
+// 注意: 本文件为 STEP(FIX/ tagged) 模式草稿, 与 sse/step/sse_step_v0.57.pdsl 同款语法。
+// 所依赖的语法(ProtocolType="step"、message 关键字、MetaData 内 @tag(N)、
+// 裸字段名引用字典) 当前 fin-protoc 尚未实现, 编译前需先扩展语法, 需求清单见项目语法缺口文档。
+// 消息清单(规范第 4/5 章):
+//   会话: Logon(A)/Logout(5)/Heartbeat(0)/TestRequest(1)/ResendRequest(2)/Reject(3)/SequenceReset(4)
+//   业务(4.x): U001 注册(转托管)/U002 注册执行报告/U004 投票/U005 投票执行报告/
+//              U006 密码服务/U007 密码服务执行报告/U008 保证金查询/U009 保证金查询结果/
+//              AB 多腿订单/8 多腿订单执行报告
+//   回报管理(5.x): U101 回报同步/U102 平台状态/U103 回报结束/U104 平台信息/UB001 回报占位
+// FIX Tag 速查(规范数据字典): 8 BeginString, 9 BodyLength, 35 MsgType, 10 CheckSum,
+//   49 SenderCompID, 56 TargetCompID, 34 MsgSeqNum, 52 SendingTime, 1150 NextExpectedMsgSeqNum,
+//   1180 ApplID, 522 OwnerType, 60 TransactTime, 11 ClOrdID, 41 OrigClOrdID, 37 OrderID,
+//   17 ExecID, 150 ExecType, 39 OrdStatus, 103 OrdRejReason, 1328 RejectText,
+//   48 SecurityID, 22 SecurityIDSource, 453 NoPartyIDs, 448 PartyID, 447 PartyIDSource,
+//   452 PartyRole, 8502 DesignationInstruction, 8527 DesignationTransType,
+//   8529 VotingProposal, 8530 VotingSubProposal, 8531 VotingPreference,
+//   8539 ValidationCode, 10179 ReportIndex, 10180 PlatformID, 10197 PartitionNo
+options {
+    ProtocolType = "step",
+}
+
+MetaData Basic {
+    @tag(8)
+    char[16] BeginString `起始串，固定FIXT1.1`,
+    @tag(9)
+    int32 BodyLength `消息体长度`,
+}
+
+message Header {
+    BeginString,
+    BodyLength,
+    MsgType,
+    SenderCompID,
+    TargetCompID,
+    MsgSeqNum,
+    SendingTime,
+}
+
+message Trailer {
+    CheckSum,
+}
+
+// ===== 会话消息 =====
+
+message Logon {
+    Header,
+    EncryptMethod(98),
+    HeartBtInt(108),
+    ResetSeqNumFlag(141),
+    NextExpectedMsgSeqNum(1150),
+    Username(553),
+    Password(554),
+    DefaultApplVerID(1137),
+    Trailer,
+}
+
+message Logout {
+    Header,
+    SessionStatus(1400),
+    Text(58),
+    Trailer,
+}
+
+message Heartbeat {
+    Header,
+    TestReqID(112),
+    Trailer,
+}
+
+message TestRequest {
+    Header,
+    TestReqID(112),
+    Trailer,
+}
+
+message ResendRequest {
+    Header,
+    BeginSeqNo(7),
+    EndSeqNo(16),
+    Trailer,
+}
+
+message Reject {
+    Header,
+    RefSeqNum(45),
+    RefTagID(371),
+    RefMsgType(372),
+    SessionRejectReason(373),
+    Text(58),
+    Trailer,
+}
+
+message SequenceReset {
+    Header,
+    GapFillFlag(123),
+    NewSeqNo(36),
+    Trailer,
+}
+
+// ===== 业务消息 4.x =====
+
+//4.7.1 注册（转托管）U001
+message Designation {
+    Header,
+    ApplID(1180),
+    OwnerType(522),
+    TransactTime(60),
+    ClOrdID(11),
+    OrigClOrdID(41),
+    DesignationInstruction(8502),
+    DesignationTransType(8527),
+    SecurityID(48),
+    SecurityIDSource(22),
+    repeat NoPartyIDs(453) {
+        PartyID(448),
+        PartyIDSource(447),
+        PartyRole(452),
+    },
+    OrderQty(38),
+    Text(58),
+    Trailer,
+}
+
+//4.7.2 注册执行报告 U002
+message DesignationReport {
+    Header,
+    PartitionNo(10197),
+    ReportIndex(10179),
+    ApplID(1180),
+    OwnerType(522),
+    TransactTime(60),
+    ClOrdID(11),
+    OrigClOrdID(41),
+    OrderID(37),
+    ExecID(17),
+    ExecType(150),
+    OrdRejReason(103),
+    RejectText(1328),
+    DesignationInstruction(8502),
+    DesignationTransType(8527),
+    SecurityID(48),
+    SecurityIDSource(22),
+    repeat NoPartyIDs(453) {
+        PartyID(448),
+        PartyIDSource(447),
+        PartyRole(452),
+    },
+    OrderQty(38),
+    Text(58),
+    Trailer,
+}
+
+//4.8.1 投票 U004
+message Evote {
+    Header,
+    ApplID(1180),
+    OwnerType(522),
+    TransactTime(60),
+    ClOrdID(11),
+    SecurityID(48),
+    SecurityIDSource(22),
+    repeat NoPartyIDs(453) {
+        PartyID(448),
+        PartyIDSource(447),
+        PartyRole(452),
+    },
+    VotingProposal(8529),
+    VotingSubProposal(8530),
+    VotingPreference(8531),
+    OrderQty(38),
+    Text(58),
+    Trailer,
+}
+
+//4.8.2 投票执行报告 U005
+message EvoteReport {
+    Header,
+    PartitionNo(10197),
+    ReportIndex(10179),
+    ApplID(1180),
+    OwnerType(522),
+    TransactTime(60),
+    ClOrdID(11),
+    OrderID(37),
+    ExecID(17),
+    ExecType(150),
+    OrdRejReason(103),
+    RejectText(1328),
+    SecurityID(48),
+    SecurityIDSource(22),
+    repeat NoPartyIDs(453) {
+        PartyID(448),
+        PartyIDSource(447),
+        PartyRole(452),
+    },
+    VotingProposal(8529),
+    VotingSubProposal(8530),
+    VotingPreference(8531),
+    OrderQty(38),
+    Text(58),
+    Trailer,
+}
+
+//4.9.1 密码服务 U006
+message PasswordService {
+    Header,
+    ApplID(1180),
+    OwnerType(522),
+    TransactTime(60),
+    ClOrdID(11),
+    SecurityID(48),
+    SecurityIDSource(22),
+    repeat NoPartyIDs(453) {
+        PartyID(448),
+        PartyIDSource(447),
+        PartyRole(452),
+    },
+    ValidationCode(8539),
+    Text(58),
+    Trailer,
+}
+
+//4.9.2 密码服务执行报告 U007
+message PasswordServiceReport {
+    Header,
+    PartitionNo(10197),
+    ReportIndex(10179),
+    ApplID(1180),
+    OwnerType(522),
+    TransactTime(60),
+    ClOrdID(11),
+    OrderID(37),
+    ExecID(17),
+    ExecType(150),
+    OrdRejReason(103),
+    RejectText(1328),
+    SecurityID(48),
+    SecurityIDSource(22),
+    repeat NoPartyIDs(453) {
+        PartyID(448),
+        PartyIDSource(447),
+        PartyRole(452),
+    },
+    ValidationCode(8539),
+    Text(58),
+    Trailer,
+}
+
+//4.10.1 保证金查询 U008
+message MarginQuery {
+    Header,
+    ApplID(1180),
+    TransactTime(60),
+    ClOrdID(11),
+    repeat NoPartyIDs(453) {
+        PartyID(448),
+        PartyIDSource(447),
+        PartyRole(452),
+    },
+    Text(58),
+    Trailer,
+}
+
+//4.10.2 保证金查询结果 U009
+message MarginQueryResult {
+    Header,
+    PartitionNo(10197),
+    ReportIndex(10179),
+    ApplID(1180),
+    TransactTime(60),
+    ClOrdID(11),
+    repeat NoPartyIDs(453) {
+        PartyID(448),
+        PartyIDSource(447),
+        PartyRole(452),
+    },
+    repeat NoMarginItems {
+        MarginItem,
+        MarginAmount,
+    },
+    Text(58),
+    Trailer,
+}
+
+//4.11.1 多腿订单 AB
+message NewOrderMultileg {
+    Header,
+    ApplID(1180),
+    ClOrdID(11),
+    OrdType(40),
+    Side(54),
+    OwnerType(522),
+    OrderRestrictions(529),
+    TransactTime(60),
+    SecurityID(48),
+    SecurityIDSource(22),
+    repeat NoPartyIDs(453) {
+        PartyID(448),
+        PartyIDSource(447),
+        PartyRole(452),
+    },
+    CashOrderQty(152),
+    OrderQty(38),
+    repeat NoLegs(555) {
+        LegSecurityID(602),
+        LegSide(624),
+        LegQty(683),
+        LegPrice(684),
+    },
+    SecondaryOrderID(198),
+    SecurityType(167),
+    SecuritySubType(762),
+    Price(44),
+    StopPx(99),
+    TimeInForce(59),
+    Text(58),
+    Trailer,
+}
+
+//4.11.2 多腿订单执行报告 8
+message ExecutionReport {
+    Header,
+    PartitionNo(10197),
+    ReportIndex(10179),
+    ApplID(1180),
+    OwnerType(522),
+    OrderRestrictions(529),
+    ExecID(17),
+    OrderID(37),
+    ExecType(150),
+    OrdStatus(39),
+    LastPx(31),
+    LastQty(32),
+    LeavesQty(151),
+    CumQty(14),
+    OrdRejReason(103),
+    RejectText(1328),
+    Side(54),
+    TransactTime(60),
+    ClOrdID(11),
+    OrigClOrdID(41),
+    repeat NoLegs(555) {
+        LegSecurityID(602),
+        LegSide(624),
+        LegQty(683),
+        LegPrice(684),
+    },
+    Text(58),
+    Trailer,
+}
+
+// ===== 回报管理消息 5.x =====
+
+//5.1 业务拒绝 j
+message BusinessMessageReject {
+    Header,
+    RefSeqNum(45),
+    RefMsgType(372),
+    BusinessRejectReason(380),
+    Text(58),
+    Trailer,
+}
+
+//5.2 回报同步 U101
+message ReportSynchronization {
+    Header,
+    repeat NoPartitions(10196) {
+        PartitionNo(10197),
+        ReportIndex(10179),
+    },
+    Trailer,
+}
+
+//5.3 平台状态 U102
+message PlatformStateInfo {
+    Header,
+    PlatformID(10180),
+    PlatformState(1401),
+    Trailer,
+}
+
+//5.4 回报结束 U103
+message ReportFinished {
+    Header,
+    PartitionNo(10197),
+    ReportIndex(10179),
+    PlatformID(10180),
+    Trailer,
+}
+
+//5.5 平台信息 U104
+message PlatformInfo {
+    Header,
+    PlatformID(10180),
+    repeat NoPartitions(10196) {
+        PartitionNo(10197),
+    },
+    Trailer,
+}
+
+//5.6 回报占位 UB001
+message ReportPlaceholder {
+    Header,
+    PartitionNo(10197),
+    ReportIndex(10179),
+    ApplID(1180),
+    Trailer,
+}
